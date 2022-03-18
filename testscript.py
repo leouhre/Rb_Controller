@@ -14,7 +14,7 @@ rt8.open()
 values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
 	ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4())
 
-channels = (True, True, True, True, True, True, False, False)
+channels = (True, True, True, True, True, True, True, False)
 
 timer = time.time()
 num_of_sensors = 7
