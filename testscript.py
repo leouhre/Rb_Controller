@@ -17,7 +17,7 @@ values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(),
 channels = (True, True, True, True, True, True, False, False)
 
 timer = time.time()
-num_of_sensors = 6
+num_of_sensors = 7
 ret = rt8.getIoGroup(channels, values)
 data = []
 for x in range(num_of_sensors):
