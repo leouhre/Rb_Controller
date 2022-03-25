@@ -63,6 +63,7 @@ except:
 	exit()
 
 psu.remote_on()
+#psu.remote_off()
 
 # Initialize list of sensor values and time
 timer = time.time()
