@@ -77,23 +77,27 @@ t.append(tstamp)
 
 # Initiate measurements at constant voltage
 V = float(input('Set voltage: '))
+psu.set_current(4)
 psu.set_voltage(V)
+psu.output_on()
 
 try:
 	while True:
-		if (time.time() - timer) > 5:
+		if (time.time() - timer) > 1:
 			ret = rt8.getIoGroup(channels, values)
 			for x in range(num_of_sensors):
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
 			print("_________")
 			timer = time.time()
-			tstamp += 5
+			tstamp += 1
 			t.append(tstamp)
-			if values[0].getTemperature() > 25:
-				break
+			#if values[0].getTemperature() > 25:
+			#	break
 except KeyboardInterrupt:
 	pass
+
+psu.output_off()
 
 # Write data to files /data/sensorX.txt
 answer = ''
