@@ -1,0 +1,5 @@
+sensor0 = øverst, på midten, på heater (~x)
+sensor1 = øverst, i siden, på glasset (x)
+sensor2 = bunden, i siden, på glasset (~x)
+sensor3 = bunden, på midten, på heater (x)
+ 
