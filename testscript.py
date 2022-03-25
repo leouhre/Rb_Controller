@@ -112,7 +112,7 @@ if answer == "Y":
 		f.close()
 
 for x in range(num_of_sensors):
-	plt.plot(t, data[x])
+	plt.plot(t, data[x], label='sensor' + str(x))
 plt.legend()
 plt.xlabel('Time (s)')
 plt.ylabel('Temperature (C)')
