@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 import time
+import _thread
 
 # Import functionality of RTD measurement device
 import lucidIo
@@ -25,12 +26,13 @@ for x in range(2):
 		# Identify device
 		ret = rt8.identify(0)
 		if ret == IoReturn.IoReturn.IO_RETURN_OK:
-			print('Device Class:       {0}').format(rt8.getDeviceClassName())
-			print('Device Type:        {0}').format(rt8.getDeviceTypeName())
-			#print('Serial No.:         {0}').format(rt8.getDeviceSnr())
-			#print('Firmware Rev.:      {0}').format(rt8.getRevisionFw())
-			#print('Hardware Rev.:      {0}').format(rt8.getRevisionHw())
-			print('Successfully connected to port {0}'.format(rt8.portName))
+			print('Device Class: ' + str(rt8.getDeviceClassName()))
+			print('Device Type: ' + str(rt8.getDeviceTypeName()))
+			#print('Serial No.: ' + str(rt8.getDeviceSnr()))
+			#print('Firmware Rev.: ' + str(rt8.getRevisionFw()))
+			#print('Hardware Rev.: ' + str(rt8.getRevisionHw()))
+			print('Successfully connected to port ' + str(rt8.portName))
+			break
 		else:
 			print('Identify Error')
 			rt8.close()
@@ -58,7 +60,7 @@ try:
 	psu = ea.PsuEA()
 except: 
 	print('ERROR: No PSU found. Try re-connecting the USB cable')
-	#exit()
+	exit()
 
 psu.remote_on()
 
@@ -77,23 +79,26 @@ t.append(tstamp)
 V = float(input('Set voltage: '))
 psu.set_voltage(V)
 
-while True:
-	if (time.time() - timer) > 5:
-		ret = rt8.getIoGroup(channels, values)
-		for x in range(num_of_sensors):
-			data[x].append(values[x].getTemperature())
-			print(values[x].getTemperature())
-		print("_________")
-		timer = time.time()
-		tstamp += 5
-		t.append(tstamp)
-		if values[0].getTemperature() > 25:
-			break
+try:
+	while True:
+		if (time.time() - timer) > 5:
+			ret = rt8.getIoGroup(channels, values)
+			for x in range(num_of_sensors):
+				data[x].append(values[x].getTemperature())
+				print(values[x].getTemperature())
+			print("_________")
+			timer = time.time()
+			tstamp += 5
+			t.append(tstamp)
+			if values[0].getTemperature() > 25:
+				break
+except KeyboardInterrupt:
+	pass
 
 # Write data to files /data/sensorX.txt
 answer = ''
 while (answer != "Y" and answer != "N"):
-	answer = input('Do you want to write data to files? (Y/N): ')
+	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
 	for x in range(num_of_sensors):
 		f = open("data/sensor" + str(x) + ".txt", "w")
