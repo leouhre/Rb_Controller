@@ -1,0 +1,8 @@
+All sensors placed ON heaters
+sensor0 = 0 (upper)
+sensor1 = 3 (lower)
+sensor2 = 2
+sensor3 = 1
+
+sensor5 = 5
+sensor6 = 4
