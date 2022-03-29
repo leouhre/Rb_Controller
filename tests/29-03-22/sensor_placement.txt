@@ -1,0 +1,4 @@
+sensor0 = top
+sensor1 = mid
+sensor2 = bottom
+sensor3 = mid
