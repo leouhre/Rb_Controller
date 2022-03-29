@@ -1,0 +1,1 @@
+Tried to replicate the 7V test from 25-03-22. Not a success, but this shows the settling temp. for 12V 
