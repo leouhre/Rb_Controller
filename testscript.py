@@ -89,6 +89,8 @@ try:
 			for x in range(num_of_sensors):
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
+				if values[x].getTemperature() > 100:
+					break
 			print("_________")
 			timer = time.time()
 			tstamp += 1
