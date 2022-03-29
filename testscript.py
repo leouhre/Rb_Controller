@@ -84,7 +84,7 @@ psu.output_on()
 
 try:
 	while True:
-		if (time.time() - timer) > 1:
+		if (time.time() - timer) > 10:
 			ret = rt8.getIoGroup(channels, values)
 			for x in range(num_of_sensors):
 				data[x].append(values[x].getTemperature())
@@ -93,7 +93,7 @@ try:
 					break
 			print("_________")
 			timer = time.time()
-			tstamp += 1
+			tstamp += 10
 			t.append(tstamp)
 			#if values[0].getTemperature() > 25:
 			#	break
