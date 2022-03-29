@@ -84,12 +84,15 @@ psu.output_on()
 
 try:
 	while True:
-		if (time.time() - timer) > 1:
+		if (time.time() - timer) > 10:
+			timer = time.time()
+			tstamp += 10
+			t.append(tstamp)
 			ret = rt8.getIoGroup(channels, values)
 			for x in range(num_of_sensors):
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
-				if values[x].getTemperature() > 50:
+				if values[x].getTemperature() > 200:
 					raise KeyboardInterrupt
 			print("_________")
 			timer = time.time()
