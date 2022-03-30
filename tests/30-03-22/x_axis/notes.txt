@@ -1,0 +1,5 @@
+We have decided on a heater placement strategy. The decision on wrapping the heaters verticcally around the cell was based on the fact that this placement strategy makes Dayang's
+"tuning by resistance" possible. Furthermore, we have decided to place the gap on the top of the cell, since the test:
+"C:\Users\leouh\Documents\Rb_Controller\tests\30-03-22\17V_circumference_gap_on_bottom" 
+showed that placing the gap on the bottom just moved the coldest spot down there and therefore the influence on the uniformity is not - if even - significant. We prioritize 
+to optimize uniformity along the x-axis, and placing the gap on the top is possible for all of the heaters, which is not the case for the gap on the bottom because of the "tip"

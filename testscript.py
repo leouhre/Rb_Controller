@@ -87,7 +87,7 @@ try:
 		if (time.time() - timer) > 1:
 			ret = rt8.getIoGroup(channels, values)
 			for x in range(num_of_sensors):
-				if x < 4:
+				if x < 3:
 					continue
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
@@ -110,7 +110,7 @@ while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
 	for x in range(num_of_sensors):
-		if x < 4:
+		if x < 3:
 			continue
 		f = open("data/sensor" + str(x) + ".txt", "w")
 		for i in range(len(data[x])):
@@ -119,7 +119,7 @@ if answer == "Y":
 		f.close()
 
 for x in range(num_of_sensors):
-	if x < 4:
+	if x < 3:
 		continue
 	plt.plot(t, data[x], label='sensor' + str(x))
 plt.legend()

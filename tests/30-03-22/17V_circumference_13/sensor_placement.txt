@@ -1,0 +1,4 @@
+4 = top
+5 = bottom
+6 = side
+7 = side
