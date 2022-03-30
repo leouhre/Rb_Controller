@@ -1,0 +1,2 @@
+close to the ending of the experiment, one sensor was reading an
+infinite resistance. Don't know the source of the problem. 
