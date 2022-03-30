@@ -1,0 +1,4 @@
+4: bottom
+5: thin wire mid (opposite x)
+6: thick wire mid (at x)
+7: top
