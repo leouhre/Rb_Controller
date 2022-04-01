@@ -87,8 +87,6 @@ try:
 		if (time.time() - timer) > 1:
 			ret = rt8.getIoGroup(channels, values)
 			for x in range(num_of_sensors):
-				if x < 3:
-					continue
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
 				#if values[x].getTemperature() > 200:
