@@ -1,3 +1,5 @@
+print("Starting up...")
+
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
@@ -5,7 +7,7 @@ import time
 import sys
 
 # Import functionality of RTD measurement device
-import lucidIo
+# import lucidIo
 from lucidIo.LucidControlRT8 import LucidControlRT8
 from lucidIo.Values import ValueTMS2
 from lucidIo.Values import ValueTMS4
@@ -117,7 +119,7 @@ t = deque()
 t.append(tstamp)
 
 # Initiate measurements at constant voltage
-if len(sys.argv > 1):
+if len(sys.argv) > 1:
 	V = float(sys.argv[1])
 	input("Press any key to begin")
 else: 
