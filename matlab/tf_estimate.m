@@ -1,15 +1,21 @@
-fileID = fopen('step_response/sensor7.txt', 'r');
+load('step_response/sensor5.txt');
 
-formatSpec = '%d %f';
+%fileID = fopen('step_response/sensor7.txt', 'r');
 
-sizeA = [2 Inf];
+%formatSpec = '%d %f';
 
-A = fscanf(fileID,formatSpec,sizeA);
+%sizeA = [2 Inf];
 
-fclose(fileID);
+%A = fscanf(fileID,formatSpec,sizeA);
 
-x = 17*ones(1,length(A));
+%fclose(fileID);
 
-data = iddata(A(2,:),x)
+x = zeros(length(sensor5),1);
+
+x = (zeros(length(sensor5),1),17*ones(length(sensor5),1));
+
+A = [ones(length(sensor5),1)*sensor5(1,2),sensor5(:,2)];
+
+data = iddata(sensor5(:,2),x,1);
 
 tfestimate(x,A(2,:))
