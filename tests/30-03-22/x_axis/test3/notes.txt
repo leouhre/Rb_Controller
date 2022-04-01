@@ -1,0 +1,2 @@
+This test was without the outermost heaters to see if 
+they have any impact on the uniformity along the x-axis.
