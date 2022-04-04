@@ -2,9 +2,9 @@ print("Starting up...")
 
 import matplotlib.pyplot as plt
 import numpy as np
+import time, sys
 from collections import deque
-import time
-import sys
+
 
 # Import functionality of RTD measurement device
 # import lucidIo
@@ -15,6 +15,32 @@ from lucidIo import IoReturn
 
 # Import functionality of power supply unit
 import ea_psu_controller as ea
+
+class PID(): ##added by theo
+    def __init__(self):
+        config = open('config.txt', 'r')
+        self.kp = float(config.readline())
+        self.taui = float(config.readline())
+        #self.kp = kp
+        #self.taui = taui
+        self.ki = self.kp/self.taui
+
+    integral_error = 0
+    error = 0
+    
+    def update_error(self,t,t_target):
+        self.error = t_target - t
+        if abs(self.error) < 10: # only activate integrator if error is less than 5 C
+            self.integral_error = self.integral_error + self.error
+        else:
+            self.integral_error = 0 # reset      #TODO check if this causes errors later?
+    
+    def integral(self):
+        return self.ki*self.integral_error
+
+    def proportional(self):
+        return self.kp*self.error
+
 
 # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
 print("Connecting to /dev/ttyACM", end="")
@@ -128,17 +154,30 @@ psu.set_current(2)
 psu.set_voltage(V)
 psu.output_on()
 
+
+T_target = float(sys.argv[1]) #added by theo 
+PI = PID() # added by theo
+T = 0 #added by theo
+
+
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
 		if (time.time() - timer) > 1:
 			ret = rt8.getIoGroup(channels, values)
+			temp_average = 0 #added by theo
 			for x in range(num_of_sensors):
+				temp_average = temp_average + values[x].getTemperature() #added by theo
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
 				#if values[x].getTemperature() > 200:
 				#	raise KeyboardInterrupt
+			temp_average = temp_average/num_of_sensors ## added by theo
+			print("average: " + temp_average) # added by theo
 			print("_________")
+
+			PI.update_error(T,T_target) #added by theo
+			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) #added by theo
 			timer = time.time()
 			tstamp += 1
 			t.append(tstamp)
