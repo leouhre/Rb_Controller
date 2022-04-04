@@ -1,5 +1,4 @@
 import time, sys
-import matplotlib.pyplot as plt,numpy as np
 
 class PID():
     def __init__(self):
