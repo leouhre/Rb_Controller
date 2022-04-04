@@ -45,7 +45,7 @@ while True:
 
         t = t - 2
 
-        if t < 200:
+        if t > 200:
             break
   
 
