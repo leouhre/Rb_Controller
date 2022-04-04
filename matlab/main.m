@@ -10,4 +10,4 @@ T = string(input(prompt));
 %system(r,'python3 ~/Desktop/Rb_Controller/pid_Test.py ' + T)
 system('python3 pid_Test.py ' + T)
 
-input();
+input("good?");
