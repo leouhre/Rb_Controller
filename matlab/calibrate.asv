@@ -1,5 +1,12 @@
+function [outputArg1,outputArg2] = calibrate(mypi)
+%CALIBRATE Summary of this function goes here
+%   Detailed explanation goes here
+
+% Run calibrate script on Raspberry Pi creating step_response.txt
+system(r,'python ~/Desktop/Rb_Controller/calibrate.py')
+
 % Get step response from data file and save in variable 'temp'
-fileID = fopen('step_response/sensor5.txt', 'r');
+fileID = fopen('step_response/step_response.txt', 'r');
 formatSpec = '%d %f';
 sizeA = [2 Inf];
 temp = fscanf(fileID,formatSpec,sizeA);
@@ -68,4 +75,8 @@ set_temp = 200 - temp(2,1);
 
 model='system_model.slx';
 h = sim(model,1000);
+
+outputArg1 = mypi;
+outputArg2 = inputArg2;
+end
 
