@@ -5,7 +5,6 @@ import numpy as np
 import time, sys
 from collections import deque
 
-
 # Import functionality of RTD measurement device
 # import lucidIo
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -169,9 +168,12 @@ try:
 				temp_average = temp_average + values[x].getTemperature() #added by theo
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
-				#if values[x].getTemperature() > 200:
+				#if values[x].getTemperature() > 190:
 				#	raise KeyboardInterrupt
+				#	T_target = T_target - 20
 			temp_average = temp_average/num_of_sensors ## added by theo
+			if temp_average > 190:
+				T_target = 170			
 			data[num_of_sensors].append(temp_average)			
 			print("average: " + str(temp_average)) # added by theo
 			print("_________")
@@ -185,6 +187,13 @@ try:
 			#	break
 except KeyboardInterrupt:
 	pass
+
+l = len(data[0])
+for x in range(num_of_sensors + 1):
+	if len(data[x]) > l:
+		data[x].pop()
+if len(t) > l:
+	t.pop()
 
 psu.output_off()
 
