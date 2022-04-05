@@ -140,30 +140,31 @@ data = []
 for x in range(num_of_sensors):
 	data.append(deque())
 	data[x].append(values[x].getTemperature())
+data.append(deque())
+data[num_of_sensors].append(values[0].getTemperature())
 tstamp = 0
 t = deque()
 t.append(tstamp)
 
 # Initiate measurements at constant voltage
-if len(sys.argv) > 1:
-	V = float(sys.argv[1])
-	input("Press any key to begin")
-else: 
-	V = float(input('Set voltage: '))
-psu.set_current(2)
-psu.set_voltage(V)
+# if len(sys.argv) > 1:
+#	V = float(sys.argv[1])
+#	input("Press any key to begin")
+# else: 
+#	V = float(input('Set voltage: '))
+psu.set_current(4)
+psu.set_voltage(0)
 psu.output_on()
 
 
 T_target = float(sys.argv[1]) #added by theo 
 PI = PID() # added by theo
-T = 0 #added by theo
 
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
-		if (time.time() - timer) > 1:
+		if (time.time() - timer) > 0.1:
 			ret = rt8.getIoGroup(channels, values)
 			temp_average = 0 #added by theo
 			for x in range(num_of_sensors):
@@ -173,13 +174,14 @@ try:
 				#if values[x].getTemperature() > 200:
 				#	raise KeyboardInterrupt
 			temp_average = temp_average/num_of_sensors ## added by theo
-			print("average: " + temp_average) # added by theo
+			data[num_of_sensors].append(temp_average)			
+			print("average: " + str(temp_average)) # added by theo
 			print("_________")
 
-			PI.update_error(T,T_target) #added by theo
+			PI.update_error(temp_average,T_target) #added by theo
 			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) #added by theo
 			timer = time.time()
-			tstamp += 1
+			tstamp += 0.1
 			t.append(tstamp)
 			#if values[0].getTemperature() > 25:
 			#	break
@@ -194,8 +196,6 @@ while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
 	for x in range(num_of_sensors):
-		if x < 3:
-			continue
 		f = open("data/sensor" + str(x) + ".txt", "w")
 		for i in range(len(data[x])):
 			L = str(data[x][i]) + "\n"
@@ -209,9 +209,8 @@ if answer == "Y":
 
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
-	if x < 3:
-		continue
 	plt.plot(t, data[x], label='sensor' + str(x))
+plt.plot(t, data[num_of_sensors], label='avg')
 plt.legend()
 plt.xlabel('Time (s)')
 plt.ylabel('Temperature (C)')
