@@ -44,5 +44,4 @@ while True:
         print("tempearture " + str(t))
 
         t = t - 2
-  
 
