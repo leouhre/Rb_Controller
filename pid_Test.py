@@ -1,18 +1,31 @@
+from collections import deque
 import time, sys
 from classes.pid import PID
-import classes.myfile_test
+import classes.myfile_test as m
 
+a = deque()
+a.append(1)
+a.append(1)
+a.append(1)
 
+b = deque()
+b.append(2)
+b.append(2)
+b.append(2)
+
+data = []
+for x in range(8):
+	data.append(deque())
+	data[x].append(x)
+
+m.deques_to_txtfile(time=a,voltage=b)
+m.sensors_to_txtfile(data)
 
 timerA = time.time()
 t_target = float(sys.argv[1])
 t = 0
 
 PI = PID()
-#print(globals())
-
-
-classes.myfile_test.declare()
     
 
 while True:
