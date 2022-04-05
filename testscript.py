@@ -21,8 +21,6 @@ class PID(): ##added by theo
         config = open('config.txt', 'r')
         self.kp = float(config.readline())
         self.taui = float(config.readline())
-        #self.kp = kp
-        #self.taui = taui
         self.ki = self.kp/self.taui
 
     integral_error = 0
@@ -135,7 +133,7 @@ psu.remote_on()
 
 # Initialize data list containing a double ended queue (deque) for each sensor. Initialize time queue as well
 timer = time.time()
-ret = rt8.getIoGroup(channels, values)
+rt8.getIoGroup(channels, values)
 data = []
 for x in range(num_of_sensors):
 	data.append(deque())
