@@ -5,7 +5,6 @@ import numpy as np
 import time, sys
 from collections import deque
 
-
 # Import functionality of RTD measurement device
 # import lucidIo
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -187,6 +186,13 @@ try:
 			#	break
 except KeyboardInterrupt:
 	pass
+
+l = len(data[0])
+for x in range(num_of_sensors + 1):
+	if len(data[x]) > l:
+		data[x].pop()
+if len(t) > l:
+	t.pop()
 
 psu.output_off()
 
