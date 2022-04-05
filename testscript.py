@@ -137,8 +137,13 @@ data = []
 for x in range(num_of_sensors):
 	data.append(deque())
 	data[x].append(values[x].getTemperature())
+#average
 data.append(deque())
 data[num_of_sensors].append(values[0].getTemperature())
+# voltage data
+v = deque()
+v.append(0)
+
 tstamp = 0
 t = deque()
 t.append(tstamp)
@@ -171,18 +176,18 @@ try:
 				#if values[x].getTemperature() > 190:
 				#	raise KeyboardInterrupt
 				#	T_target = T_target - 20
-			temp_average = temp_average/num_of_sensors ## added by theo
-			if temp_average > 190:
-				T_target = 170			
+			temp_average = temp_average/num_of_sensors ## added by theo		
 			data[num_of_sensors].append(temp_average)			
 			print("average: " + str(temp_average)) # added by theo
 			print("_________")
 
 			PI.update_error(temp_average,T_target) #added by theo
 			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) #added by theo
+			v.append(PI.proportional() + PI.integral())
 			timer = time.time()
 			tstamp += 0.1
 			t.append(tstamp)
+
 			#if values[0].getTemperature() > 25:
 			#	break
 except KeyboardInterrupt:
@@ -211,6 +216,12 @@ if answer == "Y":
 	f = open("data/time.txt", "w")
 	for i in range(len(t)):
 		L = str(t[i]) + "\n"
+		f.write(L)
+	f.close()
+
+	f = open("data/voltage.txt", "w")
+	for i in range(len(v)):
+		L = str(v[i]) + "\n"
 		f.write(L)
 	f.close()
 
