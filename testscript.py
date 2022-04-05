@@ -19,7 +19,7 @@ from lucidIo import IoReturn
 # Import functionality of power supply unit
 import ea_psu_controller as ea
 
-# Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
+	# Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
 print("Connecting to /dev/ttyACM", end="")
 for x in range(2):
 	print(str(x) + "...")
@@ -55,6 +55,7 @@ for x in range(2):
 			print('Try re-inserting the USB cable')
 			exit()
 
+
 # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
 values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
 	ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4())
@@ -80,7 +81,7 @@ except:
 print("Successfully connected to the EA power supply")
 psu.remote_on()
 
-# Initialize data list containing a double ended queue (deque) for each sensor. Initialize time queue as well
+# Initialize data list containing a double ended queue (deque) for each sensor. Initialize voltage and time queue as well
 timer = time.time()
 rt8.getIoGroup(channels, values)
 data = []
@@ -90,10 +91,12 @@ for x in range(num_of_sensors):
 #average
 data.append(deque())
 data[num_of_sensors].append(values[0].getTemperature())
+
 # voltage data
 v = deque()
 v.append(0)
 
+#time data
 tstamp = 0
 t = deque()
 t.append(tstamp)
@@ -103,8 +106,9 @@ psu.set_current(4)
 psu.set_voltage(0)
 psu.output_on()
 
-
+#temperature from terminal 
 T_target = float(sys.argv[1])
+#initialize PID
 PI = PID() 
 
 
@@ -133,6 +137,7 @@ try:
 except KeyboardInterrupt:
 	pass
 
+#in case keyboardInterrupt happens before in the middle of storing data, discard last element take make the data equal size
 l = len(data[0])
 for x in range(num_of_sensors + 1):
 	if len(data[x]) > l:
