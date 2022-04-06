@@ -6,8 +6,10 @@ import numpy as np
 import time, sys
 from collections import deque
 
+
 #our scripts
 from classes.pid import PID
+import filehandler
 
 # Import functionality of RTD measurement device
 # import lucidIo
@@ -152,6 +154,9 @@ answer = ''
 while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
+	filehandler.deques_to_txtfile(time=t,voltage=v)
+	filehandler.sensors_to_txtfile(data)
+	"""
 	for x in range(num_of_sensors):
 		f = open("data/sensor" + str(x) + ".txt", "w")
 		for i in range(len(data[x])):
@@ -169,7 +174,7 @@ if answer == "Y":
 		L = str(v[i]) + "\n"
 		f.write(L)
 	f.close()
-
+	"""
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
