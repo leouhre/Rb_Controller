@@ -1,0 +1,15 @@
+function connectionFcn(src,~)
+if src.Connected
+   disp("This message is sent by the server after accepting the client connection request.")
+   while 1
+       nBytes = src.NumBytesAvailable;
+       if nBytes > 0
+           data = read(src,nBytes,'string');
+           if len(data) > 5
+               disp(data)
+           elseif 
+          
+else
+   disp("Client has disconnected.")
+end
+end

@@ -12,15 +12,16 @@ T = string(input(prompt));
 system(r,'python3 ~/Desktop/Rb_Controller/pid_Test.py ' + T)
 
 % Run while loop until message is recieved from RPi
-data = '';
-while ~strcmp(data,'ready')    
+while strcmp(data    
     while 1
         nBytes = t.NumBytesAvailable;
         if nBytes > 0
             break;
         end
     end
-    data = read(t,nBytes,'string');
-end
 
-%continue script...
+% Read the message and continue if 'ready'
+data = read(t,nBytes,'string');
+if strcmp(data,'ready')
+%    return 1
+end

@@ -9,7 +9,7 @@ while ~strcmp(data,'ready')
     while 1
         nBytes = t.NumBytesAvailable;
         if nBytes > 0
-            break;
+            break;<
         end
     end
     data = read(t,nBytes,'string');
