@@ -72,6 +72,7 @@ STOP_RUNNING = False
 
 # Create a connection to the server application on port 81
 tcp_socket = socket.create_connection(('192.168.137.1', 4000))
+tcp_socket.setblocking(0)
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 while not STOP_RUNNING:
@@ -83,6 +84,11 @@ while not STOP_RUNNING:
         for x in range(num_of_sensors):
             temperature_average = temperature_average + np.random.random_sample() #values[x].getTemperature()
         temperature_average = temperature_average/num_of_sensors 	
+
+        try:
+            message = tcp_socket.recv(1024)
+        except socket.error:
+            print("no message")
 
         match x:
             case 1: #Temperatur given
