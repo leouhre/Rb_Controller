@@ -22,3 +22,6 @@ class PID():
 
     def proportional(self):
         return self.kp*self.error
+    
+    def regulate_output(self):
+        return max(min(self.proportional() + self.integral(),28),0)
