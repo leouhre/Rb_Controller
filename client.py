@@ -3,7 +3,9 @@ import sys
 import time
  
 # Create a connection to the server application on port 81
-tcp_socket = socket.create_connection(('192.168.137.1', 4000))
+#tcp_socket = socket.create_connection(('192.168.137.1', 4000))
+tcp_socket = socket.create_connection(('localhost', 4000))
+
 
 timer = time.time()
 count = 0
