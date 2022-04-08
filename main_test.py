@@ -1,6 +1,8 @@
-FREQUENCY = 0.1
+FREQUENCY = 2
 
 #python packages
+from encodings import utf_8
+import string
 import matplotlib.pyplot as plt
 import numpy as np
 import time, sys
@@ -69,9 +71,13 @@ pid = PID()
 
 #FLAG
 STOP_RUNNING = False
+STOP_REGULATING = True
+BYPASS_MODE = False
+temperature_target = 0
+count = 0
 
 # Create a connection to the server application on port 81
-tcp_socket = socket.create_connection(('192.168.137.1', 4000))
+tcp_socket = socket.create_connection(('localhost', 4000))
 tcp_socket.setblocking(0)
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
@@ -83,25 +89,26 @@ while not STOP_RUNNING:
         temperature_average = 0
         for x in range(num_of_sensors):
             temperature_average = temperature_average + np.random.random_sample() #values[x].getTemperature()
-        temperature_average = temperature_average/num_of_sensors 	
+        temperature_average = temperature_average/num_of_sensors 
 
         try:
-            message = tcp_socket.recv(1024)
-        except socket.error:
-            print("no message")
+            message = tcp_socket.recv(1024).decode("utf_8")
+        except:
+            message = "hello"
+            print("no message")	
 
-        match x:
-            case 1: #Temperatur given
-                temperature_target = 100
-                print("1")
+        match str(message[0]):
+            case "t": #Temperatur given
+                temperature_target = int(message[2:5])
+                print(temperature_target)
                 STOP_REGULATING = False
-            case 2: #stop regulating
+            case "r": #stop regulating
                 STOP_REGULATING = True
                 print("2")
-            case 3: #stop program
+            case "o": #stop program
                 STOP_RUNNING = True
                 print("3")
-            case 4: #Bypass mode
+            case "b": #Bypass mode
                 BYPASS_MODE = True
                 print("4")
                 print("psu.remote_off()")

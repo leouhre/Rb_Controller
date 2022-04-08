@@ -2,8 +2,8 @@ clear all
 
 r = raspi('169.254.45.126','pi','raspberry');
 
-t = tcpserver("169.254.15.3",4000,"ConnectionChangedFcn",@connectionFcn);
-%t = tcpserver("localhost",4000,"ConnectionChangedFcn",@connectionFcn);
+%t = tcpserver("169.254.15.3",4000,"ConnectionChangedFcn",@connectionFcn);
+t = tcpserver("localhost",4000,"ConnectionChangedFcn",@connectionFcn);
 
 system(r,'python3 ~/Desktop/Rb_Controller/client.py &')
 
