@@ -20,7 +20,7 @@ from lucidIo import IoReturn
 
 # Import functionality of power supply unit
 import ea_psu_controller as ea
-
+"""
 # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
 for x in range(2):
 	rt8 = LucidControlRT8('/dev/ttyACM' + str(x))
@@ -54,15 +54,16 @@ for x in range(8):
 # Initialize the Elektro-Automatik Power Supply
 psu = ea.PsuEA()
 psu.remote_on()
-
+"""
 #timer
 timer = time.time()
-
+num_of_sensors = 2
 # Initiate measurements at constant voltage
+"""
 psu.set_current(4)
 psu.set_voltage(0)
 psu.output_on()
-
+"""
 #initialize PID
 pid = PID() 
 
@@ -76,32 +77,38 @@ tcp_socket = socket.create_connection(('192.168.137.1', 4000))
 while not STOP_RUNNING:
     if (time.time() - timer) > FREQUENCY:
 
-        ret = rt8.getIoGroup(channels, values)
+        #ret = rt8.getIoGroup(channels, values)
 
         temperature_average = 0
         for x in range(num_of_sensors):
-            temperature_average = temperature_average + values[x].getTemperature()
+            temperature_average = temperature_average + np.random.random_sample() #values[x].getTemperature()
         temperature_average = temperature_average/num_of_sensors 	
 
         match x:
             case 1: #Temperatur given
-                temperature_target = sys
+                temperature_target = 100
+                print("1")
                 STOP_REGULATING = False
             case 2: #stop regulating
                 STOP_REGULATING = True
+                print("2")
             case 3: #stop program
                 STOP_RUNNING = True
+                print("3")
             case 4: #Bypass mode
                 BYPASS_MODE = True
-                psu.remote_off()
+                print("4")
+                print("psu.remote_off()")
                 while BYPASS_MODE:
+                    print("bypass mode")
                     if "not bypass mode":
-                        psu.remote_on()
+                        print("psu.remote_on()")
                         break
 
         if not STOP_REGULATING:
-            pid.update_error(temperature_average,temperature_target)
-            psu.set_voltage(pid.regulate_output()) 
+            print("regulating")
+            #pid.update_error(temperature_average,temperature_target)
+            #psu.set_voltage(pid.regulate_output()) 
         
 
         if abs(temperature_target - temperature_average) < 1:
@@ -116,6 +123,6 @@ while not STOP_RUNNING:
                 
 
 
-psu.output_off()
+#psu.output_off()
 tcp_socket.close()
 
