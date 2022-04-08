@@ -1,43 +1,36 @@
 from collections import deque
 import time, sys
 from classes.pid import PID
-import classes.myfile_test as m
-
-a = deque()
-a.append(1)
-a.append(1)
-a.append(1)
-
-b = deque()
-b.append(2)
-b.append(2)
-b.append(2)
-
-data = []
-for x in range(8):
-	data.append(deque())
-	data[x].append(x)
-
-m.deques_to_txtfile(time=a,voltage=b)
-m.sensors_to_txtfile(data)
-
-timerA = time.time()
-t_target = float(sys.argv[1])
-t = 0
 
 PI = PID()
     
+timer = time.time()
+    
 
 while True:
-    if (time.time() - timerA) > 2:
-        timerA = time.time()
+    if (time.time() - timer) > 1:
+        x = input()
+        match x:
+            case "0": #no message  
+                print("0")
+            case "1": #Temperatur given
+                temperature_target = sys
+                STOP_REGULATING = False
+                print("1")
+            case "2": #stop regulating
+                STOP_REGULATING = True
+                print("2")
+            case "3": #stop program
+                STOP_RUNNING = True
+                print("3")
+            case "4": #Bypass mode
+                BYPASS_MODE = True
+                print("4")
+                while BYPASS_MODE:
+                    print("while")
+                    if int(input()) == 4:
 
-        PI.update_error(t,t_target)
-        t = t + max(min(PI.proportional() + PI.integral(),28),0) #saturation at 28V and o lower than 0V
+                        print("break")
+                        break
 
-        print("tempearture " + str(t))
-
-        t = t - 2
-        if abs(t_target - t) < 10:
-            break
 
