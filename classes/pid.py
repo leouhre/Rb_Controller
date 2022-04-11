@@ -1,7 +1,7 @@
 
 class PID():
     def __init__(self):
-        config = open('config.txt', 'r')
+        config = open('C:\\Users\\leouh\\Documents\\Rb_Controller\\config.txt', 'r')
         self.kp = float(config.readline())
         self.taui = float(config.readline())
         self.ki = self.kp/self.taui

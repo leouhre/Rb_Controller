@@ -1,2 +1,4 @@
 clear all
-init()
+[status,r,t] = init();
+
+disp(status)

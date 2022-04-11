@@ -9,9 +9,8 @@ t = tcpserver("localhost",4000,"ConnectionChangedFcn",@connectionFcn,"Timeout",1
 system('python C:\Users\leouh\Documents\Rb_Controller\main_test.py &')
 
 status = read(t,5,'string');
-if isempty(status)
-    status = 'The Raspberry Pi was unable to make the necessary connections. Check the USB ports and try again.';
-end
+if isEmpty(status)
+    status = timeout
 
 
 % Run while loop until message is recieved from RPi

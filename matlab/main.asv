@@ -1,0 +1,12 @@
+clear all
+[status,r,t] = init();
+lastwarn('');
+try
+  fread(s)
+  if(~isempty(lastwarn))
+     error(lastwarn)
+  end
+catch err
+   err
+end
+disp(status)

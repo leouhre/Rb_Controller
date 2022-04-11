@@ -80,6 +80,8 @@ count = 0
 tcp_socket = socket.create_connection(('localhost', 4000))
 tcp_socket.setblocking(0)
 
+#tcp_socket.sendall("ready".encode())
+
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 while not STOP_RUNNING:
     if (time.time() - timer) > FREQUENCY:
