@@ -1,6 +1,6 @@
-function y = setTemp(t,T)
+function bypass(t)
 %SETTEMP Summary of this function goes here
 %   Detailed explanation goes here
-y = write("t  + T");
+L = strcat("b");
+write(t,L);
 end
-

@@ -1,0 +1,4 @@
+ea-psu-controller==1.1.0
+pyLucidIo>=2.1.1
+pyserial>=3.5
+numpy>=1.21.5
