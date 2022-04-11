@@ -1,0 +1,6 @@
+function y = setTemp(t,T)
+%SETTEMP Summary of this function goes here
+%   Detailed explanation goes here
+y = write("t  + T");
+end
+

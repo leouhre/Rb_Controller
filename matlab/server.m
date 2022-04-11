@@ -1,7 +1,11 @@
 clear all
-t = tcpserver("192.168.137.1",4000,"ConnectionChangedFcn",@connectionFcn);
 
-pause(5)
+r = raspi('169.254.45.126','pi','raspberry');
+
+%t = tcpserver("169.254.15.3",4000,"ConnectionChangedFcn",@connectionFcn);
+t = tcpserver("localhost",4000,"ConnectionChangedFcn",@connectionFcn);
+
+system(r,'python3 ~/Desktop/Rb_Controller/client.py &')
 
 % Run while loop until message is recieved from RPi
 data = '';
