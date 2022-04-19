@@ -1,10 +1,11 @@
+from pathlib import Path
 
 class PID():
     def __init__(self):
-        config = open('C:\\Users\\leouh\\Documents\\Rb_Controller\\config.txt', 'r')
-        self.kp = float(config.readline())
-        self.taui = float(config.readline())
-        self.ki = self.kp/self.taui
+        with open(Path.cwd() / '..' / 'config.txt', 'r') as config:
+            self.kp = float(config.readline())
+            self.taui = float(config.readline())
+            self.ki = self.kp/self.taui
 
     integral_error = 0
     error = 0
