@@ -105,7 +105,7 @@ t.append(tstamp)
 
 # Initiate measurements at constant voltage
 psu.set_current(4)
-psu.set_voltage(0)
+psu.set_voltage(int(input("set voltage")))
 psu.output_on()
 
 #temperature from terminal 
@@ -124,6 +124,7 @@ try:
 				temp_average = temp_average + values[x].getTemperature()
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
+			"""
 			temp_average = temp_average/num_of_sensors 	
 			data[num_of_sensors].append(temp_average)			
 			print("average: " + str(temp_average)) 
@@ -132,6 +133,8 @@ try:
 			PI.update_error(temp_average,T_target)
 			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
 			v.append(PI.proportional() + PI.integral())
+			"""
+
 			timer = time.time()
 			tstamp += 0.1
 			t.append(tstamp)
@@ -154,6 +157,7 @@ answer = ''
 while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
+	"""
 	filehandler.deques_to_txtfile(time=t,voltage=v)
 	filehandler.sensors_to_txtfile(data)
 	"""
@@ -169,12 +173,12 @@ if answer == "Y":
 		f.write(L)
 	f.close()
 
-	f = open("data/voltage.txt", "w")
+	f = open("data/voltage.ftxt", "w")
 	for i in range(len(v)):
 		L = str(v[i]) + "\n"
 		f.write(L)
 	f.close()
-	"""
+	
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
