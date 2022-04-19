@@ -67,7 +67,7 @@ psu.set_voltage(0)
 psu.output_on()
 """
 #initialize PID
-pid = PID() 
+pid = PID
 
 #FLAG
 STOP_RUNNING = False
