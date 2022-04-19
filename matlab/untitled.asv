@@ -1,0 +1,17 @@
+%% Renormalize a t r a n s f e r func t i on to 1
+% take s a t r a n s f e r func t i on (TF) as input
+% r e turns a TF where the term with the lowe s t potency
+% in the denominator i s normalized
+function [sys1] = norm1(sy)
+    [num,den] = tfdata(sy); % Extract polynomium v e c t o r s
+    a = 0; % i n i t i a l i z e a
+    m = size(den{1},2); % ge t s i z e o f denominator polynomial
+    for n = m:-1 : 1 % i t e r a t e the denominator
+i f a == 0 % as long as the term with
+a = den {1}(n) ; % the lowe s t potency i s z e r o .
+end
+end
+num1 = num{1}/ a ; % r e s c a l e the numerator and
+den1 = den {1}/ a ; % denominator
+sys1 = t f (num1 , den1 ) ; % g ene r a t e the output t r a n s f e r func t i on
+end

@@ -20,8 +20,9 @@ y = transpose([zeros(1,length(temp)),temp(2,:) - temp(2,1)]);
 
 % Estimate the transfer function for the system (np = number of poles)
 data = iddata(y,u,1);
-np = 4;
-sys = tfest(data,np);
+np = 2;
+nz = 0;
+sys = tfest(data,np,nz);
 
 % To validate the system transfer function, try simulating a 17V response
 %figure(2)
