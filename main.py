@@ -1,4 +1,4 @@
-FREQUENCY = 0.1
+FREQUENCY = 10
 
 #python packages
 import matplotlib.pyplot as plt
@@ -73,9 +73,11 @@ STOP_RUNNING = False
 tcp_socket = socket.create_connection(('192.168.137.1', 4000))
 tcp_socket.setblocking(0)
 
+tcp_socket.sendall("connected".encode())
+
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 while not STOP_RUNNING:
-    if (time.time() - timer) > FREQUENCY:
+    if (time.time() - timer) > 1/FREQUENCY:
 
         ret = rt8.getIoGroup(channels, values)
 
@@ -124,4 +126,4 @@ while not STOP_RUNNING:
 
 psu.output_off()
 tcp_socket.close()
-
+rt8.close()
