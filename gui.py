@@ -42,7 +42,7 @@ def gui():
 
 
     app = App("Dream GUI",bg="#5B5A51",width=800,height=480)
-    #app.full_screen = True
+    app.full_screen = True
 
 
     title_box = Box(app, width='fill',align='top',border=True)

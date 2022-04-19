@@ -111,7 +111,7 @@ psu.output_on()
 #temperature from terminal 
 T_target = float(sys.argv[1])
 #initialize PID
-PI = PID() 
+#PI = PID() 
 
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
@@ -119,11 +119,13 @@ try:
 	while True:
 		if (time.time() - timer) > 0.1:
 			ret = rt8.getIoGroup(channels, values)
-			temp_average = 0 # 
+			temp_average = 0
+			print(tstamp) 
 			for x in range(num_of_sensors):
 				temp_average = temp_average + values[x].getTemperature()
 				data[x].append(values[x].getTemperature())
 				print(values[x].getTemperature())
+			print("____________")
 			"""
 			temp_average = temp_average/num_of_sensors 	
 			data[num_of_sensors].append(temp_average)			
@@ -182,7 +184,7 @@ if answer == "Y":
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
-plt.plot(t, data[num_of_sensors], label='avg')
+#plt.plot(t, data[num_of_sensors], label='avg')
 plt.legend()
 plt.xlabel('Time (s)')
 plt.ylabel('Temperature (C)')
