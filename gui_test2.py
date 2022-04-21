@@ -1,7 +1,10 @@
 from guizero import App, Combo,Text, CheckBox, ButtonGroup, PushButton, info
+from classes.pid import PID
 
 def do_booking():
     info("Booking", "Thank you for booking")
+
+PI = PID()
 
 app = App(title="My second GUI app", width=300, height=200, layout="grid")
 
@@ -22,3 +25,5 @@ app.display()
 print( film_choice.value )
 print( vip_seat.value )
 print( row_choice.value )
+
+print(PI.ki)
