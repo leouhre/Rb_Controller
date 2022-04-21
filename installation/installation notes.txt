@@ -1,0 +1,19 @@
+- install Raspberry Pi OS on SD card
+- rotate display
+- install virtual keyboard (sudo apt install matchbox-keyboard)
+- setup virtual ip address (https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
+  (virtual IP: 192.168.137.132)
+- install python 3.10.4 (https://allurcode.com/install-latest-version-of-python-on-raspberry-pi/) 
+- virtual environment setup (https://docs.python.org/3/tutorial/venv.html)
+  (source .venv/RbController/bin/activate)
+- git setup (git clone)
+- update pip and install requirements.txt (from ~/Rb_Controller run pip install -r requirements.txt)
+- I had to fix pip by going into ~/Python3.10.4/ and run './configure' then 'make' and then 'sudo make install' 
+  and then re-run pip install requirements (this step takes ~1hr)
+- In order to install matplotlib, run:
+  sudo apt-get install libjpeg-dev
+  sudo apt-get install zlib1g-dev
+  sudo apt-get install libpng-dev
+- pip install matplotlib
+-  - matlab setup
+-  - 
