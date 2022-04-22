@@ -16,7 +16,6 @@ from lucidIo import IoReturn
 import ea_psu_controller as ea
 
 class loop(threading.Thread):
-
     def __init__(self):
         threading.Thread.__init__(self)
         self.FREQUENCY = 0.1
@@ -70,7 +69,7 @@ class loop(threading.Thread):
 
             globals.temperature_average = 0
             for value in self.values:
-                globals.temperature_average += value.getTemperature()*1/self.num_of_sensors
+                globals.temperature_average += value.getTemperature()/self.num_of_sensors
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
@@ -85,22 +84,21 @@ class loop(threading.Thread):
                     globals.STOP_REGULATING = False
                 case "r": #stop regulating
                     globals.STOP_REGULATING = True
-                    print("2")
+
                 case "o": #stop program
                     globals.STOP_RUNNING = True
-                    print("3")
+
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = True
-                    print("4")
-                    print("psu.remote_off()")
+
                     while globals.BYPASS_MODE:
-                        print("bypass mode")
-                        if "not bypass mode":
+                        time.sleep(1)
+                        if not globals.BYPASS_MODE:
                             print("psu.remote_on()")
                             break
 
             if not globals.STOP_REGULATING:
-                self.pid.update_error(globals.temperature_average,globals.temperature_target)
+                self.pid.update_error(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(self.pid.regulate_output())
             
 
@@ -114,6 +112,6 @@ class loop(threading.Thread):
 
             time.sleep(self.FREQUENCY)
 
-        loop.psu.output_off()
-        loop.tcp_socket.close()
-        loop.rt8.close()
+        self.psu.output_off()
+        self.tcp_socket.close()
+        self.rt8.close()
