@@ -9,8 +9,6 @@ import globals
 
 globals.initialize_variables()
 
-
-
 #create threads
 ui_thread = ui.ui()
 main_loop_thread = loop.loop()

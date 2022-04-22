@@ -57,12 +57,14 @@ class loop(threading.Thread):
         #initialize PID
         self.pid = PID()
 
+        print('pid')
         # Create a connection to the server application on port 81
         self.tcp_socket = socket.create_connection(('192.168.137.1', 4000))
         self.tcp_socket.setblocking(0)
 
         self.tcp_socket.sendall("connected".encode())
 
+        print('socket ')
 def run(self):
 
     # Loop
@@ -94,7 +96,7 @@ def run(self):
                 globals.BYPASS_MODE = True
                 print("4")
                 print("psu.remote_off()")
-                while BYPASS_MODE:
+                while globals.BYPASS_MODE:
                     print("bypass mode")
                     if "not bypass mode":
                         print("psu.remote_on()")
