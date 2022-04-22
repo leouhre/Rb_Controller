@@ -1,4 +1,5 @@
 #python packages
+from queue import Empty
 import time, threading, socket
 
 #our scripts
@@ -91,11 +92,12 @@ class loop(threading.Thread):
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = True
 
-                    while globals.BYPASS_MODE:
-                        time.sleep(1)
-                        if not globals.BYPASS_MODE:
-                            print("psu.remote_on()")
-                            break
+            while globals.BYPASS_MODE:
+                self.psu.output_off()
+                self.psu.remtote_off()
+                time.sleep(1)
+            
+            self.psu.remtote_on()
 
             if not globals.STOP_REGULATING:
                 self.pid.update_error(globals.temperature_average, globals.temperature_target)
