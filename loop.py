@@ -113,3 +113,7 @@ class loop(threading.Thread):
             
 
             time.sleep(self.FREQUENCY)
+
+        loop.psu.output_off()
+        loop.tcp_socket.close()
+        loop.rt8.close()
