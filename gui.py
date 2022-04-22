@@ -18,8 +18,8 @@ from lucidIo import IoReturn
 import ea_psu_controller as ea
 
 FREQUENCY = 0.1
-target_temperature = 0
-average_temperature = 0
+temperature_target = 0
+temperature_average = 0
 BYPASS_MODE = 0
 STOP_REGULATING = 0
 
@@ -27,8 +27,8 @@ def clamp(val,min_val,max_val):
     return max(min(val,max_val),min_val)
 
 def set_target_temperature(x):
-    global target_temperature
-    target_temperature = clamp(x,30,200) #set bounds for temperature
+    global temperature_target
+    temperature_target = clamp(x,30,200) #set bounds for temperature
 
 def gui():
 
@@ -41,21 +41,21 @@ def gui():
             pass
     
     def increase_temperature():
-        global target_temperature
-        set_target_temperature(target_temperature + 1)
-        settemp.value = target_temperature
+        global temperature_target
+        set_target_temperature(temperature_target + 1)
+        settemp.value = temperature_target
     
     def decrease_temperature():
-        global target_temperature
-        set_target_temperature(target_temperature - 1)
-        settemp.value = target_temperature
+        global temperature_target
+        set_target_temperature(temperature_target - 1)
+        settemp.value = temperature_target
 
     def update_time():
         clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
 
     def update_temperature():
-        global average_temperature
-        temp.value = "{:4.1f}".format(average_temperature)
+        global temperature_average
+        temp.value = "{:4.1f}".format(temperature_average)
     
     def set_bypass_mode():
         global BYPASS_MODE
@@ -199,7 +199,7 @@ def main_loop():
 
     # Loop 
     while not STOP_RUNNING:
-        global average_temperature
+        global temperature_average
         global temperature_target
         global STOP_REGULATING
         global BYPASS_MODE
