@@ -1,5 +1,6 @@
 import threading, time
 from guizero import App, Text, Box,TextBox, PushButton, CheckBox, Slider
+from loop import BYPASS_MODE, temperature_average, temperature_target
 
 class ui(threading.Thread):
     def __init__(self):
