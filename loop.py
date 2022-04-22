@@ -15,11 +15,10 @@ from lucidIo import IoReturn
 # Import functionality of power supply unit
 import ea_psu_controller as ea
 
-class loop():
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.FREQUENCY = 0.1
+class loop(threading.Thread):
 
+    def __init__(self):
+        self.FREQUENCY = 0.1
         # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
         for x in range(2):
             self.rt8 = LucidControlRT8('/dev/ttyACM' + str(x))

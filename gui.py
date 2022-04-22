@@ -84,7 +84,7 @@ def gui():
 
 
     app = App("Dream GUI",bg="#5B5A51",width=800,height=480)
-    app.full_screen = True
+    #app.full_screen = True
 
 
     title_box = Box(app, width='fill',align='top',border=True)
@@ -251,12 +251,10 @@ def main_loop():
             count = 0
         
         time.sleep(FREQUENCY)
-                
     
     psu.output_off()
     tcp_socket.close()
     rt8.close()
-
 
 
 gui_thread = threading.Thread(target=gui,)
@@ -265,3 +263,7 @@ main_loop_thread = threading.Thread(target=main_loop)
 
 gui_thread.start()
 main_loop_thread.start()
+
+gui_thread.join()
+main_loop_thread.join()
+

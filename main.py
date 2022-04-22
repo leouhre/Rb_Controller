@@ -4,7 +4,7 @@ import threading
 #our scripts
 from classes.pid import PID
 import ui
-import loop
+#import loop
 
 target_temperature = 0
 temperature = 0
@@ -14,14 +14,14 @@ STOP_REGULATING = False
 
 
 ui_thread = ui.ui()
-main_loop_thread = loop.loop()
+#main_loop_thread = loop.loop()
 
 
 ui_thread.start()
-main_loop_thread.start()
+#main_loop_thread.start()
 
 ui_thread.join()
-main_loop_thread.join()
+#main_loop_thread.join()
 
 loop.psu.output_off()
 loop.tcp_socket.close()

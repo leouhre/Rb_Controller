@@ -1,9 +1,10 @@
 import threading, time
 from guizero import App, Text, Box,TextBox, PushButton, CheckBox, Slider
 
-class ui():
-    def __init__(self):
-        threading.Thread.__init__(self)
+class ui(threading.Thread):
+    
+    #def __init__(self):
+    #    threading.Thread.__init__(self)
 
     def clamp(self,val,min_val,max_val):
         return max(min(val,max_val),min_val)
