@@ -194,7 +194,7 @@ def main_loop():
     # Create a connection to the server application on port 81
     tcp_socket = socket.create_connection(('192.168.137.1', 4000))
     tcp_socket.setblocking(0)
-    tcp_socket.sendall("connected".encode())
+    tcp_socket.sendall("connected\n".encode())
 
 
     # Loop 
