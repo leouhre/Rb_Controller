@@ -114,3 +114,5 @@ class ui(threading.Thread):
 
 
         app.display()
+
+        globals.STOP_RUNNING = True
