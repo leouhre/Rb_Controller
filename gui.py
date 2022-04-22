@@ -19,7 +19,7 @@ import ea_psu_controller as ea
 
 FREQUENCY = 0.1
 target_temperature = 0
-temperature = 0
+average_temperature = 0
 BYPASS_MODE = 0
 STOP_REGULATING = 0
 
@@ -54,8 +54,8 @@ def gui():
         clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
 
     def update_temperature():
-        global temperature
-        temp.value = "{:4.1f}".format(temperature)
+        global average_temperature
+        temp.value = "{:4.1f}".format(average_temperature)
     
     def set_bypass_mode():
         global BYPASS_MODE
@@ -199,7 +199,7 @@ def main_loop():
 
     # Loop 
     while not STOP_RUNNING:
-        global temperature
+        global average_temperature
         global temperature_target
         global STOP_REGULATING
         global BYPASS_MODE
