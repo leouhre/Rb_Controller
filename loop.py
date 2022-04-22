@@ -65,58 +65,58 @@ class loop(threading.Thread):
         self.tcp_socket.sendall("connected".encode())
         print('socket ')
 
-def run(self):
-    print('run')
-    # Loop
-    while not globals.STOP_RUNNING:
-        print('rt8')
-        self.rt8.getIoGroup(self.channels, self.values)
+    def run(self):
+        print('run')
+        # Loop
+        while not globals.STOP_RUNNING:
+            print('rt8')
+            self.rt8.getIoGroup(self.channels, self.values)
 
-        globals.temperature_average = 0
-        for value in self.values:
-            globals.temperature_average = globals.temperature_average + value.getTemperature()
-        print(globals.temperature_average)
-        print('try')
-        try:
-            message = self.tcp_socket.recv(1024).decode("utf_8")
-        except:
-            message = "hello"
-            print("no message")	
+            globals.temperature_average = 0
+            for value in self.values:
+                globals.temperature_average = globals.temperature_average + value.getTemperature()
+            print(globals.temperature_average)
+            print('try')
+            try:
+                message = self.tcp_socket.recv(1024).decode("utf_8")
+            except:
+                message = "hello"
+                print("no message")	
 
-        print('message')
-        match str(message[0]):
-            case "t": #Temperatur given
-                globals.temperature_target = int(message[2:5])
-                print(globals.temperature_target)
-                globals.STOP_REGULATING = False
-            case "r": #stop regulating
-                globals.STOP_REGULATING = True
-                print("2")
-            case "o": #stop program
-                globals.STOP_RUNNING = True
-                print("3")
-            case "b": #Bypass mode
-                globals.BYPASS_MODE = True
-                print("4")
-                print("psu.remote_off()")
-                while globals.BYPASS_MODE:
-                    print("bypass mode")
-                    if "not bypass mode":
-                        print("psu.remote_on()")
-                        break
+            print('message')
+            match str(message[0]):
+                case "t": #Temperatur given
+                    globals.temperature_target = int(message[2:5])
+                    print(globals.temperature_target)
+                    globals.STOP_REGULATING = False
+                case "r": #stop regulating
+                    globals.STOP_REGULATING = True
+                    print("2")
+                case "o": #stop program
+                    globals.STOP_RUNNING = True
+                    print("3")
+                case "b": #Bypass mode
+                    globals.BYPASS_MODE = True
+                    print("4")
+                    print("psu.remote_off()")
+                    while globals.BYPASS_MODE:
+                        print("bypass mode")
+                        if "not bypass mode":
+                            print("psu.remote_on()")
+                            break
 
-        if not globals.STOP_REGULATING:
-            self.pid.update_error(globals.temperature_average,globals.temperature_target)
-            self.psu.set_voltage(self.pid.regulate_output())
-            print('regulated') 
-        
+            if not globals.STOP_REGULATING:
+                self.pid.update_error(globals.temperature_average,globals.temperature_target)
+                self.psu.set_voltage(self.pid.regulate_output())
+                print('regulated') 
+            
 
-        if abs(globals.temperature_target - globals.temperature_average) < 1:
-            count = count + 1
-            if count == 100: #Temperature has been within 1C of target for more at least 100 samples
-                self.tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
-        else: 
-            count = 0
-        
+            if abs(globals.temperature_target - globals.temperature_average) < 1:
+                count = count + 1
+                if count == 100: #Temperature has been within 1C of target for more at least 100 samples
+                    self.tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+            else: 
+                count = 0
+            
 
-        time.sleep(self.FREQUENCY)
+            time.sleep(self.FREQUENCY)
