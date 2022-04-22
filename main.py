@@ -3,7 +3,7 @@ import threading
 
 #our scripts
 import ui
-#import loop
+import loop
 
 target_temperature = 0
 temperature = 0
@@ -17,10 +17,10 @@ main_loop_thread = loop.loop()
 
 
 ui_thread.start()
-#main_loop_thread.start()
+main_loop_thread.start()
 
 ui_thread.join()
-#main_loop_thread.join()
+main_loop_thread.join()
 
 loop.psu.output_off()
 loop.tcp_socket.close()
