@@ -54,7 +54,7 @@ class loop(threading.Thread):
         self.psu.output_on()
 
         #initialize PID
-        self.pid = PID
+        self.pid = PID()
 
         #FLAG
         global STOP_RUNNING

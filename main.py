@@ -2,7 +2,6 @@
 import threading
 
 #our scripts
-from classes.pid import PID
 import ui
 #import loop
 
@@ -14,7 +13,7 @@ STOP_REGULATING = False
 
 
 ui_thread = ui.ui()
-#main_loop_thread = loop.loop()
+main_loop_thread = loop.loop()
 
 
 ui_thread.start()
