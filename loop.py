@@ -66,9 +66,10 @@ class loop(threading.Thread):
         print('socket ')
 
 def run(self):
-
+    print('run')
     # Loop
     while not globals.STOP_RUNNING:
+        print('rt8')
         self.rt8.getIoGroup(self.channels, self.values)
 
         globals.temperature_average = 0
