@@ -17,10 +17,11 @@ import ea_psu_controller as ea
 class loop(threading.Thread):
 
     def __init__(self):
+        threading.Thread.__init__(self)
         self.FREQUENCY = 0.1
         # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
         for x in range(2):
-            self.rt8 = LucidControlRT8('/dev/ttyACM' + str(x))
+            self.rt8 = LucidControlRT8(f'/dev/ttyACM{x}')
             try:
                 if (self.rt8.open() == False):
                     self.rt8.close()
