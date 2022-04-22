@@ -94,10 +94,10 @@ class loop(threading.Thread):
 
             while globals.BYPASS_MODE:
                 self.psu.output_off()
-                self.psu.remtote_off()
+                self.psu.remote_off()
                 time.sleep(1)
             
-            self.psu.remtote_on()
+            self.psu.remote_on()
 
             if not globals.STOP_REGULATING:
                 self.pid.update_error(globals.temperature_average, globals.temperature_target)
