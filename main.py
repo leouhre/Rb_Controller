@@ -10,19 +10,18 @@ temperature_average = 0
 BYPASS_MODE = False
 STOP_REGULATING = False
 
-
-
+#create threads
 ui_thread = ui.ui()
 main_loop_thread = loop.loop()
 
-
-
+#start threads
 ui_thread.start()
 main_loop_thread.start()
 
-ui_thread.join()
-main_loop_thread.join()
+#make sure both threads are terminated before ending script
+#ui_thread.join()
+#main_loop_thread.join()
 
-loop.psu.output_off()
-loop.tcp_socket.close()
-loop.rt8.close()
+#loop.psu.output_off()
+#loop.tcp_socket.close()
+#loop.rt8.close()
