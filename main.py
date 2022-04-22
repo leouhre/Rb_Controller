@@ -5,8 +5,8 @@ import threading
 import ui
 import loop
 
-target_temperature = 0
-temperature = 0
+temperature_target = 0
+temperature_average = 0
 BYPASS_MODE = False
 STOP_REGULATING = False
 
@@ -14,6 +14,7 @@ STOP_REGULATING = False
 
 ui_thread = ui.ui()
 main_loop_thread = loop.loop()
+
 
 
 ui_thread.start()

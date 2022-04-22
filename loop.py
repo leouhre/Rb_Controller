@@ -1,5 +1,4 @@
 #python packages
-from ast import Global
 import time, sys, threading, socket
 
 #our scripts

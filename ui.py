@@ -6,8 +6,8 @@ class ui(threading.Thread):
         return max(min(val,max_val),min_val)
 
     def set_target_temperature(self,x):
-        global target_temperature
-        target_temperature = self.clamp(x,30,200) #set bounds for temperature
+        global temperature_target
+        temperature_target = self.clamp(x,30,200) #set bounds for temperature
 
     def run(self):
 
@@ -20,21 +20,21 @@ class ui(threading.Thread):
                 pass
         
         def increase_temperature():
-            global target_temperature
-            self.set_target_temperature(target_temperature + 1)
-            settemp.value = target_temperature
+            global temperature_target
+            self.set_target_temperature(temperature_target + 1)
+            settemp.value = temperature_target
         
         def decrease_temperature():
-            global target_temperature
-            self.set_target_temperature(target_temperature - 1)
-            settemp.value = target_temperature
+            global temperature_target
+            self.set_target_temperature(temperature_target - 1)
+            settemp.value = temperature_target
 
         def update_time():
             clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
 
         def update_temperature():
-            global average_temperature
-            temp.value = "{:4.1f}".format(average_temperature)
+            global temperature_average
+            temp.value = "{:4.1f}".format(temperature_average)
         
         def set_bypass_mode():
             global BYPASS_MODE
