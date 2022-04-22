@@ -63,8 +63,8 @@ class loop(threading.Thread):
         self.tcp_socket.setblocking(0)
 
         self.tcp_socket.sendall("connected".encode())
-
         print('socket ')
+
 def run(self):
 
     # Loop
@@ -74,13 +74,15 @@ def run(self):
         globals.temperature_average = 0
         for value in self.values:
             globals.temperature_average = globals.temperature_average + value.getTemperature()
-
+        print(globals.temperature_average)
+        print('try')
         try:
             message = self.tcp_socket.recv(1024).decode("utf_8")
         except:
             message = "hello"
             print("no message")	
 
+        print('message')
         match str(message[0]):
             case "t": #Temperatur given
                 globals.temperature_target = int(message[2:5])
@@ -104,7 +106,8 @@ def run(self):
 
         if not globals.STOP_REGULATING:
             self.pid.update_error(globals.temperature_average,globals.temperature_target)
-            self.psu.set_voltage(self.pid.regulate_output()) 
+            self.psu.set_voltage(self.pid.regulate_output())
+            print('regulated') 
         
 
         if abs(globals.temperature_target - globals.temperature_average) < 1:
