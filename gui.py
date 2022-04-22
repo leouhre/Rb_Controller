@@ -186,10 +186,12 @@ def main_loop():
     psu.output_on()
 
     #initialize PID
-    pid = PID
+    pid = PID()
 
     #FLAG
     STOP_RUNNING = False
+
+    print("hello")
 
     # Create a connection to the server application on port 81
     tcp_socket = socket.create_connection(('192.168.137.1', 4000))
@@ -238,6 +240,8 @@ def main_loop():
                         print("psu.remote_on()")
                         break
 
+        print(temperature_target)
+
         if not STOP_REGULATING:
             pid.update_error(temperature_average,temperature_target)
             psu.set_voltage(pid.regulate_output()) 
@@ -263,7 +267,3 @@ main_loop_thread = threading.Thread(target=main_loop)
 
 gui_thread.start()
 main_loop_thread.start()
-
-gui_thread.join()
-main_loop_thread.join()
-
