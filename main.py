@@ -17,9 +17,9 @@ main_loop_thread = loop.loop()
 ui_thread.start()
 main_loop_thread.start()
 
-with open('asdasdas.txt') as error:
-    pass
+error(7)
 
+print("no error")
 #make sure both threads are terminated before ending script
 #ui_thread.join()
 #main_loop_thread.join()
