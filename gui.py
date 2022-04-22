@@ -84,7 +84,7 @@ def gui():
 
 
     app = App("Dream GUI",bg="#5B5A51",width=800,height=480)
-    app.full_screen = True
+    #app.full_screen = True
 
 
     title_box = Box(app, width='fill',align='top',border=True)
@@ -186,10 +186,12 @@ def main_loop():
     psu.output_on()
 
     #initialize PID
-    pid = PID
+    pid = PID()
 
     #FLAG
     STOP_RUNNING = False
+
+    print("hello")
 
     # Create a connection to the server application on port 81
     tcp_socket = socket.create_connection(('192.168.137.1', 4000))
@@ -237,6 +239,8 @@ def main_loop():
                     if "not bypass mode":
                         print("psu.remote_on()")
                         break
+
+        print(temperature_target)
 
         if not STOP_REGULATING:
             pid.update_error(temperature_average,temperature_target)
