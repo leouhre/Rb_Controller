@@ -1,9 +1,14 @@
 #python packages
 import threading
 
+
 #our scripts
 import ui
 import loop
+import globals
+
+globals.initialize_variables()
+
 
 
 #create threads

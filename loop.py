@@ -1,8 +1,9 @@
 #python packages
-import time, sys, threading, socket
+import time, threading, socket
 
 #our scripts
 from classes.pid import PID
+import globals
 
 # Import functionality of RTD measurement device
 # import lucidIo
@@ -56,10 +57,6 @@ class loop(threading.Thread):
         #initialize PID
         self.pid = PID()
 
-        #FLAG
-        global STOP_RUNNING
-        STOP_RUNNING = False
-
         # Create a connection to the server application on port 81
         self.tcp_socket = socket.create_connection(('192.168.137.1', 4000))
         self.tcp_socket.setblocking(0)
@@ -67,18 +64,14 @@ class loop(threading.Thread):
         self.tcp_socket.sendall("connected".encode())
 
 def run(self):
-    global temperature_average
-    global temperature_target
-    global BYPASS_MODE
-    global STOP_REGULATING # maybe unused
 
     # Loop
-    while not STOP_RUNNING:
+    while not globals.STOP_RUNNING:
         self.rt8.getIoGroup(self.channels, self.values)
 
-        temperature_average = 0
+        globals.temperature_average = 0
         for value in self.values:
-            temperature_average = temperature_average + value.getTemperature()
+            globals.temperature_average = globals.temperature_average + value.getTemperature()
 
         try:
             message = self.tcp_socket.recv(1024).decode("utf_8")
@@ -88,17 +81,17 @@ def run(self):
 
         match str(message[0]):
             case "t": #Temperatur given
-                temperature_target = int(message[2:5])
-                print(temperature_target)
-                STOP_REGULATING = False
+                globals.temperature_target = int(message[2:5])
+                print(globals.temperature_target)
+                globals.STOP_REGULATING = False
             case "r": #stop regulating
-                STOP_REGULATING = True
+                globals.STOP_REGULATING = True
                 print("2")
             case "o": #stop program
-                STOP_RUNNING = True
+                globals.STOP_RUNNING = True
                 print("3")
             case "b": #Bypass mode
-                BYPASS_MODE = True
+                globals.BYPASS_MODE = True
                 print("4")
                 print("psu.remote_off()")
                 while BYPASS_MODE:
@@ -107,12 +100,12 @@ def run(self):
                         print("psu.remote_on()")
                         break
 
-        if not STOP_REGULATING:
-            self.pid.update_error(temperature_average,temperature_target)
+        if not globals.STOP_REGULATING:
+            self.pid.update_error(globals.temperature_average,globals.temperature_target)
             self.psu.set_voltage(self.pid.regulate_output()) 
         
 
-        if abs(temperature_target - temperature_average) < 1:
+        if abs(globals.temperature_target - globals.temperature_average) < 1:
             count = count + 1
             if count == 100: #Temperature has been within 1C of target for more at least 100 samples
                 self.tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial

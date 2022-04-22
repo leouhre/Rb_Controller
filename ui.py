@@ -1,6 +1,6 @@
 import threading, time
 from guizero import App, Text, Box,TextBox, PushButton, CheckBox, Slider
-from loop import BYPASS_MODE, temperature_average, temperature_target
+import globals
 
 class ui(threading.Thread):
     def __init__(self):
@@ -9,8 +9,7 @@ class ui(threading.Thread):
         return max(min(val,max_val),min_val)
 
     def set_target_temperature(self,x):
-        global temperature_target
-        temperature_target = self.clamp(x,30,200) #set bounds for temperature
+        globals.temperature_target = self.clamp(x,30,200) #set bounds for temperature
 
     def run(self):
 
@@ -23,34 +22,29 @@ class ui(threading.Thread):
                 pass
         
         def increase_temperature():
-            global temperature_target
-            self.set_target_temperature(temperature_target + 1)
-            settemp.value = temperature_target
+            self.set_target_temperature(globals.temperature_target + 1)
+            settemp.value = globals.temperature_target
         
         def decrease_temperature():
-            global temperature_target
-            self.set_target_temperature(temperature_target - 1)
-            settemp.value = temperature_target
+            self.set_target_temperature(globals.temperature_target - 1)
+            settemp.value = globals.temperature_target
 
         def update_time():
             clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
 
         def update_temperature():
-            global temperature_average
-            temp.value = "{:4.1f}".format(temperature_average)
+            temp.value = "{:4.1f}".format(globals.temperature_average)
         
         def set_bypass_mode():
-            global BYPASS_MODE
-            BYPASS_MODE = bypass_check.value
+            globals.BYPASS_MODE = bypass_check.value
 
         def set_stop_regulating():
-            global STOP_REGULATING
-            STOP_REGULATING = stop_regulating.value
+            globals.STOP_REGULATING = stop_regulating.value
 
             
         def update():
             #check if bypass mode is enabled
-            if BYPASS_MODE:
+            if globals.BYPASS_MODE:
                 settemp.disable()
                 increasetemp_button.disable()
                 decreasetemp_button.disable()
@@ -92,7 +86,7 @@ class ui(threading.Thread):
 
         set_box = Box(left_box,align='right',border=True)
         settemp_title = Text(set_box, text="Set Temperature",color= "white", width=13, height=1)
-        settemp = TextBox(set_box, text="Set Temperature", command=set_temperature, width=13, height=3)
+        settemp = TextBox(set_box, text="Set Temperature", command=set_temperature, width=13)
         settemp.text_color = "white"; settemp.text_size = 12; settemp.bg ="#7e7e7e"
 
         numpad_box = Box(left_box,layout='grid',align='right',border=True)
