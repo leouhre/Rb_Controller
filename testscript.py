@@ -105,7 +105,7 @@ t.append(tstamp)
 
 # Initiate measurements at constant voltage
 psu.set_current(4)
-psu.set_voltage(int(input("set voltage")))
+psu.set_voltage(0)
 psu.output_on()
 
 #temperature from terminal 
@@ -120,12 +120,10 @@ try:
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
 		print(f"time:{tstamp}") 
-		for value in values:
-			x = 0
-			temp_average += value.getTemperature()/num_of_sensors
-			data[x].append(value.getTemperature())
-			print(value.getTemperature())
-			x += x + 1
+		for x in range(num_of_sensors):
+			temp_average += values[x].getTemperature()/num_of_sensors
+			data[x].append(values[x].getTemperature())
+			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
 		print(f"Average = {temp_average}")
 		print("____________")
