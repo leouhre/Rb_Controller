@@ -111,35 +111,33 @@ psu.output_on()
 #temperature from terminal 
 T_target = float(sys.argv[1])
 #initialize PID
-#PI = PID() 
+PI = PID() 
 
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
-		if (time.time() - timer) > 0.1:
-			ret = rt8.getIoGroup(channels, values)
-			temp_average = 0
-			print(tstamp) 
-			for x in range(num_of_sensors):
-				temp_average = temp_average + values[x].getTemperature()
-				data[x].append(values[x].getTemperature())
-				print(values[x].getTemperature())
-			print("____________")
-			"""
-			temp_average = temp_average/num_of_sensors 	
-			data[num_of_sensors].append(temp_average)			
-			print("average: " + str(temp_average)) 
-			print("_________")
+		ret = rt8.getIoGroup(channels, values)
+		temp_average = 0
+		print(f"time:{tstamp}") 
+		for value in values:
+			x = 0
+			temp_average += value.getTemperature()/num_of_sensors
+			data[x].append(value.getTemperature())
+			print(value.getTemperature())
+			x += x + 1
+		data[num_of_sensors].append(temp_average)
+		print(f"Average = {temp_average}")
+		print("____________")
 
-			PI.update_error(temp_average,T_target)
-			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
-			v.append(PI.proportional() + PI.integral())
-			"""
+		PI.update_error(temp_average,T_target)
+		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
+		v.append(PI.proportional() + PI.integral())
 
-			timer = time.time()
-			tstamp += 0.1
-			t.append(tstamp)
+		tstamp += 0.1
+		t.append(tstamp)
+
+		time.sleep(0.1)
 
 except KeyboardInterrupt:
 	pass
@@ -174,17 +172,18 @@ if answer == "Y":
 		L = str(t[i]) + "\n"
 		f.write(L)
 	f.close()
-
+	"""
 	f = open("data/voltage.ftxt", "w")
 	for i in range(len(v)):
 		L = str(v[i]) + "\n"
 		f.write(L)
 	f.close()
+	"""
 	
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
-#plt.plot(t, data[num_of_sensors], label='avg')
+plt.plot(t, data[num_of_sensors], label='avg')
 plt.legend()
 plt.xlabel('Time (s)')
 plt.ylabel('Temperature (C)')
