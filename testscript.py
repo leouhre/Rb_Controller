@@ -65,7 +65,7 @@ values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(),
 # Initialize a boolean tuple for channels to read
 # Make sure this tuple matches the physical setup on the LucidControl device
 num_of_sensors = int(input('Enter number of sensors starting from IO1/2: '))
-channels = (False,) + (True,)*(num_of_sensors-2) + (False,)*(8-num_of_sensors-1)
+channels = (False,) + (True,)*(num_of_sensors-2) + (False,)*(8-num_of_sensors+1)
 
 # Initialize the Elektro-Automatik Power Supply
 # Make sure that 99-ea-psu.rules is in /etc/udev/rules.d/ as recommended at https://pypi.org/project/ea-psu-controller/
