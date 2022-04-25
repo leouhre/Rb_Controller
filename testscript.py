@@ -4,6 +4,7 @@ print("Starting up...")
 import matplotlib.pyplot as plt
 import numpy as np
 import time, sys
+import os
 from collections import deque
 
 
@@ -112,6 +113,7 @@ PI = PID()
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
+		os.system('clear')
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
 		print(f"time:{tstamp}") 
