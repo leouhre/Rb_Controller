@@ -77,7 +77,7 @@ class ui(threading.Thread):
         #in right box
         temp_title = Text(right_box, text="Actual Temperature",color= "white")
         temp = Text(right_box, text="",color = "white")
-        temp.repeat(1000, update_temperature)
+        temp.repeat(100, update_temperature)
 
         #in left box
         crement_box = Box(left_box,align='right',border=True)
@@ -110,7 +110,7 @@ class ui(threading.Thread):
 
         #invisible button for check loops
         gui_loop = Text(app,visible=False)
-        gui_loop.repeat(1000,update)
+        gui_loop.repeat(100,update)
 
 
         app.display()
