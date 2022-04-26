@@ -45,7 +45,10 @@ class ui(threading.Thread):
             globals.STOP_REGULATING = stop_regulating.value
 
         def numpad(n):
-            settemp.append(n)
+            settemp.value += n
+        
+        def numpad_del():
+            settemp.value = settemp.value[:-1]
 
         def apply():
             try:
@@ -104,17 +107,18 @@ class ui(threading.Thread):
         settemp.text_color = "white"; settemp.text_size = 12; settemp.bg ="#7e7e7e"
 
         numpad_box = Box(left_box,layout='grid',align='right',border=True)
-        button1 = PushButton(numpad_box, text="1", grid=[0,0],command=numpad,args=[1])
-        button2 = PushButton(numpad_box, text="2", grid=[1,0])
-        button3  = PushButton(numpad_box, text="3", grid=[2,0])
-        button4  = PushButton(numpad_box, text="4", grid=[0,1])
-        button5  = PushButton(numpad_box, text="5", grid=[1,1])
-        button6  = PushButton(numpad_box, text="6", grid=[2,1])
-        button7  = PushButton(numpad_box, text="7", grid=[0,2])
-        button8  = PushButton(numpad_box, text="8", grid=[1,2])
-        button9  = PushButton(numpad_box, text="9", grid=[2,2])
-        button0  = PushButton(numpad_box, text="0", grid=[1,3])
-        buttondel  = PushButton(numpad_box, text="c", grid=[2,3])
+        button1 = PushButton(numpad_box, text="1", grid=[0,0],command=numpad,args=['1'])
+        button2 = PushButton(numpad_box, text="2", grid=[1,0],command=numpad,args=['2'])
+        button3  = PushButton(numpad_box, text="3", grid=[2,0],command=numpad,args=['3'])
+        button4  = PushButton(numpad_box, text="4", grid=[0,1],command=numpad,args=['4'])
+        button5  = PushButton(numpad_box, text="5", grid=[1,1],command=numpad,args=['5'])
+        button6  = PushButton(numpad_box, text="6", grid=[2,1],command=numpad,args=['6'])
+        button7  = PushButton(numpad_box, text="7", grid=[0,2],command=numpad,args=['7'])
+        button8  = PushButton(numpad_box, text="8", grid=[1,2],command=numpad,args=['8'])
+        button9  = PushButton(numpad_box, text="9", grid=[2,2],command=numpad,args=['9'])
+        button0  = PushButton(numpad_box, text="0", grid=[1,3],command=numpad,args=['0'])
+        buttondot  = PushButton(numpad_box, text=",", grid=[0,3],command=numpad,args=['.'])
+        buttondel  = PushButton(numpad_box, text="c", grid=[2,3],command=numpad_del)
 
         settemp_slider = Slider(set_box,command=slider_set_temperature,start=30,end=200,align='bottom')
 
