@@ -20,6 +20,9 @@ class loop(threading.Thread):
         threading.Thread.__init__(self)
         self.FREQUENCY = 0.1
         # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
+
+        self.rt8 = LucidControlRT8('/dev/lucidDi0')
+        """
         for x in range(2):
             self.rt8 = LucidControlRT8(f'/dev/ttyACM{x}')
             try:
@@ -32,8 +35,9 @@ class loop(threading.Thread):
                         break
                     else:
                         self.rt8.close()
-            except OSError:
+            except:
                 self.rt8.close()
+        """
 
         # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
         self.values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
