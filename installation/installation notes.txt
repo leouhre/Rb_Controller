@@ -10,12 +10,14 @@
 - update pip and install requirements.txt (from ~/Rb_Controller run pip install -r requirements.txt)
 - I had to fix pip by going into ~/Python3.10.4/ and run './configure' then 'make' and then 'sudo make install' 
   and then re-run pip install requirements (this step takes ~1hr)
+- Move 99-ea-psu.rules (git folder /installation) to /etc/udev/rules.d/
+- Move 99-lucidIo.rules (git folder /installation) to /etc/udev/rules.d/ and restart udev with sudo service udev restart
 - In order to install matplotlib, run:
   sudo apt-get install libjpeg-dev
   sudo apt-get install zlib1g-dev
   sudo apt-get install libpng-dev
 - pip install matplotlib
-- follow the matlab setup (configure existing OS)
+- follow the matlab setup (configure existing OS) and enable I2C
   some packages might not successfully install:
 	userland
 	wiringpi
@@ -54,5 +56,6 @@
 		check that pathes are correct
 		check that ~/.venv/RbController/bin/python3 actually points to python3.10.4. If not, run
 			cd ~/.venv/RbController/bin
+			source activate
 			sudo rm python3
 			sudo ln -s /usr/local/bin/python3.10 python3
