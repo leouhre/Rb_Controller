@@ -144,6 +144,8 @@ for x in range(num_of_sensors + 1):
 		data[x].pop()
 if len(t) > l:
 	t.pop()
+if len(t) < l:
+	t.append(tstamp + 0.1)
 
 psu.output_off()
 
