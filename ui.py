@@ -124,7 +124,7 @@ class ui(threading.Thread):
 
         #invisible button for check loops
         gui_loop = Text(app,visible=False)
-        gui_loop.repeat(100,update)
+        gui_loop.repeat(1000,update)
 
 
         app.display()
