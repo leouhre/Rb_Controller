@@ -11,10 +11,11 @@ globals.initialize_variables()
 
 #create threads
 ui_thread = ui.ui()
+ui_thread.start()
 main_loop_thread = loop.loop()
 
 #start threads
-ui_thread.start()
+
 main_loop_thread.start()
 
 exit()
