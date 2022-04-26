@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="0821", ATTRS{serial}=="0A101011AA450000", SYMLINK+="lucidRI8"
