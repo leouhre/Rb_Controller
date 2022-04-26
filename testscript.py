@@ -84,13 +84,13 @@ try:
 	while True:
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
-		print(f"time:{tstamp}") 
+		print(f"time:{tstamp:5.1f}") 
 		for x in range(num_of_sensors):
 			temp_average += values[x].getTemperature()/num_of_sensors
 			data[x].append(values[x].getTemperature())
 			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
-		print(f"Average = {temp_average}")
+		print(f"Average = {temp_average:3.1f}")
 		print("____________")
 
 		PI.update_error(temp_average,T_target)
