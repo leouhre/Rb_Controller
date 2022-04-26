@@ -6,8 +6,6 @@ import ui
 import loop
 import globals
 
-os.system("export DISPLAY=:0")
-
 
 globals.initialize_variables()
 
