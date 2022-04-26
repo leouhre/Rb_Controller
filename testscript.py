@@ -42,7 +42,7 @@ channels = (True,)*(num_of_sensors) + (False,)*(8-num_of_sensors)
 print("Connecting to the EA power supply...")
 try:
 	psu = ea.PsuEA()
-except OSError: 
+except: 
 	print('ERROR: No PSU found. Try re-connecting the USB cable')
 	exit()
 print("Successfully connected to the EA power supply")
