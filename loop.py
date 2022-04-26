@@ -19,27 +19,10 @@ class loop(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.FREQUENCY = 0.1
-        # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
 
+        # Initialize the LucidControl RTD measurement device
         self.rt8 = LucidControlRT8('/dev/lucidDi0')
         self.rt8.open()
-        
-        """
-        for x in range(2):
-            self.rt8 = LucidControlRT8(f'/dev/ttyACM{x}')
-            try:
-                if self.rt8.open() == False:
-                    self.rt8.close()
-                else:
-                    # Identify device
-                    ret = self.rt8.identify(0)
-                    if ret == IoReturn.IoReturn.IO_RETURN_OK:
-                        break
-                    else:
-                        self.rt8.close()
-            except:
-                self.rt8.close()
-        """
 
         # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
         self.values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
@@ -69,7 +52,7 @@ class loop(threading.Thread):
             except TimeoutError:
                 pass
             else:
-                self.tcp_socket.settimeout(0)
+                self.tcp_socket.setblocking(0)
                 self.tcp_socket.sendall("connected\n".encode())
                 break
 
