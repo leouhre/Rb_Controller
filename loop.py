@@ -1,5 +1,4 @@
 #python packages
-from queue import Empty
 import time, threading, socket
 
 #our scripts
@@ -58,10 +57,14 @@ class loop(threading.Thread):
         self.pid = PID()
 
         # Create a connection to the server application on port 81
-        self.tcp_socket = socket.create_connection(('192.168.137.1', 4000))
-        self.tcp_socket.setblocking(0)
-
-        self.tcp_socket.sendall("Connected\n".encode())
+        while True:
+            try:
+                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
+            except TimeoutError:
+                pass
+            else:
+                self.tcp_socket.settimeout(0)
+                self.tcp_socket.sendall("connected".encode())
 
     def run(self):
         # Loop
@@ -74,17 +77,16 @@ class loop(threading.Thread):
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
-            except:
-                pass
+            except OSError:
                 message = "hello"
-                #print("no message")
+                print("no message")	
 
             match str(message[0]):
                 case "t": #Temperatur given
                     globals.temperature_target = int(message[2:5])
                     print(globals.temperature_target)
                     globals.STOP_REGULATING = False
-
+                    
                 case "r": #stop regulating
                     globals.STOP_REGULATING = True
 
@@ -98,20 +100,21 @@ class loop(threading.Thread):
                 self.psu.output_off()
                 self.psu.remote_off()
                 time.sleep(1)
-
+            
             self.psu.remote_on()
 
             if not globals.STOP_REGULATING:
                 self.pid.update_error(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(self.pid.regulate_output())
+            
 
             if abs(globals.temperature_target - globals.temperature_average) < 1:
                 count += 1
                 if count == 100: #Temperature has been within 1C of target for more at least 100 samples
-                    self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
-            else:
+                    self.tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+            else: 
                 count = 0
-                self.tcp_socket.sendall("warming up\n".encode())
+            
 
             time.sleep(self.FREQUENCY)
 
