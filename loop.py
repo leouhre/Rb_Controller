@@ -22,6 +22,8 @@ class loop(threading.Thread):
         # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
 
         self.rt8 = LucidControlRT8('/dev/lucidDi0')
+        self.rt8.open()
+        
         """
         for x in range(2):
             self.rt8 = LucidControlRT8(f'/dev/ttyACM{x}')
