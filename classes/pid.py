@@ -2,7 +2,8 @@ from pathlib import Path
 
 class PID():
     def __init__(self):
-        with open(Path.cwd() / 'config.txt', 'r') as config:
+        P = Path('/home','pi','Rb_Controller')
+        with open(P / 'config.txt', 'r') as config:
             self.kp = float(config.readline())
             self.taui = float(config.readline())
             self.ki = self.kp/self.taui

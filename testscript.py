@@ -4,6 +4,7 @@ print("Starting up...")
 import matplotlib.pyplot as plt
 import numpy as np
 import time, sys
+import os
 from collections import deque
 
 
@@ -21,41 +22,10 @@ from lucidIo import IoReturn
 # Import functionality of power supply unit
 import ea_psu_controller as ea
 
-	# Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
-print("Connecting to /dev/ttyACM", end="")
-for x in range(2):
-	print(str(x) + "...")
-	rt8 = LucidControlRT8('/dev/ttyACM' + str(x))
 
-	try:
-		if (rt8.open() == False):
-			print('LucidControl device not found at port ' + str(x))
-			rt8.close()
-			print("Connecting to /dev/ttyACM", end="")
-		else:
-			# Identify device
-			ret = rt8.identify(0)
-			if ret == IoReturn.IoReturn.IO_RETURN_OK:
-				print('Device Class: ' + str(rt8.getDeviceClassName()))
-				print('Device Type: ' + str(rt8.getDeviceTypeName()))
-				print('Successfully connected to port ' + str(rt8.portName))
-				break
-			else:
-				print('Identify Error')
-				rt8.close()
-				if x < 1:
-					print("Connecting to /dev/ttyACM", end="")
-				else:	
-					print('Try re-inserting the USB cable')
-					exit()
-	except:
-		print('LucidControl device not found at port ' + str(x))
-		rt8.close()
-		if x < 1:
-			print("Connecting to /dev/ttyACM", end="")
-		else:
-			print('Try re-inserting the USB cable')
-			exit()
+# Initialize the LucidControl RTD measurement device
+rt8 = LucidControlRT8('/dev/lucidRI8')
+rt8.open()
 
 
 # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
@@ -65,12 +35,7 @@ values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(),
 # Initialize a boolean tuple for channels to read
 # Make sure this tuple matches the physical setup on the LucidControl device
 num_of_sensors = int(input('Enter number of sensors starting from IO1/2: '))
-channels = ()
-for x in range(8):
-    if x < num_of_sensors:
-        channels += (True, )
-    else:
-        channels += (False, )
+channels = (True,)*(num_of_sensors) + (False,)*(8-num_of_sensors)
 
 # Initialize the Elektro-Automatik Power Supply
 # Make sure that 99-ea-psu.rules is in /etc/udev/rules.d/ as recommended at https://pypi.org/project/ea-psu-controller/
@@ -105,41 +70,37 @@ t.append(tstamp)
 
 # Initiate measurements at constant voltage
 psu.set_current(4)
-psu.set_voltage(int(input("set voltage")))
+psu.set_voltage(0)
 psu.output_on()
 
 #temperature from terminal 
 T_target = float(sys.argv[1])
 #initialize PID
-#PI = PID() 
+PI = PID() 
 
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
-		if (time.time() - timer) > 0.1:
-			ret = rt8.getIoGroup(channels, values)
-			temp_average = 0
-			print(tstamp) 
-			for x in range(num_of_sensors):
-				temp_average = temp_average + values[x].getTemperature()
-				data[x].append(values[x].getTemperature())
-				print(values[x].getTemperature())
-			print("____________")
-			"""
-			temp_average = temp_average/num_of_sensors 	
-			data[num_of_sensors].append(temp_average)			
-			print("average: " + str(temp_average)) 
-			print("_________")
+		ret = rt8.getIoGroup(channels, values)
+		temp_average = 0
+		print(f"time:{tstamp}") 
+		for x in range(num_of_sensors):
+			temp_average += values[x].getTemperature()/num_of_sensors
+			data[x].append(values[x].getTemperature())
+			print(values[x].getTemperature())
+		data[num_of_sensors].append(temp_average)
+		print(f"Average = {temp_average}")
+		print("____________")
 
-			PI.update_error(temp_average,T_target)
-			psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
-			v.append(PI.proportional() + PI.integral())
-			"""
+		PI.update_error(temp_average,T_target)
+		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
+		v.append(PI.proportional() + PI.integral())
 
-			timer = time.time()
-			tstamp += 0.1
-			t.append(tstamp)
+		tstamp += 0.1
+		t.append(tstamp)
+
+		time.sleep(0.1)
 
 except KeyboardInterrupt:
 	pass
@@ -151,6 +112,8 @@ for x in range(num_of_sensors + 1):
 		data[x].pop()
 if len(t) > l:
 	t.pop()
+if len(t) < l:
+	t.append(tstamp + 0.1)
 
 psu.output_off()
 
@@ -174,17 +137,18 @@ if answer == "Y":
 		L = str(t[i]) + "\n"
 		f.write(L)
 	f.close()
-
+	"""
 	f = open("data/voltage.ftxt", "w")
 	for i in range(len(v)):
 		L = str(v[i]) + "\n"
 		f.write(L)
 	f.close()
+	"""
 	
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
-#plt.plot(t, data[num_of_sensors], label='avg')
+plt.plot(t, data[num_of_sensors], label='avg')
 plt.legend()
 plt.xlabel('Time (s)')
 plt.ylabel('Temperature (C)')

@@ -4,7 +4,7 @@ from collections import deque
 #converts data of all sensors to a txt file with name data/sensor<x>.txt
 def sensors_to_txtfile(data:list):
 	for x in range(len(data)):
-		f = open("data/sensor" + str(x) + ".txt", "w")
+		f = open(f"data/sensor{x}.txt", "w")
 		for i in range(len(data[x])):
 			L = str(data[x][i]) + "\n"
 			f.write(L)
@@ -13,7 +13,7 @@ def sensors_to_txtfile(data:list):
 #converts data of all passed deques to a txt file with name data/<key>.txt
 def deques_to_txtfile(**data:deque):
     for key, value in data.items():
-        f = open("data/" + str(key) + ".txt", "w")
+        f = open(f"data/{key}.txt", "w")
         for i in range(len(value)):
             L = str(value[i]) + "\n"
             f.write(L)

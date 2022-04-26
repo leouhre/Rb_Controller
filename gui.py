@@ -1,9 +1,25 @@
+#python packages
+import time, sys
+import socket
 from guizero import App, Text, Box,TextBox, PushButton, CheckBox, Slider
 import time, threading, numpy as np
-from matplotlib.pyplot import box
 
-target_temperature = 0
-temperature = 0
+#our scripts
+from classes.pid import PID
+
+# Import functionality of RTD measurement device
+# import lucidIo
+from lucidIo.LucidControlRT8 import LucidControlRT8
+from lucidIo.Values import ValueTMS2
+from lucidIo.Values import ValueTMS4
+from lucidIo import IoReturn
+
+# Import functionality of power supply unit
+import ea_psu_controller as ea
+
+FREQUENCY = 0.1
+temperature_target = 0
+temperature_average = 0
 BYPASS_MODE = 0
 STOP_REGULATING = 0
 
@@ -11,8 +27,8 @@ def clamp(val,min_val,max_val):
     return max(min(val,max_val),min_val)
 
 def set_target_temperature(x):
-    global target_temperature
-    target_temperature = clamp(x,30,200) #set bounds for temperature
+    global temperature_target
+    temperature_target = clamp(x,30,200) #set bounds for temperature
 
 def gui():
 
@@ -25,21 +41,21 @@ def gui():
             pass
     
     def increase_temperature():
-        global target_temperature
-        set_target_temperature(target_temperature + 1)
-        settemp.value = target_temperature
+        global temperature_target
+        set_target_temperature(temperature_target + 1)
+        settemp.value = temperature_target
     
     def decrease_temperature():
-        global target_temperature
-        set_target_temperature(target_temperature - 1)
-        settemp.value = target_temperature
+        global temperature_target
+        set_target_temperature(temperature_target - 1)
+        settemp.value = temperature_target
 
     def update_time():
         clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
 
     def update_temperature():
-        global temperature
-        temp.value = "{:4.1f}".format(temperature)
+        global temperature_average
+        temp.value = "{:4.1f}".format(temperature_average)
     
     def set_bypass_mode():
         global BYPASS_MODE
@@ -68,7 +84,7 @@ def gui():
 
 
     app = App("Dream GUI",bg="#5B5A51",width=800,height=480)
-    app.full_screen = True
+    #app.full_screen = True
 
 
     title_box = Box(app, width='fill',align='top',border=True)
@@ -125,16 +141,124 @@ def gui():
 
 
 def main_loop():
-    global temperature
-    global target_temperature
-    count = 0
-    while True:
-        print(f"Iterations: {count}")
-        print(f"Target temperature: {target_temperature:.1f}")
-        count = count + 1
-        temperature = temperature + np.random.random()
+    # Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
+    for n in range(2):
+        rt8 = LucidControlRT8(f'/dev/ttyACM{n}')
+        try:
+            if (rt8.open() == False):
+                rt8.close()
+            else:
+                # Identify device
+                ret = rt8.identify(0)
+                if ret == IoReturn.IoReturn.IO_RETURN_OK:
+                    break
+                else:
+                    rt8.close()
+        except:
+            rt8.close()
 
-        time.sleep(1)
+    # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
+    values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
+        ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4())
+
+    # Initialize a boolean tuple for channels to read
+    # Make sure this tuple matches the physical setup on the LucidControl device
+    num_of_sensors = 2
+    
+    channels = (True, )*num_of_sensors + (False, )*(8-num_of_sensors)
+    
+    """
+    channels = ()
+    for x in range(8):
+        if x < num_of_sensors:
+            channels += (True, )
+        else:
+            channels += (False, )
+    """
+
+    # Initialize the Elektro-Automatik Power Supply
+    psu = ea.PsuEA()
+    psu.remote_on()
+
+    # Initiate measurements at constant voltage
+    psu.set_current(4)
+    psu.set_voltage(0)
+    psu.output_on()
+
+    #initialize PID
+    pid = PID()
+
+    #FLAG
+    STOP_RUNNING = False
+
+    print("hello")
+
+    # Create a connection to the server application on port 81
+    tcp_socket = socket.create_connection(('192.168.137.1', 4000))
+    tcp_socket.setblocking(0)
+    tcp_socket.sendall("connected\n".encode())
+
+
+    # Loop 
+    while not STOP_RUNNING:
+        global temperature_average
+        global temperature_target
+        global STOP_REGULATING
+        global BYPASS_MODE
+
+        ret = rt8.getIoGroup(channels, values)
+
+        temperature_average = 0
+        for x in range(num_of_sensors):
+            temperature_average = temperature_average + values[x].getTemperature() #change to for sensors in values  and  sensor.getTemperature
+        temperature_average = temperature_average/num_of_sensors 	
+
+        try:
+            message = tcp_socket.recv(1024).decode("utf_8") # try a with statement here
+        except:
+            message = "hello"
+            print("no message")	
+
+        match str(message[0]):
+            case "t": #Temperatur given
+                temperature_target = int(message[2:5])
+                print(temperature_target)
+                STOP_REGULATING = False
+            case "r": #stop regulating
+                STOP_REGULATING = True
+                print("2")
+            case "o": #stop program
+                STOP_RUNNING = True
+                print("3")
+            case "b": #Bypass mode
+                BYPASS_MODE = True
+                print("4")
+                print("psu.remote_off()")
+                while BYPASS_MODE:
+                    print("bypass mode")
+                    if "not bypass mode":
+                        print("psu.remote_on()")
+                        break
+
+        print(temperature_target)
+
+        if not STOP_REGULATING:
+            pid.update_error(temperature_average,temperature_target)
+            psu.set_voltage(pid.regulate_output()) 
+        
+
+        if abs(temperature_target - temperature_average) < 1:
+            count = count + 1
+            if count == 100: #Temperature has been within 1C of target for more at least 100 samples
+                tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+        else: 
+            count = 0
+        
+        time.sleep(FREQUENCY)
+    
+    psu.output_off()
+    tcp_socket.close()
+    rt8.close()
 
 
 gui_thread = threading.Thread(target=gui,)
