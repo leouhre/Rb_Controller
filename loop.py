@@ -64,7 +64,8 @@ class loop(threading.Thread):
                 pass
             else:
                 self.tcp_socket.settimeout(0)
-                self.tcp_socket.sendall("connected".encode())
+                self.tcp_socket.sendall("connected\n".encode())
+                break
 
     def run(self):
         # Loop
@@ -79,7 +80,6 @@ class loop(threading.Thread):
                 message = self.tcp_socket.recv(1024).decode("utf_8")
             except OSError:
                 message = "hello"
-                print("no message")	
 
             match str(message[0]):
                 case "t": #Temperatur given
@@ -111,7 +111,7 @@ class loop(threading.Thread):
             if abs(globals.temperature_target - globals.temperature_average) < 1:
                 count += 1
                 if count == 100: #Temperature has been within 1C of target for more at least 100 samples
-                    self.tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+                    self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
             else: 
                 count = 0
             
