@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time, sys
 import os
-import pyinputplus
 from collections import deque
 
 
@@ -23,41 +22,10 @@ from lucidIo import IoReturn
 # Import functionality of power supply unit
 import ea_psu_controller as ea
 
-	# Initialize the LucidControl RTD measurement device. Can be /dev/ttyACM0 or /dev/ttyACM1:
-print("Connecting to /dev/ttyACM", end="")
-for x in range(2):
-	print(str(x) + "...")
-	rt8 = LucidControlRT8('/dev/ttyACM' + str(x))
 
-	try:
-		if (rt8.open() == False):
-			print('LucidControl device not found at port ' + str(x))
-			rt8.close()
-			print("Connecting to /dev/ttyACM", end="")
-		else:
-			# Identify device
-			ret = rt8.identify(0)
-			if ret == IoReturn.IoReturn.IO_RETURN_OK:
-				print('Device Class: ' + str(rt8.getDeviceClassName()))
-				print('Device Type: ' + str(rt8.getDeviceTypeName()))
-				print('Successfully connected to port ' + str(rt8.portName))
-				break
-			else:
-				print('Identify Error')
-				rt8.close()
-				if x < 1:
-					print("Connecting to /dev/ttyACM", end="")
-				else:	
-					print('Try re-inserting the USB cable')
-					exit()
-	except:
-		print('LucidControl device not found at port ' + str(x))
-		rt8.close()
-		if x < 1:
-			print("Connecting to /dev/ttyACM", end="")
-		else:
-			print('Try re-inserting the USB cable')
-			exit()
+# Initialize the LucidControl RTD measurement device
+rt8 = LucidControlRT8('/dev/lucidRI8')
+rt8.open()
 
 
 # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
@@ -74,7 +42,7 @@ channels = (True,)*(num_of_sensors) + (False,)*(8-num_of_sensors)
 print("Connecting to the EA power supply...")
 try:
 	psu = ea.PsuEA()
-except: 
+except OSError: 
 	print('ERROR: No PSU found. Try re-connecting the USB cable')
 	exit()
 print("Successfully connected to the EA power supply")
