@@ -23,7 +23,7 @@ class loop(threading.Thread):
         for x in range(2):
             self.rt8 = LucidControlRT8(f'/dev/ttyACM{x}')
             try:
-                if (self.rt8.open() == False):
+                if self.rt8.open() == False:
                     self.rt8.close()
                 else:
                     # Identify device
@@ -32,7 +32,7 @@ class loop(threading.Thread):
                         break
                     else:
                         self.rt8.close()
-            except:
+            except OSError:
                 self.rt8.close()
 
         # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
