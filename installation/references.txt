@@ -1,0 +1,2 @@
+www.github.com/thagrol/Guides/blob/main/boot.pdf
+https://www.thedigitalpictureframe.com/ultimate-guide-systemd-autostart-scripts-raspberry-pi/
