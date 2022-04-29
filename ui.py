@@ -37,7 +37,7 @@ class ui(threading.Thread):
                 scale_button.text = str(1)
 
         def update_time():
-            clock.value = time.strftime("Clock: %I:%M:%S %p", time.localtime())
+            clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
 
         def update_ready():
             if globals.READY:

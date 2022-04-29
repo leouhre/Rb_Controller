@@ -10,5 +10,5 @@ globals.initialize_variables()
 ui_thread = ui.ui()
 ui_thread.start()
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+# main_loop_thread = loop.loop()
+# main_loop_thread.start()

@@ -64,9 +64,13 @@ v = deque()
 v.append(0)
 
 #time data
-tstamp = 0
+t_start = time.perf_counter()
 t = deque()
-t.append(tstamp)
+t.append(t_start)
+
+#clock
+c = deque()
+c.append(time.strftime("Clock: %H:%M:%S", time.localtime()))
 
 # Initiate measurements at constant voltage
 psu.set_current(4)
@@ -77,6 +81,7 @@ psu.output_on()
 T_target = float(sys.argv[1])
 #initialize PID
 PI = PID() 
+
 
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
@@ -97,8 +102,8 @@ try:
 		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
 		v.append(PI.proportional() + PI.integral())
 
-		tstamp += 0.1
-		t.append(tstamp)
+		t.append(time.perf_counter - t_start)
+		c.append(time.strftime("Clock: %H:%M:%S", time.localtime()))
 
 		time.sleep(0.1)
 
@@ -113,9 +118,7 @@ for x in range(num_of_sensors + 1):
 if len(t) > l:
 	t.pop()
 if len(t) < l:
-	t.append(tstamp + 0.1)
-
-psu.output_off()
+	t.append(time.perf_counter - t_start)
 
 # Write temperature data to files /data/sensorX.txt
 answer = ''
@@ -144,7 +147,12 @@ if answer == "Y":
 		f.write(L)
 	f.close()
 	"""
-	
+try:
+	psu.output_off()
+except struct.error:
+	print("ea psu struct error")
+
+
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
