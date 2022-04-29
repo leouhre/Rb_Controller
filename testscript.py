@@ -104,7 +104,7 @@ try:
 		v.append(PI.proportional() + PI.integral())
 
 		t.append(t_temp)
-		c.append(time.strftime("Clock: %H:%M:%S", time.localtime()))
+		c.append(time.strftime("%H:%M:%S", time.localtime()))
 
 		time.sleep(0.1)
 

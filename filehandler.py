@@ -12,9 +12,7 @@ def sensors_to_txtfile(data:list):
 
 #converts data of all passed deques to a txt file with name data/<key>.txt
 def deques_to_txtfile(**data:deque):
-    for key, value in data.items():
-        f = open(f"data/{key}.txt", "w")
-        for i in range(len(value)):
-            L = str(value[i]) + "\n"
-            f.write(L)
-        f.close()
+    for name, list in data.items():
+        with open(f"data/{name}.txt", "w") as f:
+            for value in list:
+                f.write(str(value) + "\n")
