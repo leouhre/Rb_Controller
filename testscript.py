@@ -87,6 +87,8 @@ PI = PID()
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
+		os.system('clear')
+
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
 		t_temp = time.perf_counter() - t_start

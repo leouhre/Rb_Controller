@@ -3,12 +3,10 @@ from collections import deque
 
 #converts data of all sensors to a txt file with name data/sensor<x>.txt
 def sensors_to_txtfile(data:list):
-	for x in range(len(data)):
-		f = open(f"data/sensor{x}.txt", "w")
-		for i in range(len(data[x])):
-			L = str(data[x][i]) + "\n"
-			f.write(L)
-		f.close()
+    for i, sensor in enumerate(data):
+        with open(f"data/sensor{i}.txt", "w") as f:
+            for value in sensor:
+                f.write(str(value) + "\n")
 
 #converts data of all passed deques to a txt file with name data/<key>.txt
 def deques_to_txtfile(**data:deque):
