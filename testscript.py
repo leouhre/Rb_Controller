@@ -119,7 +119,7 @@ for x in range(num_of_sensors + 1):
 if len(t) > l:
 	t.pop()
 if len(t) < l:
-	t.append(time.perf_counter - t_start)
+	t.append(t_temp)
 
 # Write temperature data to files /data/sensorX.txt
 answer = ''
