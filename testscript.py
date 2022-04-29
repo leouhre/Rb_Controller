@@ -131,29 +131,8 @@ if answer == "Y":
 	
 	filehandler.deques_to_txtfile(time=t,clock=c)
 	filehandler.sensors_to_txtfile(data)
-	"""
-	for x in range(num_of_sensors):
-		f = open("data/sensor" + str(x) + ".txt", "w")
-		for i in range(len(data[x])):
-			L = str(data[x][i]) + "\n"
-			f.write(L)
-		f.close()
-	f = open("data/time.txt", "w")
-	for i in range(len(t)):
-		L = str(t[i]) + "\n"
-		f.write(L)
-	f.close()
-	f = open("data/voltage.ftxt", "w")
-	for i in range(len(v)):
-		L = str(v[i]) + "\n"
-		f.write(L)
-	f.close()
-	"""
-try:
-	psu.output_off()
-except struct.error:
-	print("ea psu struct error")
 
+psu.output_off()
 
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
