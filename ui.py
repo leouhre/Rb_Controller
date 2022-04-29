@@ -6,6 +6,11 @@ class ui(threading.Thread):
     
     def __init__(self):
         threading.Thread.__init__(self)
+        self.MAX_TEMP = 200
+        self.MIN_TEMP = 0
+        self.show_outline = True
+        self.background_color = "#5B5A51"
+
     def clamp(self,val,min_val,max_val):
         return max(min(val,max_val),min_val)
 
@@ -13,10 +18,6 @@ class ui(threading.Thread):
         globals.temperature_target = self.clamp(x,0,200) #set bounds for temperature
 
     def run(self):
-        MAX_TEMP = 200
-        MIN_TEMP = 0
-        show_outline = True
-        background_color = "#5B5A51"
 
         #functions for GUI
         def set_temperature():
@@ -27,7 +28,7 @@ class ui(threading.Thread):
         #     settemp.value = settemp_slider.value
 
         def increment(n): 
-            if not (float(settemp.value) + n*float(scale_button.text) > MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < MIN_TEMP):
+            if not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
                 settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
 
         def scale():
@@ -49,20 +50,24 @@ class ui(threading.Thread):
 
         def update_temperature():
             temp.value = "{:4.1f}".format(globals.temperature_average)
+            if globals.temperature_target == float(settemp.value):
+                apply_button.disable()
+            else:
+                apply_button.enable()
 
         def set_bypass_mode():
             globals.BYPASS_MODE = not globals.BYPASS_MODE
             if globals.BYPASS_MODE:
                 bypass_check.bg = 'grey'
             else:
-                bypass_check.bg = background_color
+                bypass_check.bg = self.background_color
 
         def set_stop_regulating():
             globals.STOP_REGULATING = not globals.STOP_REGULATING
             if globals.STOP_REGULATING:
                 stop_regulating.bg = 'grey'
             else:
-                stop_regulating.bg = background_color
+                stop_regulating.bg = self.background_color
 
         def numpad(n):
             if settemp.value: #string not empty
@@ -87,23 +92,23 @@ class ui(threading.Thread):
                 left_box.enable()
 
             
-        app = App("Best GUI ever omg omg",bg=background_color,width=800,height=480)
+        app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
         app.full_screen = False
 
 
-        title_box = Box(app, width='fill',align='top',border=show_outline)
-        bottom_box2 = Box(app, width='fill',align='bottom',border=show_outline)
+        title_box = Box(app, width='fill',align='top',border=self.show_outline)
+        bottom_box2 = Box(app, width='fill',align='bottom',border=self.show_outline)
         left_box_whitespace_l = Text(app,text='',width=3,align='left') 
-        left_box = Box(app, width='fill',align='left',border=show_outline)
+        left_box = Box(app, width='fill',align='left',border=self.show_outline)
         left_box_whitespace_r = Text(app,text='',width=3,align='left') 
         right_box_whitespace_r = Text(app,text='',width=3,align='right') 
-        right_box = Box(app, width='fill',align='right',border=show_outline)
+        right_box = Box(app, width='fill',align='right',border=self.show_outline)
         right_box_whitespace_l = Text(app,text='',width=3,align='right')
-        bottom_box = Box(app, width='fill',align='bottom',border=show_outline)
-        middle_box1 = Box(app, width='fill',height='fill',border=show_outline)
-        middle_box2 = Box(app, width='fill',height='fill',border=show_outline)
-        middle_box3 = Box(app, width='fill',height='fill',border=show_outline)
-        middle_box4 = Box(app, width='fill',height='fill',border=show_outline)
+        bottom_box = Box(app, width='fill',align='bottom',border=self.show_outline)
+        middle_box1 = Box(app, width='fill',height='fill',border=self.show_outline)
+        middle_box2 = Box(app, width='fill',height='fill',border=self.show_outline)
+        middle_box3 = Box(app, width='fill',height='fill',border=self.show_outline)
+        middle_box4 = Box(app, width='fill',height='fill',border=self.show_outline)
 
         #in title box
         clock = Text(title_box, text="Clock: ",color="white",align='right')
@@ -117,30 +122,30 @@ class ui(threading.Thread):
 
 
         #in right box
-        right_box1 = Box(right_box,width='fill',height='fill',border=show_outline)
-        right_box2 = Box(right_box,width='fill',height='fill',border=show_outline)
-        right_box3 = Box(right_box,width='fill',height='fill',border=show_outline)
+        right_box1 = Box(right_box,width='fill',height='fill',border=self.show_outline)
+        right_box2 = Box(right_box,width='fill',height='fill',border=self.show_outline)
+        right_box3 = Box(right_box,width='fill',height='fill',border=self.show_outline)
         temp_title = Text(right_box2, text="Actual Temperature",color= "white")
         ready_text = Text(right_box1, text="NOT READY",color = "red")
         ready_text.repeat(1000, update_ready)
         temp = Text(right_box2, text="",color = "white")
         temp.text_size = 28
         temp.repeat(100, update_temperature)
-        right_box3_whitespace = Text(right_box3, text="",color = background_color)
+        right_box3_whitespace = Text(right_box3, text="",color = self.background_color)
 
         #in left box
-        crement_box = Box(left_box,align='right',border=show_outline)
+        crement_box = Box(left_box,align='right',border=self.show_outline)
         scale_button = PushButton(crement_box,text="1",command=scale,align='top',padx=5,pady=5,width=2,height=1)
         increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='top',padx=5,pady=5,width=2,height=1)
         decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='bottom',padx=5,pady=5,width=2,height=1)
 
-        set_box = Box(left_box,width='fill',align='right',border=show_outline)
+        set_box = Box(left_box,width='fill',align='right',border=self.show_outline)
         settemp_title = Text(set_box, text="Set Temperature",color= "white", width=13, height=1)
         settemp = Text(set_box, text='1')
         settemp.text_size = 28; settemp.text_color = 'white'
 
         
-        numpad_box = Box(left_box,layout='grid',align='right',border=show_outline)
+        numpad_box = Box(left_box,layout='grid',align='right',border=self.show_outline)
         button1 = PushButton(numpad_box, text="1", grid=[1,0],command=numpad,args=['1'])
         button2 = PushButton(numpad_box, text="2", grid=[2,0],command=numpad,args=['2'])
         button3  = PushButton(numpad_box, text="3", grid=[3,0],command=numpad,args=['3'])
