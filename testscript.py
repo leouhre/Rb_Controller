@@ -89,7 +89,8 @@ try:
 	while True:
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
-		print(f"time:{time.perf_counter - t_start:5.1f}") 
+		t_temp = time.perf_counter() - t_start
+		print(f"time:{t_temp:5.1f}") 
 		for x in range(num_of_sensors):
 			temp_average += values[x].getTemperature()/num_of_sensors
 			data[x].append(values[x].getTemperature())
@@ -102,7 +103,7 @@ try:
 		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
 		v.append(PI.proportional() + PI.integral())
 
-		t.append(time.perf_counter - t_start)
+		t.append(t_temp)
 		c.append(time.strftime("Clock: %H:%M:%S", time.localtime()))
 
 		time.sleep(0.1)
