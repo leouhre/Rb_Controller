@@ -25,7 +25,7 @@ class ui(threading.Thread):
             settemp.value = "{:3.2f}".format(float(settemp.value))
 
         def increment(n): 
-            if settemp.value:
+            if not settemp.value:
                 settemp.value = round(n*float(scale_button.text),1)
             elif not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
                 settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
