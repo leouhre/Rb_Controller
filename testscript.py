@@ -132,6 +132,7 @@ if answer == "Y":
 	
 	filehandler.deques_to_txtfile(time=t,clock=c)
 	filehandler.sensors_to_txtfile(data)
+	filehandler.all_textfile(data,t,c)
 
 psu.output_off()
 
