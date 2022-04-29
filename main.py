@@ -1,6 +1,3 @@
-#python packages
-import os
-
 #our scripts
 import ui
 import loop

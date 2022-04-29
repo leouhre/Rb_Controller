@@ -100,9 +100,11 @@ class loop(threading.Thread):
             if abs(globals.temperature_target - globals.temperature_average) < 1:
                 count += 1
                 if count == 100: #Temperature has been within 1C of target for more at least 100 samples
+                    globals.READY = True
                     self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
             else: 
                 count = 0
+                globals.READY = False
             
 
             time.sleep(self.FREQUENCY)

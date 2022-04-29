@@ -64,9 +64,13 @@ v = deque()
 v.append(0)
 
 #time data
-tstamp = 0
+t_start = time.perf_counter()
 t = deque()
-t.append(tstamp)
+t.append(t_start)
+
+#clock
+c = deque()
+c.append(time.strftime("Clock: %H:%M:%S", time.localtime()))
 
 # Initiate measurements at constant voltage
 psu.set_current(4)
@@ -79,12 +83,17 @@ T_target = float(sys.argv[1])
 PI = PID() 
 
 
+
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 try:
 	while True:
+		os.system('clear')
 		ret = rt8.getIoGroup(channels, values)
+
 		temp_average = 0
-		print(f"time:{tstamp:5.1f}") 
+		t_temp = time.perf_counter() - t_start
+		print(f"time:{t_temp:5.1f}") 
+
 		for x in range(num_of_sensors):
 			temp_average += values[x].getTemperature()/num_of_sensors
 			data[x].append(values[x].getTemperature())
@@ -97,8 +106,8 @@ try:
 		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
 		v.append(PI.proportional() + PI.integral())
 
-		tstamp += 0.1
-		t.append(tstamp)
+		t.append(t_temp)
+		c.append(time.strftime("%H:%M:%S", time.localtime()))
 
 		time.sleep(0.1)
 
@@ -113,38 +122,20 @@ for x in range(num_of_sensors + 1):
 if len(t) > l:
 	t.pop()
 if len(t) < l:
-	t.append(tstamp + 0.1)
-
-psu.output_off()
+	t.append(t_temp)
 
 # Write temperature data to files /data/sensorX.txt
 answer = ''
 while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
-	"""
-	filehandler.deques_to_txtfile(time=t,voltage=v)
-	filehandler.sensors_to_txtfile(data)
-	"""
-	for x in range(num_of_sensors):
-		f = open("data/sensor" + str(x) + ".txt", "w")
-		for i in range(len(data[x])):
-			L = str(data[x][i]) + "\n"
-			f.write(L)
-		f.close()
-	f = open("data/time.txt", "w")
-	for i in range(len(t)):
-		L = str(t[i]) + "\n"
-		f.write(L)
-	f.close()
-	"""
-	f = open("data/voltage.ftxt", "w")
-	for i in range(len(v)):
-		L = str(v[i]) + "\n"
-		f.write(L)
-	f.close()
-	"""
 	
+	filehandler.deques_to_txtfile(time=t,clock=c)
+	filehandler.sensors_to_txtfile(data)
+	filehandler.all_textfile(data,t,c)
+
+psu.output_off()
+
 # Plot the obtained temperature data
 for x in range(num_of_sensors):
 	plt.plot(t, data[x], label='sensor' + str(x))
