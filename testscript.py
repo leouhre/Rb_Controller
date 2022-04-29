@@ -89,7 +89,7 @@ try:
 	while True:
 		ret = rt8.getIoGroup(channels, values)
 		temp_average = 0
-		print(f"time:{tstamp:5.1f}") 
+		print(f"time:{time.perf_counter - t_start:5.1f}") 
 		for x in range(num_of_sensors):
 			temp_average += values[x].getTemperature()/num_of_sensors
 			data[x].append(values[x].getTemperature())
@@ -125,8 +125,8 @@ answer = ''
 while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
-	"""
-	filehandler.deques_to_txtfile(time=t,voltage=v)
+	
+	filehandler.deques_to_txtfile(time=t,clock=c)
 	filehandler.sensors_to_txtfile(data)
 	"""
 	for x in range(num_of_sensors):
@@ -140,7 +140,6 @@ if answer == "Y":
 		L = str(t[i]) + "\n"
 		f.write(L)
 	f.close()
-	"""
 	f = open("data/voltage.ftxt", "w")
 	for i in range(len(v)):
 		L = str(v[i]) + "\n"
