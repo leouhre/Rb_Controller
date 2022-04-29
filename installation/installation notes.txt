@@ -59,3 +59,4 @@
 			source activate
 			sudo rm python3
 			sudo ln -s /usr/local/bin/python3.10 python3
+- ADJUST BRIGHTNESS: cd /sys/class/backlight/10-0045/; sudo nano brightness;
