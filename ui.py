@@ -8,7 +8,7 @@ class ui(threading.Thread):
         threading.Thread.__init__(self)
         self.MAX_TEMP = 200
         self.MIN_TEMP = 0
-        self.show_outline = True
+        self.show_outline = False
         self.background_color = "#5B5A51"
 
     def clamp(self,val,min_val,max_val):
@@ -24,11 +24,10 @@ class ui(threading.Thread):
             self.set_target_temperature(float(settemp.value))
             settemp.value = "{:3.2f}".format(float(settemp.value))
 
-        # def slider_set_temperature():
-        #     settemp.value = settemp_slider.value
-
         def increment(n): 
-            if not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
+            if settemp.value:
+                settemp.value = round(n*float(scale_button.text),1)
+            elif not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
                 settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
 
         def scale():
@@ -50,7 +49,7 @@ class ui(threading.Thread):
 
         def update_temperature():
             temp.value = "{:4.1f}".format(globals.temperature_average)
-            if globals.temperature_target == float(settemp.value):
+            if settemp.value and globals.temperature_target == float(settemp.value):
                 apply_button.disable()
             else:
                 apply_button.enable()
@@ -88,12 +87,14 @@ class ui(threading.Thread):
             #check if bypass mode is enabled
             if globals.BYPASS_MODE:
                 left_box.disable()
+                apply_button.disable()
             else:
                 left_box.enable()
+                apply_button.enable()
 
             
         app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
-        app.full_screen = False
+        app.full_screen = True
 
 
         title_box = Box(app, width='fill',align='top',border=self.show_outline)
@@ -158,11 +159,6 @@ class ui(threading.Thread):
         button0  = PushButton(numpad_box, text="0", grid=[2,3],command=numpad,args=['0'])
         buttondot  = PushButton(numpad_box, text=".", grid=[1,3],padx=12,command=numpad,args=['.'])
         buttondel  = PushButton(numpad_box, text="c", grid=[3,3],command=numpad_del)
-
-        # settemp_slider = Slider(set_box,command=slider_set_temperature,start=30,end=200,align='bottom',width='fill',height=30)
-        # settemp_slider.bg ='#5B5A51';settemp_slider.text_color = '#5B5A51'
-        # settemp_slider.text_size = 0
-        # settemp_slider.visible = False
 
         #in bottom box
         bypass_check = PushButton(bottom_box2,text="Enter Bypass",command=set_bypass_mode,align='right',width='fill')
