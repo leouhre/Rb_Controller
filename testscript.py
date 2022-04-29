@@ -88,11 +88,12 @@ PI = PID()
 try:
 	while True:
 		os.system('clear')
-
 		ret = rt8.getIoGroup(channels, values)
+
 		temp_average = 0
 		t_temp = time.perf_counter() - t_start
 		print(f"time:{t_temp:5.1f}") 
+
 		for x in range(num_of_sensors):
 			temp_average += values[x].getTemperature()/num_of_sensors
 			data[x].append(values[x].getTemperature())
