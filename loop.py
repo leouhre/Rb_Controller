@@ -22,7 +22,7 @@ class loop(threading.Thread):
 
         while True:
             try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
+                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=10)
             except (TimeoutError, OSError):
                 pass
             else:
