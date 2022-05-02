@@ -27,13 +27,19 @@ class loop(threading.Thread):
                 pass
             else:
                 self.tcp_socket.setblocking(0)
-                self.tcp_socket.sendall("Connected\n".encode())
-                globals.CONNECTED = True
                 break
 
         # Initialize the LucidControl RTD measurement device
-        self.rt8 = LucidControlRT8('/dev/lucidRI8')
-        self.rt8.open()
+        while True:
+            try:
+                self.rt8 = LucidControlRT8('/dev/lucidRI8')
+                self.rt8.open()
+            except:
+                self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
+                time.sleep(5)
+                pass
+            else:
+                break
 
         # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
         self.values = (ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4(), 
@@ -45,8 +51,16 @@ class loop(threading.Thread):
         self.channels = (True, )*self.num_of_sensors + (False, )*(8-self.num_of_sensors)
 
         # Initialize the Elektro-Automatik Power Supply
-        self.psu = ea.PsuEA()
-        self.psu.remote_on()
+        while True:
+            try:
+                self.psu = ea.PsuEA()
+                self.psu.remote_on()
+            except:
+                self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
+                time.sleep(5)                
+                pass
+            else:
+                break
 
         # Initiate measurements at constant voltage
         self.psu.set_current(4)
@@ -55,6 +69,9 @@ class loop(threading.Thread):
 
         #initialize PID
         self.pid = PID()
+        globals.CONNECTED = True
+        self.tcp_socket.sendall("Connected\n".encode())
+
 
         # Create a connection to the server application on port 81
         #while True:
