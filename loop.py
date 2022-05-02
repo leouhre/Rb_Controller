@@ -92,7 +92,7 @@ class loop(threading.Thread):
             globals.temperature_average = 0
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
-            self.tcp_socket.sendall("{:d}\n".format(globals.temperature_average).encode())
+            self.tcp_socket.sendall("{:.2f}\n".format(globals.temperature_average).encode())
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
