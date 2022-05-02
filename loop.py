@@ -23,7 +23,7 @@ class loop(threading.Thread):
         while True:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
-            except TimeoutError:
+            except (TimeoutError, OSError):
                 pass
             else:
                 self.tcp_socket.setblocking(0)
