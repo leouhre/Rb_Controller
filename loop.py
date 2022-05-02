@@ -53,7 +53,7 @@ class loop(threading.Thread):
                 pass
             else:
                 self.tcp_socket.setblocking(0)
-                self.tcp_socket.sendall("connected\n".encode())
+                self.tcp_socket.sendall("Connected\n".encode())
                 break
 
     def run(self):
@@ -64,6 +64,7 @@ class loop(threading.Thread):
             globals.temperature_average = 0
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
+            self.tcp_socket.sendall("{:d}\n".format(globals.temperature_average).encode())
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
