@@ -94,7 +94,7 @@ class ui(threading.Thread):
 
             
         app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
-        app.full_screen = True
+        app.full_screen = False
 
 
         title_box = Box(app, width='fill',align='top',border=self.show_outline)
