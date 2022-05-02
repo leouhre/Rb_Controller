@@ -5,6 +5,7 @@ def initialize_variables():
     global STOP_REGULATING
     global STOP_RUNNING
     global READY
+    global CONNECTED
 
     temperature_target = 0
     temperature_average = 0
@@ -12,3 +13,4 @@ def initialize_variables():
     STOP_REGULATING = False
     STOP_RUNNING = False
     READY = False
+    CONNECTED = False

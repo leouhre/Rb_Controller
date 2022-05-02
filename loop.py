@@ -18,7 +18,19 @@ import ea_psu_controller as ea
 class loop(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.FREQUENCY = 0.1
+        self.FREQUENCY = 0.4
+
+        # Create a connection to the server application on port 81
+        while True:
+            try:
+                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
+            except (TimeoutError, ConnectionRefusedError):
+                pass
+            else:
+                self.tcp_socket.setblocking(0)
+                self.tcp_socket.sendall("Connected\n".encode())
+                globals.CONNECTED = True
+                break
 
         # Initialize the LucidControl RTD measurement device
         self.rt8 = LucidControlRT8('/dev/lucidRI8')
@@ -44,17 +56,6 @@ class loop(threading.Thread):
 
         #initialize PID
         self.pid = PID()
-
-        # Create a connection to the server application on port 81
-        while True:
-            try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
-            except TimeoutError:
-                pass
-            else:
-                self.tcp_socket.setblocking(0)
-                self.tcp_socket.sendall("Connected\n".encode())
-                break
 
     def run(self):
         # Loop
