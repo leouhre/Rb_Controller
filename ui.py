@@ -92,6 +92,8 @@ class ui(threading.Thread):
                 left_box.enable()
                 apply_button.enable()
 
+        while not globals.CONNECTED:
+            pass
             
         app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
         app.full_screen = False
@@ -170,8 +172,6 @@ class ui(threading.Thread):
         gui_loop = Text(app,visible=False)
         gui_loop.repeat(1000,update)
 
-        while not globals.CONNECTED:
-            pass
         app.display()
 
         #also stop loop when ui terminates
