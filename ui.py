@@ -170,6 +170,8 @@ class ui(threading.Thread):
         gui_loop = Text(app,visible=False)
         gui_loop.repeat(1000,update)
 
+        while not globals.CONNECTED:
+            pass
         app.display()
 
         #also stop loop when ui terminates
