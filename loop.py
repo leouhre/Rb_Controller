@@ -20,11 +20,10 @@ class loop(threading.Thread):
         threading.Thread.__init__(self)
         self.FREQUENCY = 0.4
 
-        # Create a connection to the server application on port 81
         while True:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
-            except (TimeoutError, ConnectionRefusedError):
+            except TimeoutError:
                 pass
             else:
                 self.tcp_socket.setblocking(0)
@@ -56,6 +55,17 @@ class loop(threading.Thread):
 
         #initialize PID
         self.pid = PID()
+
+        # Create a connection to the server application on port 81
+        #while True:
+        #    try:
+        #        self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
+        #    except TimeoutError:
+        #        pass
+        #    else:
+        #        self.tcp_socket.setblocking(0)
+        #        self.tcp_socket.sendall("Connected\n".encode())
+        #        break
 
     def run(self):
         # Loop
