@@ -16,6 +16,7 @@ class ui(threading.Thread):
 
     def set_target_temperature(self,x):
         globals.temperature_target = self.clamp(x,0,200) #set bounds for temperature
+        globals.TARGET_TEMP_CHANGED.BY_UI = True #will be set false by loop.py when it has reacted
 
     def run(self):
 
@@ -93,10 +94,12 @@ class ui(threading.Thread):
                 apply_button.enable()
 
         def check_target_temperature():
-            #TODO create a method that checks if target temp has been modified and updates settempvalue 
-            if globals.TARGET_TEMP_CHANGED:
+            #TODO create a method that checks if target temp has been modified and updates settemp.value 
+            if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
                 settemp.value = globals.temperature_target
+                globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
 
+        # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
         while not globals.CONNECTED:
             pass
             

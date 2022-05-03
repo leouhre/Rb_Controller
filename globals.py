@@ -1,3 +1,5 @@
+from enum import Enum
+
 def initialize_variables():
     global temperature_target
     global temperature_average
@@ -15,4 +17,6 @@ def initialize_variables():
     STOP_RUNNING = False
     READY = False
     CONNECTED = False
-    TARGET_TEMP_CHANGED = False
+    class TARGET_TEMP_CHANGED(Enum):
+        BY_UI = False
+        BY_MATLAB = False

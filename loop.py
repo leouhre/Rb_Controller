@@ -73,11 +73,20 @@ class loop(threading.Thread):
         self.tcp_socket.sendall("Connected\n".encode())
 
         def safeExit():
-            self.tcp_socket.sendall("Python application has ended\n".encode())
-            self.psu.output_off()
-            self.psu.remote_off()
-            self.psu.close()
-            self.rt8.close()
+            try:
+                self.tcp_socket.sendall("Python application has ended\n".encode())
+            except OSError:
+                print("Connection lost")
+            try:
+                self.psu.output_off()
+                self.psu.remote_off()
+            except:
+                print("Connection to EA PSU lost")
+            try:
+                self.psu.close()
+                self.rt8.close()
+            except:
+                print("Connection to LucidControl RI8 lost")
 
         atexit.register(safeExit)
 
@@ -100,9 +109,7 @@ class loop(threading.Thread):
             globals.temperature_average = 0
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
-            self.tcp_socket.sendall("{:.2f}\n".format(globals.temperature_average).encode())
-            # Maybe TARGET_TEMP_CHANGED needs to be held true longer
-            globals.TARGET_TEMP_CHANGED = False
+            self.tcp_socket.sendall("AVG_TEMP\n{:.2f}\n".format(globals.temperature_average).encode())
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
@@ -112,9 +119,9 @@ class loop(threading.Thread):
             match str(message[0]):
                 case "t": #Temperatur given
                     globals.temperature_target = int(message[2:5])
+                    globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
                     print(globals.temperature_target)
                     globals.STOP_REGULATING = False
-                    globals.TARGET_TEMP_CHANGED = True
                     
                 case "r": #stop regulating
                     globals.STOP_REGULATING = True
@@ -147,6 +154,10 @@ class loop(threading.Thread):
                 count = 0
                 globals.READY = False
             
+            if globals.TARGET_TEMP_CHANGED.BY_UI:
+                self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
+                globals.TARGET_TEMP_CHANGED.BY_UI = False
+
 
             time.sleep(self.FREQUENCY)
 
