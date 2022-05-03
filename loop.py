@@ -141,6 +141,9 @@ class loop(threading.Thread):
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = True
 
+                case "s": #release Set button
+                    globals.SET = False
+
             while globals.BYPASS_MODE:
                 self.psu.output_off()
                 self.psu.remote_off()
