@@ -80,6 +80,7 @@ class loop(threading.Thread):
             try:
                 self.psu.output_off()
                 self.psu.remote_off()
+                print("PSU output if off")
             except:
                 print("Connection to EA PSU lost")
             try:
@@ -147,7 +148,7 @@ class loop(threading.Thread):
 
             if abs(globals.temperature_target - globals.temperature_average) < 1:
                 count += 1
-                if count == 100: #Temperature has been within 1C of target for more at least 100 samples
+                if count == 20: #Temperature has been within 1C of target for more at least 100 samples
                     globals.READY = True
                     self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
             else: 
