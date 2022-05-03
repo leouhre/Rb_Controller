@@ -12,5 +12,3 @@ ui_thread.start()
 
 main_loop_thread = loop.loop()
 main_loop_thread.start()
-
-ui_thread.join()

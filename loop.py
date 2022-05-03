@@ -70,7 +70,7 @@ class loop(threading.Thread):
         #initialize PID
         self.pid = PID()
         globals.CONNECTED = True
-        self.tcp_socket.sendall("Connected\n".encode())
+        self.tcp_socket.sendall("CONNECTED\n".encode())
 
         def safeExit():
             try:
