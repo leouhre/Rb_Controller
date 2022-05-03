@@ -112,6 +112,7 @@ class loop(threading.Thread):
                     globals.temperature_target = int(message[2:5])
                     print(globals.temperature_target)
                     globals.STOP_REGULATING = False
+                    globals.TARGET_TEMP_CHANGED = True
                     
                 case "r": #stop regulating
                     globals.STOP_REGULATING = True
