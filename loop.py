@@ -111,7 +111,7 @@ class loop(threading.Thread):
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
             try:
-                self.tcp_socket.sendall("AVG_TEMP\n{:.2f}\n".format(globals.temperature_average).encode())
+                self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
             except ConnectionResetError:
                 #globals.STOP_RUNNING = True
                 break
