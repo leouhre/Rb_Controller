@@ -1,5 +1,5 @@
 #python packages
-import time, threading, socket
+import time, threading, socket, atexit
 
 #our scripts
 from classes.pid import PID
@@ -72,6 +72,15 @@ class loop(threading.Thread):
         globals.CONNECTED = True
         self.tcp_socket.sendall("Connected\n".encode())
 
+        def safeExit():
+            self.tcp_socket.sendall("Python application has ended\n".encode())
+            self.psu.output_off()
+            self.psu.remote_off()
+            self.psu.close()
+            self.rt8.close()
+
+        atexit.register(safeExit)
+
 
         # Create a connection to the server application on port 81
         #while True:
@@ -107,6 +116,7 @@ class loop(threading.Thread):
                     
                 case "r": #stop regulating
                     globals.STOP_REGULATING = True
+                    self.psu.output_off()
 
                 case "o": #stop program
                     globals.STOP_RUNNING = True

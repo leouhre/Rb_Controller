@@ -120,7 +120,7 @@ class ui(threading.Thread):
 
 
         #in middle box
-        apply_button = PushButton(middle_box2,text="Apply",align='bottom',command=set_temperature)
+        apply_button = PushButton(middle_box2,text="Set",align='bottom',command=set_temperature)
         apply_button.text_size = 20;apply_button.text_color = 'white'
 
 
