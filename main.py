@@ -8,6 +8,7 @@ globals.initialize_variables()
 
 #create and start threads 
 ui_thread = ui.ui()
+ui_thread.daemon = True
 ui_thread.start()
 
 main_loop_thread = loop.loop()
