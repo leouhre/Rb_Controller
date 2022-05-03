@@ -23,7 +23,6 @@ class ui(threading.Thread):
         def check_for_errors():
             if globals.STOP_RUNNING:
                 app.destroy()
-                self.join()
 
         def set_temperature():
             self.set_target_temperature(float(settemp.value))
