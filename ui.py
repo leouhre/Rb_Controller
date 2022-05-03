@@ -19,8 +19,11 @@ class ui(threading.Thread):
         globals.TARGET_TEMP_CHANGED.BY_UI = True #will be set false by loop.py when it has reacted
 
     def run(self):
-
         #functions for GUI
+        def check_for_errors():
+            if globals.STOP_RUNNING:
+                app.destroy()
+
         def set_temperature():
             self.set_target_temperature(float(settemp.value))
             settemp.value = "{:3.2f}".format(float(settemp.value))
@@ -98,8 +101,6 @@ class ui(threading.Thread):
             if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
                 settemp.value = globals.temperature_target
                 globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
-            if globals.STOP_RUNNING:
-                app.destroy()
 
 
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
@@ -180,6 +181,7 @@ class ui(threading.Thread):
         gui_loop = Text(app,visible=False)
         gui_loop.repeat(1000,check_bypass)
         gui_loop.repeat(1000,check_target_temperature)
+        gui_loop.repeat(1000,check_for_errors)
 
         app.display()
 
