@@ -22,7 +22,7 @@ class loop(threading.Thread):
 
         while True:
             try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=10)
+                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
             except (TimeoutError, OSError):
                 pass
             else:
@@ -126,7 +126,7 @@ class loop(threading.Thread):
 
             match str(message[0]):
                 case "t": #Temperatur given
-                    globals.temperature_target = int(message[2:5])
+                    globals.temperature_target = float(message[2:7])
                     globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
                     globals.STOP_REGULATING = False
                     

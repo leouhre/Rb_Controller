@@ -99,13 +99,16 @@ class ui(threading.Thread):
                 settemp.value = globals.temperature_target
                 globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
 
+        def stop_running():
+            if globals.STOP_RUNNING:
+                exit()
+
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
         while not globals.CONNECTED:
             pass
             
         app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
         app.full_screen = True
-
 
         title_box = Box(app, width='fill',align='top',border=self.show_outline)
         bottom_box2 = Box(app, width='fill',align='bottom',border=self.show_outline)
@@ -126,11 +129,9 @@ class ui(threading.Thread):
         clock.repeat(1000, update_time)
         title = Text(title_box, text="Rubidum Cell Temperature Controller",color="white",align="left")
 
-
         #in middle box
         apply_button = PushButton(middle_box2,text="Set",align='bottom',command=set_temperature)
         apply_button.text_size = 20;apply_button.text_color = 'white'
-
 
         #in right box
         right_box1 = Box(right_box,width='fill',height='fill',border=self.show_outline)
