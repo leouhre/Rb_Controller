@@ -101,12 +101,12 @@ class ui(threading.Thread):
 
         def stop_running():
             if globals.STOP_RUNNING:
-                exit()
+                app.destroy()
 
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
         while not globals.CONNECTED:
             pass
-            
+        
         app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
         app.full_screen = True
 
