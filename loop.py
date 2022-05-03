@@ -81,7 +81,6 @@ class loop(threading.Thread):
 
         atexit.register(safeExit)
 
-
         # Create a connection to the server application on port 81
         #while True:
         #    try:
