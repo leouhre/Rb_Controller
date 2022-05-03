@@ -160,8 +160,10 @@ class loop(threading.Thread):
                     self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
             else: 
                 count = 0
+                if globals.READY:
+                    self.tcp_socket.sendall("NOT_READY\n".encode()) #Send NOT_READY to matlab via serial
                 globals.READY = False
-            
+                            
             if globals.TARGET_TEMP_CHANGED.BY_UI:
                 self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
