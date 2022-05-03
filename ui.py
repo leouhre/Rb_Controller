@@ -83,7 +83,7 @@ class ui(threading.Thread):
         def numpad_del():
             settemp.value = settemp.value[:-1]
 
-        def update():
+        def check_bypass():
             #check if bypass mode is enabled
             if globals.BYPASS_MODE:
                 left_box.disable()
@@ -91,6 +91,11 @@ class ui(threading.Thread):
             else:
                 left_box.enable()
                 apply_button.enable()
+
+        def check_target_temperature():
+            #TODO create a method that check if target temp has been modified and updates settempvalue 
+            if globals.TARGET_TEMP_CHANGED:
+                settemp.value = globals.temperature_target
 
         while not globals.CONNECTED:
             pass
@@ -170,7 +175,8 @@ class ui(threading.Thread):
 
         #invisible button for check loops
         gui_loop = Text(app,visible=False)
-        gui_loop.repeat(1000,update)
+        gui_loop.repeat(1000,check_bypass)
+        gui_loop.repeat(1000,check_target_temperature)
 
         app.display()
 
