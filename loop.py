@@ -37,7 +37,6 @@ class loop(threading.Thread):
             except:
                 self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
                 time.sleep(5)
-                pass
             else:
                 break
 
@@ -58,7 +57,6 @@ class loop(threading.Thread):
             except:
                 self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
                 time.sleep(5)                
-                pass
             else:
                 break
 
