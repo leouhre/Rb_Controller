@@ -34,6 +34,7 @@ class ui(threading.Thread):
                 settemp.value = round(n*float(scale_button.text),1)
             elif not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
                 settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
+            globals.SET = False
 
         def scale():
             if scale_button.text == '1':
@@ -58,10 +59,6 @@ class ui(threading.Thread):
             #    apply_button.disable()
             #else:
             #    apply_button.enable()
-            if globals.SET:
-                apply_button.disable()
-            else:
-                apply_button.enable()
 
         def set_bypass_mode():
             globals.BYPASS_MODE = not globals.BYPASS_MODE
@@ -80,9 +77,11 @@ class ui(threading.Thread):
                             settemp.value += n
             elif n != '.' and n != '0':
                 settemp.value += n
+            globals.SET = False
 
         def numpad_del():
             settemp.value = settemp.value[:-1]
+            globals.SET = False
 
         def check_bypass():
             #check if bypass mode is enabled
@@ -106,6 +105,10 @@ class ui(threading.Thread):
                 bypass_check.bg = 'grey'
             else:
                 bypass_check.bg = self.background_color
+            if globals.SET:
+                apply_button.disable()
+            else:
+                apply_button.enable()
 
 
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
