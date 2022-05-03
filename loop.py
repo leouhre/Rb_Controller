@@ -37,6 +37,7 @@ class loop(threading.Thread):
             except:
                 self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
                 time.sleep(5)
+                pass
             else:
                 break
 
@@ -57,6 +58,7 @@ class loop(threading.Thread):
             except:
                 self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
                 time.sleep(5)                
+                pass
             else:
                 break
 
@@ -99,6 +101,8 @@ class loop(threading.Thread):
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
             self.tcp_socket.sendall("{:.2f}\n".format(globals.temperature_average).encode())
+            # Maybe TARGET_TEMP_CHANGED needs to be held true longer
+            globals.TARGET_TEMP_CHANGED = False
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")

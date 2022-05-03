@@ -93,7 +93,7 @@ class ui(threading.Thread):
                 apply_button.enable()
 
         def check_target_temperature():
-            #TODO create a method that check if target temp has been modified and updates settempvalue 
+            #TODO create a method that checks if target temp has been modified and updates settempvalue 
             if globals.TARGET_TEMP_CHANGED:
                 settemp.value = globals.temperature_target
 
