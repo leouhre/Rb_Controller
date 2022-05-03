@@ -119,6 +119,8 @@ class loop(threading.Thread):
                 message = self.tcp_socket.recv(1024).decode("utf_8")
             except OSError:
                 message = "hello"
+            except:
+                globals.STOP_RUNNING = True
 
             match str(message[0]):
                 case "t": #Temperatur given
