@@ -128,7 +128,6 @@ class loop(threading.Thread):
                 case "t": #Temperatur given
                     globals.temperature_target = int(message[2:5])
                     globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
-                    print(globals.temperature_target)
                     globals.STOP_REGULATING = False
                     
                 case "r": #stop regulating
@@ -174,3 +173,4 @@ class loop(threading.Thread):
         self.psu.output_off()
         self.tcp_socket.close()
         self.rt8.close()
+        exit()
