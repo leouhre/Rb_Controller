@@ -113,14 +113,16 @@ class loop(threading.Thread):
             try:
                 self.tcp_socket.sendall("AVG_TEMP\n{:.2f}\n".format(globals.temperature_average).encode())
             except ConnectionResetError:
-                globals.STOP_RUNNING = True
+                #globals.STOP_RUNNING = True
+                break
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
             except OSError:
                 message = "hello"
             except:
-                globals.STOP_RUNNING = True
+                #globals.STOP_RUNNING = True
+                break
 
             match str(message[0]):
                 case "t": #Temperatur given
