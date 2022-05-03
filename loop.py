@@ -128,6 +128,7 @@ class loop(threading.Thread):
                 case "t": #Temperatur given
                     globals.temperature_target = float(message[2:7])
                     globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                    globals.SET = True
                     globals.STOP_REGULATING = False
                     
                 case "r": #stop regulating
