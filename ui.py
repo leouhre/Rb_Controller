@@ -98,10 +98,9 @@ class ui(threading.Thread):
             if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
                 settemp.value = globals.temperature_target
                 globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
-
-        def stop_running():
             if globals.STOP_RUNNING:
                 app.destroy()
+
 
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
         while not globals.CONNECTED:
