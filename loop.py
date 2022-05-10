@@ -70,7 +70,7 @@ class loop(threading.Thread):
         #initialize PID
         self.pid = PID()
         globals.CONNECTED = True
-        self.tcp_socket.sendall("Connected\n".encode())
+        self.tcp_socket.sendall("CONNECTED\n".encode())
 
         def safeExit():
             try:
@@ -111,7 +111,7 @@ class loop(threading.Thread):
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/self.num_of_sensors
             try:
-                self.tcp_socket.sendall("AVG_TEMP\n{:.2f}\n".format(globals.temperature_average).encode())
+                self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
             except ConnectionResetError:
                 #globals.STOP_RUNNING = True
                 break
@@ -128,6 +128,7 @@ class loop(threading.Thread):
                 case "t": #Temperatur given
                     globals.temperature_target = float(message[2:7])
                     globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                    globals.SET = True
                     globals.STOP_REGULATING = False
                     
                 case "r": #stop regulating
@@ -139,6 +140,9 @@ class loop(threading.Thread):
 
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = True
+
+                case "s": #release Set button
+                    globals.SET = False
 
             while globals.BYPASS_MODE:
                 self.psu.output_off()

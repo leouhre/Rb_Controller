@@ -33,12 +33,14 @@ class ui(threading.Thread):
         def set_temperature():
             self.set_target_temperature(float(settemp.value))
             settemp.value = "{:3.2f}".format(float(settemp.value))
+            globals.SET = True
 
         def increment(n): 
             if not settemp.value:
                 settemp.value = round(n*float(scale_button.text),1)
             elif not (float(settemp.value) + n*float(scale_button.text) > self.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < self.MIN_TEMP):
                 settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
+            globals.SET = False
 
         def scale():
             if scale_button.text == '1':
@@ -59,24 +61,16 @@ class ui(threading.Thread):
 
         def update_temperature():
             temp.value = "{:4.1f}".format(globals.temperature_average)
-            if settemp.value and globals.temperature_target == float(settemp.value):
-                apply_button.disable()
-            else:
-                apply_button.enable()
+            #if settemp.value and globals.temperature_target == float(settemp.value):
+            #    apply_button.disable()
+            #else:
+            #    apply_button.enable()
 
         def set_bypass_mode():
             globals.BYPASS_MODE = not globals.BYPASS_MODE
-            if globals.BYPASS_MODE:
-                bypass_check.bg = 'grey'
-            else:
-                bypass_check.bg = self.background_color
 
         def set_stop_regulating():
             globals.STOP_REGULATING = not globals.STOP_REGULATING
-            if globals.STOP_REGULATING:
-                stop_regulating.bg = 'grey'
-            else:
-                stop_regulating.bg = self.background_color
 
         def numpad(n):
             if settemp.value: #string not empty
@@ -92,6 +86,7 @@ class ui(threading.Thread):
                                 settemp.value += n
             elif n != '.' and n != '0':
                 settemp.value += n
+            globals.SET = False
 
         #TODO: Make a numpad function that targets current textbox, or settemp if in controller window
 
@@ -121,6 +116,18 @@ class ui(threading.Thread):
             if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
                 settemp.value = globals.temperature_target
                 globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
+            if globals.STOP_REGULATING:
+                stop_regulating.bg = 'grey'
+            else:
+                stop_regulating.bg = self.background_color
+            if globals.BYPASS_MODE:
+                bypass_check.bg = 'grey'
+            else:
+                bypass_check.bg = self.background_color
+            if globals.SET:
+                apply_button.disable()
+            else:
+                apply_button.enable()
 
 
         # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
@@ -185,7 +192,7 @@ class ui(threading.Thread):
         #in bottom box
         bypass_check = PushButton(bottom_box2,text="Enter Bypass",command=set_bypass_mode,align='right',width='fill')
         bypass_check.text_size = 24; bypass_check.text_color = 'white'
-        stop_regulating = PushButton(bottom_box2,text="Stop Regulating",command=set_stop_regulating,align='left',width='fill')
+        stop_regulating = PushButton(bottom_box2,text="Relax",command=set_stop_regulating,align='left',width='fill')
         stop_regulating.text_size = 24; stop_regulating.text_color ='white'
 
         #invisible button for check loops

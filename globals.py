@@ -6,6 +6,7 @@ def initialize_variables():
     global STOP_RUNNING
     global READY
     global CONNECTED
+    global SET
     global TARGET_TEMP_CHANGED
 
     temperature_target = 0
@@ -15,6 +16,7 @@ def initialize_variables():
     STOP_RUNNING = False
     READY = False
     CONNECTED = False
+    SET = False
     class TARGET_TEMP_CHANGED():
         BY_UI = False
         BY_MATLAB = False
