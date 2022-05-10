@@ -24,7 +24,8 @@ import ea_psu_controller as ea
 
 
 # Initialize the LucidControl RTD measurement device
-rt8 = LucidControlRT8('/dev/lucidRI8')
+#rt8 = LucidControlRT8('/dev/lucidRI8')
+rt8 = LucidControlRT8('COM3')
 rt8.open()
 
 
@@ -41,7 +42,8 @@ channels = (True,)*(num_of_sensors) + (False,)*(8-num_of_sensors)
 # Make sure that 99-ea-psu.rules is in /etc/udev/rules.d/ as recommended at https://pypi.org/project/ea-psu-controller/
 print("Connecting to the EA power supply...")
 try:
-	psu = ea.PsuEA()
+	#psu = ea.PsuEA()
+	psu = ea.PsuEA('COM4')
 except: 
 	print('ERROR: No PSU found. Try re-connecting the USB cable')
 	exit()
@@ -78,9 +80,10 @@ psu.set_voltage(0)
 psu.output_on()
 
 #temperature from terminal 
-T_target = float(sys.argv[1])
+T_target = 200
+psu.set_voltage(float(sys.argv[1]))
 #initialize PID
-PI = PID() 
+#PI = PID() 
 
 
 
@@ -102,14 +105,14 @@ try:
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
 
-		PI.update_error(temp_average,T_target)
-		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
-		v.append(PI.proportional() + PI.integral())
+		#PI.update_error(temp_average,T_target)
+		#psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
+		#v.append(PI.proportional() + PI.integral())
 
 		t.append(t_temp)
 		c.append(time.strftime("%H:%M:%S", time.localtime()))
 
-		time.sleep(0.1)
+		time.sleep(1)
 
 except KeyboardInterrupt:
 	pass
