@@ -60,5 +60,10 @@
 			sudo rm python3
 			sudo ln -s /usr/local/bin/python3.10 python3
 - ADJUST BRIGHTNESS: cd /sys/class/backlight/10-0045/; sudo nano brightness;
+- ADJUST BRIGHTNESS2: 
+	- pip install rpi-backlight
+	- echo 'SUBSYSTEM=="10-0045",RUN+="/bin/chmod 666 /sys/class/backlight/%k/brightness /sys/class/backlight/%k/bl_power"' | sudo tee -a /etc/udev/rules.d/backlight-permissions.rules
+	- pip install wheel
+	- pip install pygobject
 
-- pip install pathlib and PyInputPlus
+- pip install pathlib and PyInputPlus (for using filemover.py)
