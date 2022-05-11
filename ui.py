@@ -1,5 +1,11 @@
 import threading, time
-from guizero import App, Text, Box, PushButton, Slider, Picture, Window, TextBox, CheckBox
+from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
+import tkinter as tk
+from matplotlib import animation
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+
+
 import globals
 
 class ui(threading.Thread):
@@ -24,6 +30,9 @@ class ui(threading.Thread):
         def swap_windows():
             settings_window.visible = not settings_window.visible
             settings_window.full_screen = not settings_window.full_screen
+            global selected_widget
+            selected_widget = settemp
+            #TODO: apply new settings when swapping windows
 
 
         def check_for_errors():
@@ -48,47 +57,24 @@ class ui(threading.Thread):
             else:
                 scale_button.text = str(1)
 
-        def update_time():
-            clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
-
-        def update_ready():
-            if globals.READY:
-                ready_text.text_color = 'green'
-                ready_text.value = 'READY'
-            else:
-                ready_text.text_color = 'red'
-                ready_text.value = 'NOT READY'
-
-        def update_temperature():
-            temp.value = "{:4.1f}".format(globals.temperature_average)
-            #if settemp.value and globals.temperature_target == float(settemp.value):
-            #    apply_button.disable()
-            #else:
-            #    apply_button.enable()
-
         def set_bypass_mode():
             globals.BYPASS_MODE = not globals.BYPASS_MODE
 
         def set_stop_regulating():
             globals.STOP_REGULATING = not globals.STOP_REGULATING
 
-        def numpad(n):
-            if settemp.value: #string not empty
-                if n == 'c':
-                    settemp.value = settemp.value[:-1]
-                else:
-                    match '.' in settemp.value:
-                        case True: #decimal
-                            if settemp.value[::-1].find('.') < 2 and n != '.':
-                                settemp.value += n
-                        case False: #no decimal
-                            if len(settemp.value) < 3 and int(settemp.value) <= 20 or n == '.':
-                                settemp.value += n
-            elif n != '.' and n != '0':
-                settemp.value += n
-            globals.SET = False
-
-        #TODO: Make a numpad function that targets current textbox, or settemp if in controller window
+        def numpad(btn):
+            match btn:
+                case 1|2|3|4|5|6|7|8|9:
+                    selected_widget.append(btn)
+                case '0':
+                    if selected_widget.value: #not empty
+                        selected_widget.append(btn)
+                case '.':
+                    if '.' not in selected_widget.value:
+                        selected_widget.append(btn)
+                case 'c':
+                    selected_widget.value = selected_widget.value[:-1]
 
 
         def spawn_numpad(master,size):
@@ -102,98 +88,133 @@ class ui(threading.Thread):
                 btn.text_color = self.text_color
                 btn.text_size = size
 
+        #These functions are used for periodic updates and checks on certain values
+        def update_time():
+            clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
+        def update_temperature():
+            temp.value = "{:4.1f}".format(globals.temperature_average)
+        def update_ready():
+            if globals.READY:
+                ready_text.text_color = 'green'
+                ready_text.value = 'READY'
+            else:
+                ready_text.text_color = 'red'
+                ready_text.value = 'NOT READY'
 
         def check_bypass():
             #check if bypass mode is enabled
+            #TODO: merge this function with the check_target_temperature below
             if globals.BYPASS_MODE:
-                left_box.disable()
-                apply_button.disable()
+                #left_box.disable()
+                set_temp_button.disable()
             else:
-                left_box.enable()
-                apply_button.enable()
+                #left_box.enable()
+                set_temp_button.enable()
 
         def check_target_temperature():
             if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
                 settemp.value = globals.temperature_target
                 globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
             if globals.STOP_REGULATING:
-                stop_regulating.bg = 'grey'
+                pause_output_button.bg = 'grey'
             else:
-                stop_regulating.bg = self.background_color
-            if globals.BYPASS_MODE:
-                bypass_check.bg = 'grey'
-            else:
-                bypass_check.bg = self.background_color
+                pause_output_button.bg = self.background_color
+            # if globals.BYPASS_MODE:
+            #     bypass_check.bg = 'grey'
+            # else:
+            #     bypass_check.bg = self.background_color
             if globals.SET:
-                apply_button.disable()
+                set_temp_button.disable()
             else:
-                apply_button.enable()
+                set_temp_button.enable()
 
-
-        # Wait with opening the GUI window until MATLAB creates the server to avoid issue with fullscreen
-        # while globals.CONNECTED:
-        #     pass
         
-        app = App("Best GUI ever omg omg",bg=self.background_color,width=800,height=480)
-        app.full_screen = True
+        app = App()
+        app.visible = False
 
-        title_box = Box(app, width='fill',align='top',border=self.show_outline)
-        bottom_box2 = Box(app, width='fill',align='bottom',border=self.show_outline)
-        left_box_whitespace_l = Text(app,text='',width=3,align='left') 
-        left_box = Box(app, width='fill',align='left',border=self.show_outline)
-        left_box_whitespace_r = Text(app,text='',width=3,align='left') 
-        right_box_whitespace_r = Text(app,text='',width=3,align='right') 
-        right_box = Box(app, width='fill',align='right',border=self.show_outline)
-        right_box_whitespace_l = Text(app,text='',width=3,align='right')
-        bottom_box = Box(app, width='fill',align='bottom',border=self.show_outline)
-        middle_box1 = Box(app, width='fill',height='fill',border=self.show_outline)
-        middle_box2 = Box(app, width='fill',height='fill',border=self.show_outline)
-        middle_box3 = Box(app, width='fill',height='fill',border=self.show_outline)
-        middle_box4 = Box(app, width='fill',height='fill',border=self.show_outline)
+        controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=self.background_color,height=480,width=800)
+        #row 0
+        Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',color='white',grid=[0,0,3,1]) 
+        #brightness_slider = Slider(controller_window,start=0,end=100,grid=[4,0])
 
-        #in title box
-        settings_button = PushButton(title_box, text="Settings",align='right',command=swap_windows);settings_button.text_color = self.text_color
-        #settings_picture = Picture(title_box,image='pictures\settings_icon.jpg')
-        clock = Text(title_box, text="Clock: ",color="white",align='right')
-        clock.repeat(1000, update_time)
-        title = Text(title_box, text="Rubidum Cell Temperature Controller",color="white",align="left")
+        settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,pady=1)
+        settings_button.text_color = self.text_color
+        settings_button.text_size = 18
+        #row 1
+        #TODO: rename set_stop_regulating to match new name "pause output"
+        output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4)
+        output_off_button.text_size = 20; output_off_button.text_color ='white'
+        pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,1],command=set_stop_regulating,height=1,width=4)
+        pause_output_button.text_size = 20; pause_output_button.text_color ='white'
+        set_temp_button = PushButton(controller_window,text="Set\nTemp",grid=[2,1],command=set_temperature,height=1,width=4)
+        set_temp_button.text_size = 20;set_temp_button.text_color = 'white'
 
-        #in middle box
-        apply_button = PushButton(middle_box2,text="Set",align='bottom',command=set_temperature)
-        apply_button.text_size = 20;apply_button.text_color = 'white'
-
-        #in right box
-        right_box1 = Box(right_box,width='fill',height='fill',border=self.show_outline)
-        right_box2 = Box(right_box,width='fill',height='fill',border=self.show_outline)
-        right_box3 = Box(right_box,width='fill',height='fill',border=self.show_outline)
-        temp_title = Text(right_box2, text="Actual Temperature",color= "white")
-        ready_text = Text(right_box1, text="NOT READY",color = "red")
+        temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
+        ready_text = Text(temp_box, text="NOT READY",color = "red")
         ready_text.repeat(1000, update_ready)
-        temp = Text(right_box2, text="",color = "white")
+        temp_title = Text(temp_box, text="Actual Temperature",color= "white")
+        temp = Text(temp_box, text="0",color = "white")
         temp.text_size = 28
         temp.repeat(100, update_temperature)
-        right_box3_whitespace = Text(right_box3, text="",color = self.background_color)
 
-        #in left box
-        crement_box = Box(left_box,align='right',border=self.show_outline)
-        scale_button = PushButton(crement_box,text="1",command=scale,align='top',padx=5,pady=5,width=2,height=1);scale_button.text_color = self.text_color
-        increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='top',padx=5,pady=5,width=2,height=1);increasetemp_button.text_color = self.text_color
-        decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='bottom',padx=5,pady=5,width=2,height=1);decreasetemp_button.text_color = self.text_color
+        time_scale_combo = Combo(controller_window,options=['last 10s',20,30,60,120,300,600],grid=[4,1],align='bottom',width=15)
+        time_scale_combo.text_size = 18
+        time_scale_combo.text_color = 'white'
 
-        set_box = Box(left_box,width='fill',align='right',border=self.show_outline)
-        settemp_title = Text(set_box, text="Set Temperature",color= "white", width=13, height=1)
+        #Row 2
+        spawn_numpad(Box(controller_window,grid=[0,2,2,9],align=['left','bottom']),20)
+
+        #row 3 
+        plot_box = Box(controller_window,grid=[3,3,2,8],align=['right','bottom'],layout='grid',border=True)
+        f = plt.figure(figsize=(4,3.5))
+        axis = plt.axes(xlim =(0, 10), ylim =(0, 30))
+        line, = axis.plot([], [], linewidth = 2)
+        axis.set_xlabel('Time[s]')
+        axis.set_ylabel('Temperature[C]')
+
+        def init():
+            line.set_data([], [])
+            return line,
+
+        x,y = [],[]
+
+        def animate(i):
+            x.append(len(y)+1)
+            y.append(globals.temperature_average)
+            line.set_data(x[-10:], y[-10:])
+            axis.set_xlim(xmin=len(x[:-10]),xmax=len(x))
+            canvas.draw()
+            return line,
+        
+        anim = animation.FuncAnimation(f, animate,
+                            init_func = init,
+                            frames = 500,
+                            interval = 1000,
+                            blit = True)
+
+        canvas = FigureCanvasTkAgg(f, plot_box.tk)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        #row 4
+        set_box = Box(controller_window,grid=[2,4,1,6])
+        Text(set_box, text="Set Temperature",color= "white")
         settemp = Text(set_box, text='1')
         settemp.text_size = 28; settemp.text_color = 'white'
 
-        
 
-        spawn_numpad(left_box,12)
-
-        #in bottom box
-        bypass_check = PushButton(bottom_box2,text="Enter Bypass",command=set_bypass_mode,align='right',width='fill')
-        bypass_check.text_size = 24; bypass_check.text_color = 'white'
-        stop_regulating = PushButton(bottom_box2,text="Relax",command=set_stop_regulating,align='left',width='fill')
-        stop_regulating.text_size = 24; stop_regulating.text_color ='white'
+        #row 8
+        crement_box = Box(controller_window,grid=[2,10])
+        scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
+        scale_button.text_color = self.text_color
+        scale_button.text_size = 20
+        increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',padx=12,pady=5,width=2,height=1)
+        increasetemp_button.text_color = self.text_color
+        increasetemp_button.text_size = 20
+        decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
+        decreasetemp_button.text_color = self.text_color
+        decreasetemp_button.text_size = 20
 
         #invisible button for check loops
         gui_loop = Text(app,visible=False)
@@ -222,9 +243,12 @@ class ui(threading.Thread):
         Text(settings_window,text='Derivative:',grid=[3,2],color=self.text_color)
         #PID textBoxes row 3
         Text(settings_window,text='PID Gains:',grid=[0,3],color=self.text_color)
-        proportinal_gain_textbox = TextBox(settings_window,grid=[1,3]).text_color=self.text_color
-        integral_gain_textbox = TextBox(settings_window,grid=[2,3]).text_color=self.text_color
-        derivative_gain_textbox = TextBox(settings_window,grid=[3,3]).text_color=self.text_color
+        proportional_gain_textbox = TextBox(settings_window,text='2',grid=[1,3])
+        proportional_gain_textbox.text_color=self.text_color
+        integral_gain_textbox = TextBox(settings_window,grid=[2,3])
+        integral_gain_textbox.text_color=self.text_color
+        derivative_gain_textbox = TextBox(settings_window,grid=[3,3])
+        derivative_gain_textbox.text_color=self.text_color
 
         #Temperature row 4
         temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4],color=self.text_color)
@@ -232,8 +256,10 @@ class ui(threading.Thread):
     
         #Temperature textboxes row 5
         Text(settings_window,text='Temperature:',grid=[0,5],color=self.text_color)
-        temperature_limit_textbox = TextBox(settings_window,grid=[1,5]).text_color=self.text_color
-        temperature_offset_textbox = TextBox(settings_window,grid=[2,5]).text_color=self.text_color
+        temperature_limit_textbox = TextBox(settings_window,grid=[1,5])
+        temperature_limit_textbox.text_color=self.text_color
+        temperature_offset_textbox = TextBox(settings_window,grid=[2,5])
+        temperature_offset_textbox.text_color=self.text_color
 
         #row 6
         Text(settings_window,text='\nSettling type:',grid=[0,6],color=self.text_color)
@@ -241,32 +267,45 @@ class ui(threading.Thread):
         #row 7
         Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7],color=self.text_color)
         #row 8
-        contant_error_checkbox = CheckBox(settings_window,text='Constant Error',grid=[0,8]).text_color=self.text_color
-        settling_temperature_fluctuations_textbox = TextBox(settings_window,grid=[1,8]).text_color=self.text_color
+        contant_error_checkbox = CheckBox(settings_window,text='Constant Error',grid=[0,8])
+        contant_error_checkbox.text_color=self.text_color
+        settling_temperature_fluctuations_textbox = TextBox(settings_window,grid=[1,8])
+        settling_temperature_fluctuations_textbox.text_color=self.text_color
 
         #row 9
         Text(settings_window,text='Settle slope [C/s]:',grid=[1,9],color=self.text_color)
         Text(settings_window,text='Slope length [s]:',grid=[2,9],color=self.text_color)
         #row 10
         slope_checkbox = CheckBox(settings_window,text='Slope',grid=[0,10]).text_color=self.text_color
-        settle_slope_textbox = TextBox(settings_window,grid=[1,10]).text_color=self.text_color
-        slope_length_textbox = TextBox(settings_window,grid=[2,10]).text_color=self.text_color
+        settle_slope_textbox = TextBox(settings_window,grid=[1,10])
+        settle_slope_textbox.text_color=self.text_color
+        slope_length_textbox = TextBox(settings_window,grid=[2,10])
+        slope_length_textbox.text_color=self.text_color
 
         #row 11
         Text(settings_window,text='Settle wait time[s]:',grid=[1,11],color=self.text_color)
         #row 12
         slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12]).text_color=self.text_color
-        settle_slope_textbox = TextBox(settings_window,grid=[1,12]).text_color=self.text_color
+        wait_time_textbox = TextBox(settings_window,grid=[1,12])
+        wait_time_textbox.text_color=self.text_color
 
         #numpad
         spawn_numpad(Box(settings_window,grid=[4,2,1,12],border=True),size=24)
 
+        #events
+        def clicked(event_data):
+            global selected_widget
+            selected_widget = event_data.widget
 
-
-        # TODO: Delete these test lines
-        settings_window.visible = True
-        app.full_screen = False
-        
+        proportional_gain_textbox.when_clicked = clicked
+        integral_gain_textbox.when_clicked = clicked
+        derivative_gain_textbox.when_clicked = clicked
+        temperature_limit_textbox.when_clicked = clicked
+        temperature_offset_textbox.when_clicked = clicked
+        settling_temperature_fluctuations_textbox.when_clicked = clicked
+        settle_slope_textbox.when_clicked = clicked
+        slope_length_textbox.when_clicked = clicked
+        wait_time_textbox.when_clicked = clicked  
 
 
         app.display()

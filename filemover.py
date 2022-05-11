@@ -1,4 +1,4 @@
-#Copies test data to a user named directory in "tests"
+#!Copies test data to a user named directory in "tests"
 
 import shutil, os
 from pathlib import Path
