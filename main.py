@@ -22,6 +22,11 @@ def set_target_temperature(temperature):
     globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
     globals.TARGET_TEMP_CHANGED.BY_UI = True #will be set false by loop.py when it has reacted
 
+def set_temperature():
+    set_target_temperature(float(settemp.value))
+    settemp.value = "{:3.2f}".format(float(settemp.value))
+    globals.SET = True
+
 #functions for Main GUI
 def swap_windows():
     settings_window.visible = not settings_window.visible
@@ -29,16 +34,6 @@ def swap_windows():
     global selected_widget
     selected_widget = settemp
     #TODO: apply new settings when swapping windows
-
-
-def check_for_errors():
-    if globals.STOP_RUNNING:
-        app.destroy()
-
-def set_temperature():
-    set_target_temperature(float(settemp.value))
-    settemp.value = "{:3.2f}".format(float(settemp.value))
-    globals.SET = True
 
 def increment(n): 
     if not settemp.value:
@@ -48,10 +43,10 @@ def increment(n):
     globals.SET = False
 
 def scale():
-    if scale_button.text == '1':
-        scale_button.text = str(0.1)
+    if scale_button.text == 'x1':
+        scale_button.text = 'x0.1'
     else:
-        scale_button.text = str(1)
+        scale_button.text = 'x1'
 
 def set_bypass_mode():
     globals.BYPASS_MODE = not globals.BYPASS_MODE
@@ -124,6 +119,9 @@ def check_target_temperature():
     else:
         set_temp_button.enable()
 
+def check_for_errors():
+    if globals.STOP_RUNNING:
+        app.destroy()
 
 app = App()
 app.visible = False
@@ -305,5 +303,5 @@ main_loop_thread = loop_simulator.loop()
 main_loop_thread.start()
 
 app.display()
-
+globals.STOP_REGULATING = True
 main_loop_thread.join
