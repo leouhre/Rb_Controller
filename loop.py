@@ -112,6 +112,11 @@ class loop(threading.Thread):
                 #globals.STOP_RUNNING = True
                 break
 
+            # SAFETY: AVERAGE MUST NO BE HIGHER THAN 200C
+            if globals.temperature_average > 203:
+                # Send warning to pop-up box
+                globals.STOP_REGULATING = True
+
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
             except OSError:
