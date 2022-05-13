@@ -1,7 +1,6 @@
 from pathlib import Path
-from xmlrpc.client import Boolean
-import scipy.signal as sig
-import numpy as np
+#import scipy.signal as sig
+#import numpy as np
 
 class PID2():
     def __init__(self):
@@ -14,30 +13,30 @@ class PID2():
             self.freq = float(config.readline())
             self.d_controller_enabled = int(config.readline())
 
-        self.C_num, self.C_den = self.calculate_tf(False)
-        self.b, self.a = self.bilinear_transform(self.C_num, self.C_den)
-        self.C_num_withoutI, self.C_den_withoutI = self.calculate_tf(True)
-        self.b_withoutI, self.a_withoutI = self.bilinear_transform(self.C_num_withoutI, self.C_den_withoutI)
+        #self.C_num, self.C_den = self.calculate_tf(False)
+        #self.b, self.a = self.bilinear_transform(self.C_num, self.C_den)
+        #self.C_num_withoutI, self.C_den_withoutI = self.calculate_tf(True)
+        #self.b_withoutI, self.a_withoutI = self.bilinear_transform(self.C_num_withoutI, self.C_den_withoutI)
     
     integral_error = 0
     prev_t = 0
     upper_lim = 28
     lower_lim = -4
-    e = [0, 0, 0]
-    u = [0, 0, 0]
+    # e = [0, 0, 0]
+    # u = [0, 0, 0]
     
-    def calculate_tf(self,withoutI):
-        self.I_num = [self.taui, 1]
-        self.I_den = [self.taui, 0]
-        self.D_num = [self.taud, 1]
-        self.D_den = [self.taud*self.alpha, 1]
-        if withoutI:
-            return np.multiply(self.D_num,self.kp), self.D_den
-        else:
-            return self.kp*np.polymul(self.I_num, self.D_num), np.polymul(self.I_den, self.D_den)
+    # def calculate_tf(self,withoutI):
+    #     self.I_num = [self.taui, 1]
+    #     self.I_den = [self.taui, 0]
+    #     self.D_num = [self.taud, 1]
+    #     self.D_den = [self.taud*self.alpha, 1]
+    #     if withoutI:
+    #         return np.multiply(self.D_num,self.kp), self.D_den
+    #     else:
+    #         return self.kp*np.polymul(self.I_num, self.D_num), np.polymul(self.I_den, self.D_den)
 
-    def bilinear_transform(self, num, den):
-        return sig.bilinear(num, den, self.freq)   
+    # def bilinear_transform(self, num, den):
+    #     return sig.bilinear(num, den, self.freq)   
 
     def update(self, t, t_target):
         error = t_target - t
@@ -56,18 +55,16 @@ class PID2():
             self.integral_error += error
         return pidout
 
-    def update2(self, t, t_target):
-        self.e[0] = t_target - t
-        self.u[0] = self.a[1]*self.u[1] + self.a[2]*self.u[2] + self.b[0]*self.e[0] + self.b[1]*self.e[1] + self.b[2]*self.e[2]
-        self.e[2] = self.e[1]
-        self.e[1] = self.e[0]
-        self.u[2] = self.u[1]
-        self.u[1] = self.u[0]
-        if self.u[0] > self.upper_lim:
-            return self.upper_lim
-        elif self.u[0] < self.lower_lim:
-            return self.lower_lim
-        else:
-            return self.u[0]
-
-pid = PID2()
+    # def update2(self, t, t_target):
+    #     self.e[0] = t_target - t
+    #     self.u[0] = self.a[1]*self.u[1] + self.a[2]*self.u[2] + self.b[0]*self.e[0] + self.b[1]*self.e[1] + self.b[2]*self.e[2]
+    #     self.e[2] = self.e[1]
+    #     self.e[1] = self.e[0]
+    #     self.u[2] = self.u[1]
+    #     self.u[1] = self.u[0]
+    #     if self.u[0] > self.upper_lim:
+    #         return self.upper_lim
+    #     elif self.u[0] < self.lower_lim:
+    #         return self.lower_lim
+    #     else:
+    #         return self.u[0]
