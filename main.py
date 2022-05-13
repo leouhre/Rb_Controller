@@ -6,6 +6,7 @@ import tkinter as tk
 from matplotlib import animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import numpy as np
 #our scripts
 # import loop
 import loop_simulator
@@ -43,16 +44,24 @@ def increment(n):
     globals.SET = False
 
 def scale():
-    if scale_button.text == 'x1':
-        scale_button.text = 'x0.1'
+    if scale_button.text == '1':
+        scale_button.text = '0.1'
     else:
-        scale_button.text = 'x1'
+        scale_button.text = '1'
 
 def set_bypass_mode():
     globals.BYPASS_MODE = not globals.BYPASS_MODE
 
 def set_stop_regulating():
     globals.STOP_REGULATING = not globals.STOP_REGULATING
+
+def get_min_xlim():
+    if 'all' in time_scale_combo.value:
+        return 0
+
+    return max(int(time_scale_combo.value[-3:-1]),0)
+
+
 
 def numpad(btn):
     match btn:
@@ -151,7 +160,10 @@ temp = Text(temp_box, text="0",color = "white")
 temp.text_size = 28
 temp.repeat(100, update_temperature)
 
-time_scale_combo = Combo(controller_window,options=['last 10s',20,30,60,120,300,600],grid=[4,1],align='bottom',width=15)
+time_scale_combo = Combo(controller_window,options=['show last 10s','show last 20s',
+                                                    'show last 30s','show last 60s',
+                                                    'show last 120s','show last 300s',
+                                                    'show last 600s','show all'], grid=[4,1],align='bottom',width=15)
 time_scale_combo.text_size = 18
 time_scale_combo.text_color = 'white'
 
@@ -170,16 +182,20 @@ def init():
     line.set_data([], [])
     return line,
 
-x,y = [],[]
+t,y = [],[]
 
 def animate(i):
-    x.append(len(y)+1)
+    current_time = time.perf_counter()-start_time
+    t.append(current_time)
     y.append(globals.temperature_average)
-    line.set_data(x[-10:], y[-10:])
-    axis.set_xlim(xmin=len(x[:-10]),xmax=len(x))
+    line.set_data(t, y)
+    res = np.isclose(current_time-get_min_xlim(),t,atol=0.3)
+    tmin_index = np.argmax(res)
+    print(tmin_index)
+    print(len(t))
+    axis.set_xlim(xmin=len(t[tmin_index:]),xmax=len(t))
     canvas.draw()
     return line,
-
 anim = animation.FuncAnimation(f, animate,
                     init_func = init,
                     frames = 500,
@@ -300,6 +316,8 @@ wait_time_textbox.when_clicked = clicked
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()
 main_loop_thread = loop_simulator.loop()
+
+start_time = time.perf_counter()
 main_loop_thread.start()
 
 app.display()
