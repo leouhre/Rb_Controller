@@ -1,4 +1,4 @@
-FREQUENCY = 2
+FREQUENCY = 1
 
 #python packages
 from encodings import utf_8
@@ -10,7 +10,7 @@ from collections import deque
 import socket
 
 #our scripts
-from classes.pid import PID
+from classes.pid2 import PID2
 import filehandler
 
 # Import functionality of RTD measurement device
@@ -67,18 +67,20 @@ psu.set_voltage(0)
 psu.output_on()
 """
 #initialize PID
-pid = PID
+pid = PID2()
 
 #FLAG
 STOP_RUNNING = False
-STOP_REGULATING = True
+STOP_REGULATING = False
 BYPASS_MODE = False
-temperature_target = 0
+temperature_target = 200
 count = 0
+output = 0
+temperature_average = 0
 
 # Create a connection to the server application on port 81
-tcp_socket = socket.create_connection(('localhost', 4000))
-tcp_socket.setblocking(0)
+# tcp_socket = socket.create_connection(('localhost', 4000))
+# tcp_socket.setblocking(0)
 
 #tcp_socket.sendall("ready".encode())
 
@@ -88,16 +90,16 @@ while not STOP_RUNNING:
 
         #ret = rt8.getIoGroup(channels, values)
 
-        temperature_average = 0
+        
         for x in range(num_of_sensors):
-            temperature_average = temperature_average + np.random.random_sample() #values[x].getTemperature()
-        temperature_average = temperature_average/num_of_sensors 
+            temperature_average += + output/4 #np.random.random_sample() #values[x].getTemperature()
+        #temperature_average = temperature_average/num_of_sensors 
 
         try:
             message = tcp_socket.recv(1024).decode("utf_8")
         except:
             message = "hello"
-            print("no message")	
+            #print("no message")	
 
         match str(message[0]):
             case "t": #Temperatur given
@@ -124,20 +126,22 @@ while not STOP_RUNNING:
             print("regulating")
             #pid.update_error(temperature_average,temperature_target)
             #psu.set_voltage(pid.regulate_output()) 
-        
+            output = pid.update2(temperature_average,temperature_target)
+            print(output)
+            print(temperature_average)       
 
         if abs(temperature_target - temperature_average) < 1:
             count = count + 1
             if count == 100: #Temperature has been within 1C of target for more at least 100 samples
-                tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+                #tcp_socket.sendall("READY".encode()) #Send READY to matlab via serial
+                pass
         else: 
             count = 0
-        
 
         timer = time.time()
                 
 
 
 #psu.output_off()
-tcp_socket.close()
+#tcp_socket.close()
 
