@@ -8,6 +8,7 @@ def initialize_variables():
     global CONNECTED
     global SET
     global TARGET_TEMP_CHANGED
+    global CONNECTED_TO_MATLAB
 
     temperature_target = 0
     temperature_average = 0
@@ -20,3 +21,4 @@ def initialize_variables():
     class TARGET_TEMP_CHANGED():
         BY_UI = False
         BY_MATLAB = False
+    CONNECTED_TO_MATLAB = False

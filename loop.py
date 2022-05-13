@@ -1,25 +1,23 @@
-#python packages
+# Python packages
 import time, threading, socket, atexit
 
-#our scripts
-from classes.pid import PID
+# Our scripts
+from classes.pid2 import PID2
 import globals
 
-# Import functionality of RTD measurement device
-# import lucidIo
+# Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
 from lucidIo.Values import ValueTMS2
 from lucidIo.Values import ValueTMS4
-from lucidIo import IoReturn
 
-# Import functionality of power supply unit
+# Import power supply unit
 import ea_psu_controller as ea
 
 class loop(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.FREQUENCY = 0.4
 
+        # TODO: Move into function called by "connect to matlab" button on ui
         while True:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
@@ -35,8 +33,10 @@ class loop(threading.Thread):
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
             except:
-                self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
-                time.sleep(5)
+                # TODO: Do not only send to MATLAB but also show on pop-up screen
+                if globals.CONNECTED_TO_MATLAB:
+                    self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
+                    time.sleep(5)
                 pass
             else:
                 break
@@ -46,9 +46,8 @@ class loop(threading.Thread):
             ValueTMS4(), ValueTMS4(), ValueTMS4(), ValueTMS4())
 
         # Initialize a boolean tuple for channels to read
-        # Make sure this tuple matches the physical setup on the LucidControl device
-        self.num_of_sensors = 2
-        self.channels = (True, )*self.num_of_sensors + (False, )*(8-self.num_of_sensors)
+        # Make sure this tuple matches the physical setup on the LucidControl device (sensors should be connected from starting from input 1)
+        self.channels = (True, )*globals.NUMBER_OF_SENSORS + (False, )*(8-globals.NUMBER_OF_SENSORS)
 
         # Initialize the Elektro-Automatik Power Supply
         while True:
@@ -56,22 +55,26 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except:
+                # TODO: Do not only send to MATLAB but also show on pop-up screen
                 self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
                 time.sleep(5)                
                 pass
             else:
                 break
 
+        globals.CONNECTED_TO_INSTRUMENTS = True
+        #self.tcp_socket.sendall("CONNECTED\n".encode())
+
         # Initiate measurements at constant voltage
         self.psu.set_current(4)
         self.psu.set_voltage(0)
         self.psu.output_on()
 
-        #initialize PID
-        self.pid = PID()
-        globals.CONNECTED = True
-        self.tcp_socket.sendall("CONNECTED\n".encode())
+        # Initialize PID
+        self.pid = PID2()
+        self.Ts = 1/self.pid.freq
 
+        # TODO: Should be made compatible with pop-up screens and CONNECTED_TO_MATLAB
         def safeExit():
             try:
                 self.tcp_socket.sendall("Python application has ended\n".encode())
@@ -91,25 +94,18 @@ class loop(threading.Thread):
 
         atexit.register(safeExit)
 
-        # Create a connection to the server application on port 81
-        #while True:
-        #    try:
-        #        self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=4)
-        #    except TimeoutError:
-        #        pass
-        #    else:
-        #        self.tcp_socket.setblocking(0)
-        #        self.tcp_socket.sendall("Connected\n".encode())
-        #        break
-
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
-            self.rt8.getIoGroup(self.channels, self.values)
+            # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
+            try:
+                ret = self.rt8.getIoGroup(self.channels, self.values)
+            except ValueError:
+                print(ret)
 
             globals.temperature_average = 0
             for value in self.values:
-                globals.temperature_average += value.getTemperature()/self.num_of_sensors
+                globals.temperature_average += value.getTemperature()/globals.NUMBER_OF_SENSORS
             try:
                 self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
             except ConnectionResetError:
@@ -152,27 +148,27 @@ class loop(threading.Thread):
             self.psu.remote_on()
 
             if not globals.STOP_REGULATING:
-                self.pid.update_error(globals.temperature_average, globals.temperature_target)
-                self.psu.set_voltage(self.pid.regulate_output())
-            
+                pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
+                self.psu.set_voltage(pidout)          
 
             if abs(globals.temperature_target - globals.temperature_average) < 1:
                 count += 1
-                if count == 20: #Temperature has been within 1C of target for more at least 100 samples
+                if count == 10/self.pid.freq: # Temperature has been within 1C of target for more at least 10 seconds
                     globals.READY = True
-                    self.tcp_socket.sendall("READY\n".encode()) #Send READY to matlab via serial
+                    if globals.CONNECTED_TO_MATLAB:
+                        self.tcp_socket.sendall("READY\n".encode()) # Send READY to matlab via serial
             else: 
                 count = 0
-                if globals.READY:
-                    self.tcp_socket.sendall("NOT_READY\n".encode()) #Send NOT_READY to matlab via serial
+                if globals.READY and globals.CONNECTED_TO_MATLAB:
+                    self.tcp_socket.sendall("NOT_READY\n".encode()) # Send NOT_READY to matlab via serial
                 globals.READY = False
                             
             if globals.TARGET_TEMP_CHANGED.BY_UI:
-                self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
+                if globals.CONNECTED_TO_MATLAB:
+                    self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
 
-
-            time.sleep(self.FREQUENCY)
+            time.sleep(self.Ts)
 
         self.psu.output_off()
         self.tcp_socket.close()
