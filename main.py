@@ -58,8 +58,7 @@ def set_stop_regulating():
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
         return 0
-
-    return max(int(time_scale_combo.value[-3:-1]),0)
+    return max(int(time_scale_combo.value[10:-1]),0)
 
 
 
@@ -173,34 +172,26 @@ spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
 f = plt.figure(figsize=(4,3.5))
-axis = plt.axes(xlim =(0, 10), ylim =(0, 30))
+axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
 axis.set_xlabel('Time[s]')
 axis.set_ylabel('Temperature[C]')
 
-def init():
-    line.set_data([], [])
-    return line,
-
-t,y = [],[]
+start_time = time.perf_counter()
+time_data,temperature_data = [],[]
 
 def animate(i):
     current_time = time.perf_counter()-start_time
-    t.append(current_time)
-    y.append(globals.temperature_average)
-    line.set_data(t, y)
-    res = np.isclose(current_time-get_min_xlim(),t,atol=0.3)
-    tmin_index = np.argmax(res)
-    print(tmin_index)
-    print(len(t))
-    axis.set_xlim(xmin=len(t[tmin_index:]),xmax=len(t))
+    time_data.append(current_time)
+    temperature_data.append(globals.temperature_average)
+    tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
+    line.set_data(time_data, temperature_data)
+    axis.set_xlim(xmin=tmin_index,xmax=len(time_data))
     canvas.draw()
-    return line,
+
 anim = animation.FuncAnimation(f, animate,
-                    init_func = init,
                     frames = 500,
-                    interval = 1000,
-                    blit = True)
+                    interval = 1000)
 
 canvas = FigureCanvasTkAgg(f, plot_box.tk)
 canvas.draw()
@@ -316,10 +307,8 @@ wait_time_textbox.when_clicked = clicked
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()
 main_loop_thread = loop_simulator.loop()
-
-start_time = time.perf_counter()
 main_loop_thread.start()
-
 app.display()
-globals.STOP_REGULATING = True
+
+globals.STOP_RUNNING = True
 main_loop_thread.join
