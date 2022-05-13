@@ -52,8 +52,12 @@ def scale():
 def set_bypass_mode():
     globals.BYPASS_MODE = not globals.BYPASS_MODE
 
-def set_stop_regulating():
-    globals.STOP_REGULATING = not globals.STOP_REGULATING
+def set_output_pause():
+    globals.OUTPUT_PAUSE = not globals.OUTPUT_PAUSE
+
+def set_output_off():
+    globals.OUTPUT_OFF = not globals.OUTPUT_OFF
+
 
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
@@ -111,21 +115,31 @@ def check_bypass():
         set_temp_button.enable()
 
 def check_target_temperature():
+    #Updates in controller window
     if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
         settemp.value = globals.temperature_target
         globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
-    if globals.STOP_REGULATING:
+
+    if globals.OUTPUT_PAUSE:
         pause_output_button.bg = 'grey'
     else:
         pause_output_button.bg = background_color
-    # if globals.BYPASS_MODE:
-    #     bypass_check.bg = 'grey'
-    # else:
-    #     bypass_check.bg = background_color
+    
+    if globals.OUTPUT_OFF:
+        output_off_button.bg = 'grey'
+    else:
+        output_off_button.bg = background_color
+
     if globals.SET:
         set_temp_button.disable()
     else:
         set_temp_button.enable()
+
+    #updates in settings windows
+    if globals.BYPASS_MODE:
+        use_power_supply_button.bg = 'grey'
+    else:
+        use_power_supply_button.bg = background_color
 
 def check_for_errors():
     if globals.STOP_RUNNING:
@@ -144,9 +158,9 @@ settings_button.text_color = text_color
 settings_button.text_size = 18
 #row 1
 #TODO: rename set_stop_regulating to match new name "pause output"
-output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4)
+output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4,command=set_output_off)
 output_off_button.text_size = 20; output_off_button.text_color ='white'
-pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,1],command=set_stop_regulating,height=1,width=4)
+pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,1],command=set_output_pause,height=1,width=4)
 pause_output_button.text_size = 20; pause_output_button.text_color ='white'
 set_temp_button = PushButton(controller_window,text="Set\nTemp",grid=[2,1],command=set_temperature,height=1,width=4)
 set_temp_button.text_size = 20;set_temp_button.text_color = 'white'
@@ -171,7 +185,7 @@ spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
 
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
-f = plt.figure(figsize=(4,3.5))
+f = plt.figure(figsize=(3.9,3.3))
 axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
 axis.set_xlabel('Time[s]')
