@@ -65,7 +65,6 @@ def get_min_xlim():
     return max(int(time_scale_combo.value[10:-1]),0)
 
 
-
 def numpad(btn):
     match btn:
         case 1|2|3|4|5|6|7|8|9:
@@ -92,33 +91,24 @@ def spawn_numpad(master,size):
         btn.text_size = size
 
 #These functions are used for periodic updates and checks on certain values
-def update_time():
-    clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
+# def update_time():
+#     clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
+
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
-def update_ready():
+
+def ui_visual_updates():
+    #Updates in controller window
+    if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
+        settemp.value = globals.temperature_target
+        globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
+
     if globals.READY:
         ready_text.text_color = 'green'
         ready_text.value = 'READY'
     else:
         ready_text.text_color = 'red'
         ready_text.value = 'NOT READY'
-
-def check_bypass():
-    #check if bypass mode is enabled
-    #TODO: merge this function with the check_target_temperature below
-    if globals.BYPASS_MODE:
-        #left_box.disable()
-        set_temp_button.disable()
-    else:
-        #left_box.enable()
-        set_temp_button.enable()
-
-def check_target_temperature():
-    #Updates in controller window
-    if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
-        settemp.value = globals.temperature_target
-        globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
 
     if globals.OUTPUT_PAUSE:
         pause_output_button.bg = 'grey'
@@ -140,8 +130,7 @@ def check_target_temperature():
         use_power_supply_button.bg = 'grey'
     else:
         use_power_supply_button.bg = background_color
-
-def check_for_errors():
+    
     if globals.STOP_RUNNING:
         app.destroy()
 
@@ -157,7 +146,6 @@ settings_button = PushButton(controller_window, text="Settings",align='right',gr
 settings_button.text_color = text_color
 settings_button.text_size = 18
 #row 1
-#TODO: rename set_stop_regulating to match new name "pause output"
 output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4,command=set_output_off)
 output_off_button.text_size = 20; output_off_button.text_color ='white'
 pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,1],command=set_output_pause,height=1,width=4)
@@ -167,7 +155,6 @@ set_temp_button.text_size = 20;set_temp_button.text_color = 'white'
 
 temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
 ready_text = Text(temp_box, text="NOT READY",color = "red")
-ready_text.repeat(1000, update_ready)
 temp_title = Text(temp_box, text="Actual Temperature",color= "white")
 temp = Text(temp_box, text="0",color = "white")
 temp.text_size = 28
@@ -185,7 +172,7 @@ spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
 
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
-f = plt.figure(figsize=(3.9,3.3))
+f = plt.figure(figsize=(4,3.5))
 axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
 axis.set_xlabel('Time[s]')
@@ -232,16 +219,15 @@ decreasetemp_button.text_size = 20
 
 #invisible button for check loops
 gui_loop = Text(app,visible=False)
-gui_loop.repeat(1000,check_bypass)
-gui_loop.repeat(1000,check_target_temperature)
-gui_loop.repeat(1000,check_for_errors)
+gui_loop.repeat(1000,ui_visual_updates)
 
 #Settings window
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
 
 #Title row 0
 Text(settings_window,text='Rb-controller Settings',color=text_color,grid=[0,0],align='left')
-use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1]).text_color=text_color
+use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1])
+use_power_supply_button.text_color=text_color
 controller_button = PushButton(settings_window, text="controller",align='right',command=swap_windows,grid=[4,0]).text_color = text_color
 
 #Row 1 whitespaces
