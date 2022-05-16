@@ -41,14 +41,38 @@ def set_temperature():
     globals.SET = True
 
 #functions for Main GUI
-def swap_windows():
-    settings_window.visible = not settings_window.visible
-    #settings_window.full_screen = not settings_window.full_screen
+def swap_windows(to):
     global selected_widget
+    if to == 'controller':
+        save_changes_window.visible = True
+    if to == 'settings':
+        selected_widget = proportional_gain_textbox
+        settings_window.visible = True
+        settings_window.full_screen = True
+
+def apply_settings(answer):
+    global selected_widget
+    global textboxes
+    if answer == 'no':
+        with open('config.txt','r') as config:
+            for textbox in textboxes:
+                textbox.value = float(config.readline())
+    
+    if answer == 'yes':
+        with open('config.txt','w') as config:
+            for textbox in textboxes:
+                config.write(textbox.value + "\n")
+
+    save_changes_window.visible = False
+    settings_window.visible = False
     selected_widget = settemp
 
 
-    #TODO: apply new settings when swapping windows
+def show_brightness_window():
+    brightness_window.visible = not brightness_window.visible
+
+def adjust_brightnes():
+    print(f"brightness={brightness_slider.value}")
 
 def increment(n): 
     if not settemp.value:
@@ -149,15 +173,30 @@ def ui_visual_updates():
 
 app = App()
 app.visible = False
+app.text_color = 'white'
+
+brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
+brightness_window.text_size = 40
+brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
+
+save_changes_window = Window(app,title="Brightness settings",visible=False,height=200,width=300)
+Text(save_changes_window,text='Save Changes?',align='top')
+PushButton(save_changes_window,text='YES',align='left',command=apply_settings,args=['yes'])
+PushButton(save_changes_window,text='NO',align='right',command=apply_settings,args=['no'])
+save_changes_window.bg = background_color
+save_changes_window.text_color = text_color
+save_changes_window.text_size = 24
+
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
 Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',color='white',grid=[0,0,3,1]) 
-#brightness_slider = Slider(controller_window,start=0,end=100,grid=[4,0])
 
-settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,pady=1)
+settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_color = text_color
 settings_button.text_size = 18
+brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
+brightness_button.text_size = 16
 #row 1
 output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4,command=set_output_off)
 output_off_button.text_size = 20; output_off_button.text_color ='white'
@@ -194,7 +233,6 @@ axis.set_ylabel('Temperature[C]')
 start_time = time.perf_counter()
 time_data,temperature_data = [],[]
 
-@measure
 def animate(i):
     current_time = time.perf_counter() - start_time
     time_data.append(current_time)
@@ -235,21 +273,23 @@ gui_loop.repeat(1000,ui_visual_updates)
 
 #Settings window
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
+settings_window.text_size = 13 
 
 #Title row 0
-Text(settings_window,text='Rb-controller Settings',color=text_color,grid=[0,0],align='left')
-use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1])
-use_power_supply_button.text_color=text_color
-controller_button = PushButton(settings_window, text="controller",align='right',command=swap_windows,grid=[4,0]).text_color = text_color
+Text(settings_window,text='Rb-controller Settings',color=text_color,grid=[0,0,2,1],align='left')
+use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
+use_power_supply_button.text_size = 16
+controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
+controller_button.text_size = 16
 
 #Row 1 whitespaces
-Text(settings_window,text='',color=text_color,grid=[0,1],align='left')
-Text(settings_window,text='',color=text_color,grid=[3,1],width=13,align='left')
+# Text(settings_window,text='',color=text_color,grid=[0,1],align='left')
+#Text(settings_window,text='  ',color=text_color,grid=[3,1],width=13,align='left').text_size = 10
 
 #PID row 2
 Text(settings_window,text='Proportional:',grid=[1,2],color=text_color)
 Text(settings_window,text='Intergral:',grid=[2,2],color=text_color)
-Text(settings_window,text='Derivative:',grid=[3,2],color=text_color)
+Text(settings_window,text='    Derivative:     ',grid=[3,2],color=text_color)
 #PID textBoxes row 3
 Text(settings_window,text='PID Gains:',grid=[0,3],color=text_color)
 proportional_gain_textbox = TextBox(settings_window,grid=[1,3])
@@ -271,7 +311,7 @@ temperature_offset_textbox = TextBox(settings_window,grid=[2,5])
 temperature_offset_textbox.text_color=text_color
 
 #row 6
-Text(settings_window,text='\nSettling type:',grid=[0,6],color=text_color)
+Text(settings_window,text='Settling type:',grid=[0,7],color=text_color)
 
 #row 7
 Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7],color=text_color)
