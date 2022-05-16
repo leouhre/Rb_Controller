@@ -86,13 +86,13 @@ temperature_average = 0
 
 # Append sensor values to their queues every second and update time. Stop the experiment with "Ctrl+c" raising Keyboardinterrupt
 while not STOP_RUNNING:
-    if (time.time() - timer) > FREQUENCY:
+    if (time.time() - timer) > pid.Ts:
 
         #ret = rt8.getIoGroup(channels, values)
 
         
         for x in range(num_of_sensors):
-            temperature_average += + output/4 #np.random.random_sample() #values[x].getTemperature()
+            temperature_average += output/4 #np.random.random_sample() #values[x].getTemperature()
         #temperature_average = temperature_average/num_of_sensors 
 
         try:
@@ -126,7 +126,7 @@ while not STOP_RUNNING:
             print("regulating")
             #pid.update_error(temperature_average,temperature_target)
             #psu.set_voltage(pid.regulate_output()) 
-            output = pid.update2(temperature_average,temperature_target)
+            output = pid.update3(temperature_average,temperature_target)
             print(output)
             print(temperature_average)       
 
