@@ -54,13 +54,11 @@ class PID2():
             pidout += derivative * self.taud / self.Ts
             self.prev_t = t
         pidout *= self.kp
-        if pidout > self.upper_lim:
-            pidout = self.upper_lim
-        elif pidout < self.lower_lim:
-            pidout = self.lower_lim
-        else:
+        
+        if self.lower_lim < pidout < self.upper_lim:
             self.integral_error += error
-        return pidout
+
+        return max(min(pidout,self.upper_lim),self.lower_lim)
 
     # PID implemented using [Niemann ch. 18] (no wind-up compensation but bilinear transformation)
     # def update2(self, t, t_target):

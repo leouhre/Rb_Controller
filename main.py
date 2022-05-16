@@ -1,6 +1,6 @@
 #! regulates temperature of rubidium cell
 #Python packages 
-import threading, time
+import threading, time,sys
 from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
 import tkinter as tk
 from matplotlib import animation
@@ -12,12 +12,24 @@ import numpy as np
 import loop_simulator
 import globals
 
+from functools import wraps
 #names
 globals.initialize_variables()
 MAX_TEMP = 200
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
+
+def measure(func):
+    @wraps(func)
+    def _time_it(*args, **kwargs):
+        start = int(round(time.time() * 1000))
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_ = int(round(time.time() * 1000)) - start
+            print(f"Total execution time: {end_ if end_ > 0 else 0} ms")
+    return _time_it
 
 def set_target_temperature(temperature):
     globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
@@ -61,14 +73,12 @@ def set_output_off():
 
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
-        return 0
+        return sys.maxsize
     return max(int(time_scale_combo.value[10:-1]),0)
 
 
 def numpad(btn):
     match btn:
-        case 1|2|3|4|5|6|7|8|9:
-            selected_widget.append(btn)
         case '0':
             if selected_widget.value: #not empty
                 selected_widget.append(btn)
@@ -77,6 +87,9 @@ def numpad(btn):
                 selected_widget.append(btn)
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
+        case 1|2|3|4|5|6|7|8|9:
+            selected_widget.append(btn)
+
 
 
 def spawn_numpad(master,size):
@@ -181,18 +194,17 @@ axis.set_ylabel('Temperature[C]')
 start_time = time.perf_counter()
 time_data,temperature_data = [],[]
 
+@measure
 def animate(i):
-    current_time = time.perf_counter()-start_time
+    current_time = time.perf_counter() - start_time
     time_data.append(current_time)
     temperature_data.append(globals.temperature_average)
     tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
     line.set_data(time_data, temperature_data)
-    axis.set_xlim(xmin=tmin_index,xmax=len(time_data))
+    axis.set_xlim(xmin=tmin_index,xmax=time_data[-1])
     canvas.draw()
 
-anim = animation.FuncAnimation(f, animate,
-                    frames = 500,
-                    interval = 1000)
+anim = animation.FuncAnimation(f, animate, interval = 1000)
 
 canvas = FigureCanvasTkAgg(f, plot_box.tk)
 canvas.draw()

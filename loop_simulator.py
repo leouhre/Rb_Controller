@@ -17,10 +17,10 @@ class loop(threading.Thread):
         while not globals.STOP_RUNNING:
 
 
-            if globals.STOP_REGULATING:
-                globals.temperature_average -= 0.1
+            if globals.OUTPUT_PAUSE:
+                globals.temperature_average -= 2
             else:
-                globals.temperature_average += min(max(globals.temperature_target - globals.temperature_average,0-1),5)
+                globals.temperature_average += min(max(globals.temperature_target - globals.temperature_average,-10),5)
 
             while globals.BYPASS_MODE:
                 time.sleep(1)
