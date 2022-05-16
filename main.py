@@ -154,8 +154,7 @@ def ui_visual_updates():
     if globals.STOP_RUNNING:
         app.destroy()
 
-app = App()
-app.visible = False
+app = App(visible=False)
 app.text_color = 'white'
 
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
@@ -253,54 +252,54 @@ settings_window = Window(app,title='Settings',width=800,height=480,bg=background
 settings_window.text_size = 13 
 
 #Title row 0
-Text(settings_window,text='Rb-controller Settings',color=text_color,grid=[0,0,2,1],align='left')
+Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
 controller_button.text_size = 16
 
 #Row 1 whitespaces
-# Text(settings_window,text='',color=text_color,grid=[0,1],align='left')
-#Text(settings_window,text='  ',color=text_color,grid=[3,1],width=13,align='left').text_size = 10
+# Text(settings_window,text='',grid=[0,1],align='left')
+#Text(settings_window,text='  ',grid=[3,1],width=13,align='left').text_size = 10
 
 #PID row 2
-Text(settings_window,text='Proportional:',grid=[1,2],color=text_color)
-Text(settings_window,text='Intergral:',grid=[2,2],color=text_color)
-Text(settings_window,text='    Derivative:     ',grid=[3,2],color=text_color)
+Text(settings_window,text='Proportional:',grid=[1,2])
+Text(settings_window,text='Intergral:',grid=[2,2])
+Text(settings_window,text='    Derivative:     ',grid=[3,2])
 #PID textBoxes row 3
-Text(settings_window,text='PID Gains:',grid=[0,3],color=text_color)
+Text(settings_window,text='PID Gains:',grid=[0,3])
 proportional_gain_textbox = TextBox(settings_window,grid=[1,3])
 integral_gain_textbox = TextBox(settings_window,grid=[2,3])
 derivative_gain_textbox = TextBox(settings_window,grid=[3,3])
 
 #Temperature row 4
-temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4],color=text_color)
-temperature_offset_title = Text(settings_window,text='Temperature Offset',grid=[2,4],color=text_color)
+temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4])
+temperature_offset_title = Text(settings_window,text='Temperature Offset',grid=[2,4])
 
 #Temperature textboxes row 5
-Text(settings_window,text='Temperature:',grid=[0,5],color=text_color)
+Text(settings_window,text='Temperature:',grid=[0,5])
 temperature_limit_textbox = TextBox(settings_window,grid=[1,5])
 temperature_offset_textbox = TextBox(settings_window,grid=[2,5])
 
 #row 6
-Text(settings_window,text='Settling type:',grid=[0,7],color=text_color)
+Text(settings_window,text='Settling type:',grid=[0,7])
 
 #row 7
-Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7],color=text_color)
+Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7])
 #row 8
 contant_error_checkbox = CheckBox(settings_window,text='Constant Error',grid=[0,8])
 settling_temperature_fluctuations_textbox = TextBox(settings_window,grid=[1,8])
 
 #row 9
-Text(settings_window,text='Settle slope [C/s]:',grid=[1,9],color=text_color)
-Text(settings_window,text='Slope length [s]:',grid=[2,9],color=text_color)
+Text(settings_window,text='Settle slope [C/s]:',grid=[1,9])
+Text(settings_window,text='Slope length [s]:',grid=[2,9])
 #row 10
 slope_checkbox = CheckBox(settings_window,text='Slope',grid=[0,10])
 settle_slope_textbox = TextBox(settings_window,grid=[1,10])
 slope_length_textbox = TextBox(settings_window,grid=[2,10])
 
 #row 11
-Text(settings_window,text='Settle wait time[s]:',grid=[1,11],color=text_color)
+Text(settings_window,text='Settle wait time[s]:',grid=[1,11])
 #row 12
 slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
