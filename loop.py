@@ -72,7 +72,6 @@ class loop(threading.Thread):
 
         # Initialize PID
         self.pid = PID2()
-        self.Ts = 1/self.pid.freq
 
         # TODO: Should be made compatible with pop-up screens and CONNECTED_TO_MATLAB
         def safeExit():
@@ -83,11 +82,11 @@ class loop(threading.Thread):
             try:
                 self.psu.output_off()
                 self.psu.remote_off()
+                self.psu.close()
                 print("PSU output if off")
             except:
                 print("Connection to EA PSU lost")
             try:
-                self.psu.close()
                 self.rt8.close()
             except:
                 print("Connection to LucidControl RI8 lost")
@@ -173,9 +172,9 @@ class loop(threading.Thread):
                     self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
 
-            time.sleep(self.Ts)
+            time.sleep(self.pid.Ts)
 
-        self.psu.output_off()
+        self.psu.close()
         self.tcp_socket.close()
         self.rt8.close()
         exit()
