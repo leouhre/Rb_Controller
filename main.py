@@ -67,11 +67,11 @@ def apply_settings(answer):
     settings_window.visible = False
     selected_widget = settemp
 
-
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
 
 def adjust_brightnes():
+
     print(f"brightness={brightness_slider.value}")
 
 def increment(n): 
@@ -358,24 +358,13 @@ textboxes = (
     wait_time_textbox)
 
 for textbox in textboxes:
-    textbox.when_clicked = clicked
-# proportional_gain_textbox.when_clicked = clicked
-# integral_gain_textbox.when_clicked = clicked
-# derivative_gain_textbox.when_clicked = clicked
-# temperature_limit_textbox.when_clicked = clicked
-# temperature_offset_textbox.when_clicked = clicked
-# settling_temperature_fluctuations_textbox.when_clicked = clicked
-# settle_slope_textbox.when_clicked = clicked
-# slope_length_textbox.when_clicked = clicked
-# wait_time_textbox.when_clicked = clicked  
+    textbox.when_clicked = clicked 
 
 selected_widget = settemp
 
 with open('config.txt', 'r') as config:
     for textbox in textboxes:
-        #textbox.value = float(config.readline())
-        pass
-
+        textbox.value = float(config.readline())
 
 
 #TODO: use the uncommented line when in lab
