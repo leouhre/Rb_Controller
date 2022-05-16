@@ -43,9 +43,11 @@ def set_temperature():
 #functions for Main GUI
 def swap_windows():
     settings_window.visible = not settings_window.visible
-    settings_window.full_screen = not settings_window.full_screen
+    #settings_window.full_screen = not settings_window.full_screen
     global selected_widget
     selected_widget = settemp
+
+
     #TODO: apply new settings when swapping windows
 
 def increment(n): 
@@ -79,15 +81,13 @@ def get_min_xlim():
 
 def numpad(btn):
     match btn:
-        case '0':
-            if selected_widget.value: #not empty
-                selected_widget.append(btn)
         case '.':
             if '.' not in selected_widget.value:
                 selected_widget.append(btn)
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
-        case 1|2|3|4|5|6|7|8|9:
+
+        case 0|1|2|3|4|5|6|7|8|9:
             selected_widget.append(btn)
 
 
@@ -252,7 +252,7 @@ Text(settings_window,text='Intergral:',grid=[2,2],color=text_color)
 Text(settings_window,text='Derivative:',grid=[3,2],color=text_color)
 #PID textBoxes row 3
 Text(settings_window,text='PID Gains:',grid=[0,3],color=text_color)
-proportional_gain_textbox = TextBox(settings_window,text='2',grid=[1,3])
+proportional_gain_textbox = TextBox(settings_window,grid=[1,3])
 proportional_gain_textbox.text_color=text_color
 integral_gain_textbox = TextBox(settings_window,grid=[2,3])
 integral_gain_textbox.text_color=text_color
@@ -306,15 +306,37 @@ def clicked(event_data):
     global selected_widget
     selected_widget = event_data.widget
 
-proportional_gain_textbox.when_clicked = clicked
-integral_gain_textbox.when_clicked = clicked
-derivative_gain_textbox.when_clicked = clicked
-temperature_limit_textbox.when_clicked = clicked
-temperature_offset_textbox.when_clicked = clicked
-settling_temperature_fluctuations_textbox.when_clicked = clicked
-settle_slope_textbox.when_clicked = clicked
-slope_length_textbox.when_clicked = clicked
-wait_time_textbox.when_clicked = clicked  
+textboxes = (
+    proportional_gain_textbox, 
+    integral_gain_textbox,
+    derivative_gain_textbox,
+    temperature_limit_textbox,
+    temperature_offset_textbox,
+    settling_temperature_fluctuations_textbox,
+    settle_slope_textbox,
+    slope_length_textbox,
+    wait_time_textbox)
+
+for textbox in textboxes:
+    textbox.when_clicked = clicked
+# proportional_gain_textbox.when_clicked = clicked
+# integral_gain_textbox.when_clicked = clicked
+# derivative_gain_textbox.when_clicked = clicked
+# temperature_limit_textbox.when_clicked = clicked
+# temperature_offset_textbox.when_clicked = clicked
+# settling_temperature_fluctuations_textbox.when_clicked = clicked
+# settle_slope_textbox.when_clicked = clicked
+# slope_length_textbox.when_clicked = clicked
+# wait_time_textbox.when_clicked = clicked  
+
+selected_widget = settemp
+
+with open('config.txt', 'r') as config:
+    for textbox in textboxes:
+        #textbox.value = float(config.readline())
+        pass
+
+
 
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()
