@@ -12,7 +12,6 @@ import numpy as np
 import loop_simulator
 import globals
 
-from functools import wraps
 #names
 globals.initialize_variables()
 MAX_TEMP = 200
@@ -20,16 +19,6 @@ MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
 
-def measure(func):
-    @wraps(func)
-    def _time_it(*args, **kwargs):
-        start = int(round(time.time() * 1000))
-        try:
-            return func(*args, **kwargs)
-        finally:
-            end_ = int(round(time.time() * 1000)) - start
-            print(f"Total execution time: {end_ if end_ > 0 else 0} ms")
-    return _time_it
 
 def set_target_temperature(temperature):
     globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
@@ -41,14 +30,38 @@ def set_temperature():
     globals.SET = True
 
 #functions for Main GUI
-def swap_windows():
-    settings_window.visible = not settings_window.visible
-    #settings_window.full_screen = not settings_window.full_screen
+def swap_windows(to):
     global selected_widget
+    if to == 'controller':
+        save_changes_window.visible = True
+    if to == 'settings':
+        selected_widget = proportional_gain_textbox
+        settings_window.visible = True
+        settings_window.full_screen = True
+
+def apply_settings(answer):
+    global selected_widget
+    global textboxes
+    if answer == 'no':
+        with open('config.txt','r') as config:
+            for textbox in textboxes:
+                textbox.value = float(config.readline())
+    
+    if answer == 'yes':
+        with open('config.txt','w') as config:
+            for textbox in textboxes:
+                config.write(textbox.value + "\n")
+
+    save_changes_window.visible = False
+    settings_window.visible = False
     selected_widget = settemp
 
+def show_brightness_window():
+    brightness_window.visible = not brightness_window.visible
 
-    #TODO: apply new settings when swapping windows
+def adjust_brightnes():
+
+    print(f"brightness={brightness_slider.value}")
 
 def increment(n): 
     if not settemp.value:
@@ -96,16 +109,10 @@ def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
     for i in range(9):
         btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3)
-        btn.text_color = text_color
         btn.text_size = size
     for i, x in enumerate(['.','0','c']):
         btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3)
-        btn.text_color = text_color
         btn.text_size = size
-
-#These functions are used for periodic updates and checks on certain values
-# def update_time():
-#     clock.value = time.strftime("Clock: %H:%M:%S", time.localtime())
 
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
@@ -147,24 +154,36 @@ def ui_visual_updates():
     if globals.STOP_RUNNING:
         app.destroy()
 
-app = App()
-app.visible = False
+app = App(visible=False)
+app.text_color = 'white'
+
+brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
+brightness_window.text_size = 40
+brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
+
+save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
+Text(save_changes_window,text='Save Changes?',align='top')
+PushButton(save_changes_window,text='YES',align='left',width='fill',command=apply_settings,args=['yes'])
+PushButton(save_changes_window,text='NO',align='right',width='fill',command=apply_settings,args=['no'])
+save_changes_window.bg = background_color
+save_changes_window.text_size = 24
+
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
 Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',color='white',grid=[0,0,3,1]) 
-#brightness_slider = Slider(controller_window,start=0,end=100,grid=[4,0])
 
-settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,pady=1)
-settings_button.text_color = text_color
+settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
+brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
+brightness_button.text_size = 16
 #row 1
 output_off_button = PushButton(controller_window,text="Output\nOff",grid=[0,1],height=1,width=4,command=set_output_off)
-output_off_button.text_size = 20; output_off_button.text_color ='white'
+output_off_button.text_size = 20
 pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,1],command=set_output_pause,height=1,width=4)
-pause_output_button.text_size = 20; pause_output_button.text_color ='white'
+pause_output_button.text_size = 20
 set_temp_button = PushButton(controller_window,text="Set\nTemp",grid=[2,1],command=set_temperature,height=1,width=4)
-set_temp_button.text_size = 20;set_temp_button.text_color = 'white'
+set_temp_button.text_size = 20
 
 temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
 ready_text = Text(temp_box, text="NOT READY",color = "red")
@@ -178,7 +197,6 @@ time_scale_combo = Combo(controller_window,options=['show last 10s','show last 2
                                                     'show last 120s','show last 300s',
                                                     'show last 600s','show all'], grid=[4,1],align='bottom',width=15)
 time_scale_combo.text_size = 18
-time_scale_combo.text_color = 'white'
 
 #Row 2
 spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
@@ -194,7 +212,6 @@ axis.set_ylabel('Temperature[C]')
 start_time = time.perf_counter()
 time_data,temperature_data = [],[]
 
-@measure
 def animate(i):
     current_time = time.perf_counter() - start_time
     time_data.append(current_time)
@@ -215,18 +232,15 @@ canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 set_box = Box(controller_window,grid=[2,4,1,6])
 Text(set_box, text="Set Temperature",color= "white")
 settemp = Text(set_box, text='1')
-settemp.text_size = 28; settemp.text_color = 'white'
+settemp.text_size = 28
 
 #row 8
 crement_box = Box(controller_window,grid=[2,10])
 scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
-scale_button.text_color = text_color
 scale_button.text_size = 20
 increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',padx=12,pady=5,width=2,height=1)
-increasetemp_button.text_color = text_color
 increasetemp_button.text_size = 20
 decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
-decreasetemp_button.text_color = text_color
 decreasetemp_button.text_size = 20
 
 #invisible button for check loops
@@ -235,68 +249,60 @@ gui_loop.repeat(1000,ui_visual_updates)
 
 #Settings window
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
+settings_window.text_size = 13 
 
 #Title row 0
-Text(settings_window,text='Rb-controller Settings',color=text_color,grid=[0,0],align='left')
-use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1])
-use_power_supply_button.text_color=text_color
-controller_button = PushButton(settings_window, text="controller",align='right',command=swap_windows,grid=[4,0]).text_color = text_color
+Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
+use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
+use_power_supply_button.text_size = 16
+controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
+controller_button.text_size = 16
 
 #Row 1 whitespaces
-Text(settings_window,text='',color=text_color,grid=[0,1],align='left')
-Text(settings_window,text='',color=text_color,grid=[3,1],width=13,align='left')
+# Text(settings_window,text='',grid=[0,1],align='left')
+#Text(settings_window,text='  ',grid=[3,1],width=13,align='left').text_size = 10
 
 #PID row 2
-Text(settings_window,text='Proportional:',grid=[1,2],color=text_color)
-Text(settings_window,text='Intergral:',grid=[2,2],color=text_color)
-Text(settings_window,text='Derivative:',grid=[3,2],color=text_color)
+Text(settings_window,text='Proportional:',grid=[1,2])
+Text(settings_window,text='Intergral:',grid=[2,2])
+Text(settings_window,text='    Derivative:     ',grid=[3,2])
 #PID textBoxes row 3
-Text(settings_window,text='PID Gains:',grid=[0,3],color=text_color)
+Text(settings_window,text='PID Gains:',grid=[0,3])
 proportional_gain_textbox = TextBox(settings_window,grid=[1,3])
-proportional_gain_textbox.text_color=text_color
 integral_gain_textbox = TextBox(settings_window,grid=[2,3])
-integral_gain_textbox.text_color=text_color
 derivative_gain_textbox = TextBox(settings_window,grid=[3,3])
-derivative_gain_textbox.text_color=text_color
 
 #Temperature row 4
-temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4],color=text_color)
-temperature_offset_title = Text(settings_window,text='Temperature Offset',grid=[2,4],color=text_color)
+temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4])
+temperature_offset_title = Text(settings_window,text='Temperature Offset',grid=[2,4])
 
 #Temperature textboxes row 5
-Text(settings_window,text='Temperature:',grid=[0,5],color=text_color)
+Text(settings_window,text='Temperature:',grid=[0,5])
 temperature_limit_textbox = TextBox(settings_window,grid=[1,5])
-temperature_limit_textbox.text_color=text_color
 temperature_offset_textbox = TextBox(settings_window,grid=[2,5])
-temperature_offset_textbox.text_color=text_color
 
 #row 6
-Text(settings_window,text='\nSettling type:',grid=[0,6],color=text_color)
+Text(settings_window,text='Settling type:',grid=[0,7])
 
 #row 7
-Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7],color=text_color)
+Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7])
 #row 8
 contant_error_checkbox = CheckBox(settings_window,text='Constant Error',grid=[0,8])
-contant_error_checkbox.text_color=text_color
 settling_temperature_fluctuations_textbox = TextBox(settings_window,grid=[1,8])
-settling_temperature_fluctuations_textbox.text_color=text_color
 
 #row 9
-Text(settings_window,text='Settle slope [C/s]:',grid=[1,9],color=text_color)
-Text(settings_window,text='Slope length [s]:',grid=[2,9],color=text_color)
+Text(settings_window,text='Settle slope [C/s]:',grid=[1,9])
+Text(settings_window,text='Slope length [s]:',grid=[2,9])
 #row 10
-slope_checkbox = CheckBox(settings_window,text='Slope',grid=[0,10]).text_color=text_color
+slope_checkbox = CheckBox(settings_window,text='Slope',grid=[0,10])
 settle_slope_textbox = TextBox(settings_window,grid=[1,10])
-settle_slope_textbox.text_color=text_color
 slope_length_textbox = TextBox(settings_window,grid=[2,10])
-slope_length_textbox.text_color=text_color
 
 #row 11
-Text(settings_window,text='Settle wait time[s]:',grid=[1,11],color=text_color)
+Text(settings_window,text='Settle wait time[s]:',grid=[1,11])
 #row 12
-slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12]).text_color=text_color
+slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
-wait_time_textbox.text_color=text_color
 
 #numpad
 spawn_numpad(Box(settings_window,grid=[4,2,1,12],border=True),size=24)
@@ -318,24 +324,13 @@ textboxes = (
     wait_time_textbox)
 
 for textbox in textboxes:
-    textbox.when_clicked = clicked
-# proportional_gain_textbox.when_clicked = clicked
-# integral_gain_textbox.when_clicked = clicked
-# derivative_gain_textbox.when_clicked = clicked
-# temperature_limit_textbox.when_clicked = clicked
-# temperature_offset_textbox.when_clicked = clicked
-# settling_temperature_fluctuations_textbox.when_clicked = clicked
-# settle_slope_textbox.when_clicked = clicked
-# slope_length_textbox.when_clicked = clicked
-# wait_time_textbox.when_clicked = clicked  
+    textbox.when_clicked = clicked 
 
 selected_widget = settemp
 
 with open('config.txt', 'r') as config:
     for textbox in textboxes:
-        #textbox.value = float(config.readline())
-        pass
-
+        textbox.value = float(config.readline())
 
 
 #TODO: use the uncommented line when in lab
