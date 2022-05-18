@@ -1,12 +1,13 @@
 #! regulates temperature of rubidium cell
 #Python packages 
 import threading, time,sys
-from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
 import tkinter as tk
-from matplotlib import animation
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import numpy as np
+from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
+from matplotlib import animation
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 #our scripts
 # import loop
 import loop_simulator
@@ -18,7 +19,6 @@ MAX_TEMP = 200
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
-
 
 def set_target_temperature(temperature):
     globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
@@ -97,11 +97,13 @@ def numpad(btn):
         case '.':
             if '.' not in selected_widget.value:
                 selected_widget.append(btn)
+                globals.SET = False
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
 
         case 0|1|2|3|4|5|6|7|8|9:
             selected_widget.append(btn)
+            globals.SET = False
 
 
 
@@ -171,7 +173,7 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',color='white',grid=[0,0,3,1]) 
+Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',grid=[0,0,3,1]) 
 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
@@ -187,8 +189,8 @@ set_temp_button.text_size = 20
 
 temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
 ready_text = Text(temp_box, text="NOT READY",color = "red")
-temp_title = Text(temp_box, text="Actual Temperature",color= "white")
-temp = Text(temp_box, text="0",color = "white")
+temp_title = Text(temp_box, text="Actual Temperature")
+temp = Text(temp_box, text="0")
 temp.text_size = 28
 temp.repeat(100, update_temperature)
 
@@ -230,7 +232,7 @@ canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 #row 4
 set_box = Box(controller_window,grid=[2,4,1,6])
-Text(set_box, text="Set Temperature",color= "white")
+Text(set_box, text="Set Temperature")
 settemp = Text(set_box, text='1')
 settemp.text_size = 28
 
@@ -256,11 +258,7 @@ Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
-controller_button.text_size = 16
-
-#Row 1 whitespaces
-# Text(settings_window,text='',grid=[0,1],align='left')
-#Text(settings_window,text='  ',grid=[3,1],width=13,align='left').text_size = 10
+controller_button.text_size = 16S
 
 #PID row 2
 Text(settings_window,text='Proportional:',grid=[1,2])
@@ -305,7 +303,7 @@ slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
 
 #numpad
-spawn_numpad(Box(settings_window,grid=[4,2,1,12],border=True),size=24)
+spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
 
 #events
 def clicked(event_data):
