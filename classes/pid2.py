@@ -41,6 +41,9 @@ class PID2():
 
     # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up
     def update3(self, y_current, r_current):
+        if not self.ki:
+            print("update3() requires an PI or PI-Lead controller")
+            return 0
         uD_current = ((self.alpha*self.taud) / (self.alpha*self.taud + self.Ts)) * self.uD_past  + \
             ((self.kp*self.taud) / (self.alpha*self.taud + self.Ts)) * (y_current - self.y_past)
         u_current = self.u_past + self.kp*(self.y_past - y_current) + ((self.kp*self.Ts) / self.taui) * \
