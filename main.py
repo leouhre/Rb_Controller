@@ -97,11 +97,13 @@ def numpad(btn):
         case '.':
             if '.' not in selected_widget.value:
                 selected_widget.append(btn)
+                globals.SET = False
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
 
         case 0|1|2|3|4|5|6|7|8|9:
             selected_widget.append(btn)
+            globals.SET = False
 
 
 
