@@ -12,6 +12,8 @@ def initialize_variables():
     global CONNECTED_TO_MATLAB
     global NUMBER_OF_SENSORS
     global SETTINGS_CHANGED
+    global error_msg
+
 
     temperature_target = 0
     temperature_average = 0
@@ -26,5 +28,6 @@ def initialize_variables():
     class TARGET_TEMP_CHANGED():
         BY_UI = False
         BY_MATLAB = False
+    error_msg = ""
     CONNECTED_TO_MATLAB = False
     NUMBER_OF_SENSORS = 8
