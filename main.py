@@ -74,7 +74,6 @@ def increment(n):
     elif not (float(settemp.value) + n*float(scale_button.text) > MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < MIN_TEMP):
         settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
     globals.SET = False
-    globals.error_msg = 'damn'
 
 def scale():
     if scale_button.text == '1':
@@ -124,6 +123,9 @@ def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
 def ui_visual_updates():
+    if globals.STOP_RUNNING:
+        app.destroy()
+
     #Updates in controller window
     if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
         settemp.value = globals.temperature_target
@@ -157,25 +159,27 @@ def ui_visual_updates():
     else:
         use_power_supply_button.bg = background_color
     
-    if globals.STOP_RUNNING:
-        app.destroy()
-
     #popup_window
     if globals.error_msg:
-        popup_msg.value = globals.error_msg
+        msg = globals.error_msg
+        splits = len(msg)//14
+        for x in range(1,splits+1):
+            i = msg.rfind(' ',0,14*x)
+            msg = msg[:i] + '\n' + msg[i:]
+        popup_msg.value = msg
         popup_window.visible = True
         globals.error_msg = ""
 
 app = App(visible=False)
 app.text_color = 'white'
 
-popup_window = Window(app,title="WARNING",visible=False,height=200,width=300)
+popup_window = Window(app,title="WARNING",visible=False,width=300,height=300)
 popup_window.text_size = 28
 popup_window.bg = background_color
 Text(popup_window,text="",size=10)
 popup_msg = Text(popup_window,text="",color='red')
 Text(popup_window,text="",size=10)
-PushButton(popup_window,text="Close",command=close_popup_message,width='fill',height='fill')
+PushButton(popup_window,text="Close",command=close_popup_message,width=10)
 
 
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
