@@ -115,6 +115,7 @@ class loop(threading.Thread):
             if globals.temperature_average > 203:
                 # Send warning to pop-up box
                 globals.OUTPUT_OFF = True
+                self.psu.output_off()
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
