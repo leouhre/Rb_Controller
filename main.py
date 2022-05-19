@@ -30,10 +30,6 @@ def set_temperature():
     globals.SET = True
 
 #functions for Main GUI
-def display_popup_message(msg):
-    popup_msg.value = msg
-    popup_window.visible = True
-
 def close_popup_message():
     popup_msg.value = ""
     popup_window.visible = False
@@ -78,6 +74,7 @@ def increment(n):
     elif not (float(settemp.value) + n*float(scale_button.text) > MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < MIN_TEMP):
         settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
     globals.SET = False
+    globals.error_msg = 'damn'
 
 def scale():
     if scale_button.text == '1':
@@ -163,6 +160,12 @@ def ui_visual_updates():
     if globals.STOP_RUNNING:
         app.destroy()
 
+    #popup_window
+    if globals.error_msg:
+        popup_msg.value = globals.error_msg
+        popup_window.visible = True
+        globals.error_msg = ""
+
 app = App(visible=False)
 app.text_color = 'white'
 
@@ -178,7 +181,6 @@ PushButton(popup_window,text="Close",command=close_popup_message,width='fill',he
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
 brightness_window.text_size = 40
 brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
-TextBox(brightness_window,command=display_popup_message)
 
 save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
 Text(save_changes_window,text='Save Changes?',align='top')
