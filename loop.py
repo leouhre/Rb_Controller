@@ -129,13 +129,16 @@ class loop(threading.Thread):
                     globals.temperature_target = float(message[2:7])
                     globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
                     globals.SET = True
-                    globals.STOP_REGULATING = False
+                    globals.OUTPUT_PAUSE = False
                     
-                case "r": #stop regulating
-                    globals.STOP_REGULATING = True
+                case "o": #output off
+                    globals.OUTPUT_OFF = True
                     self.psu.output_off()
+                
+                case "p": #outputpause
+                    globals.OUTPUT_PAUSE = True
 
-                case "o": #stop program
+                case "!": #stop program
                     globals.STOP_RUNNING = True
 
                 case "b": #Bypass mode
@@ -144,14 +147,15 @@ class loop(threading.Thread):
                 case "s": #release Set button
                     globals.SET = False
 
-            while globals.BYPASS_MODE:
+            if globals.BYPASS_MODE:
                 self.psu.output_off()
                 self.psu.remote_off()
                 time.sleep(1)
+                continue
             
             self.psu.remote_on()
 
-            if not globals.STOP_REGULATING:
+            if not globals.OUTPUT_PAUSE or not globals.globals.OUTPUT_OFF:
                 pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(pidout)          
 

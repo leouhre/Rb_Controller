@@ -258,7 +258,7 @@ Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
-controller_button.text_size = 16S
+controller_button.text_size = 16
 
 #PID row 2
 Text(settings_window,text='Proportional:',grid=[1,2])
