@@ -20,13 +20,16 @@ MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
 
+def popup_message(msg):
+    print(msg)
+
 def set_target_temperature(temperature):
     globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
     globals.TARGET_TEMP_CHANGED.BY_UI = True #will be set false by loop.py when it has reacted
 
 def set_temperature():
     set_target_temperature(float(settemp.value))
-    settemp.value = "{:3.2f}".format(float(settemp.value))
+    settemp.value = "{:3.2f}".format(max(min(float(settemp.value),MAX_TEMP),MIN_TEMP))
     globals.SET = True
 
 #functions for Main GUI
@@ -97,12 +100,11 @@ def numpad(btn):
         case '.':
             if '.' not in selected_widget.value:
                 selected_widget.append(btn)
-                globals.SET = False
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
         case _:
             selected_widget.append(btn)
-            globals.SET = False
+    globals.SET = False
 
 
 
