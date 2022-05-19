@@ -21,7 +21,7 @@ class loop(threading.Thread):
         while True:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
-            except (TimeoutError, OSError):
+            except OSError:
                 pass
             else:
                 self.tcp_socket.setblocking(0)
@@ -176,9 +176,10 @@ class loop(threading.Thread):
                     self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
             
-            if SETTINGS_CHANGED:
-                #TODO: re read config 
-                pass
+            if globals.SETTINGS_CHANGED:
+                self.pid.__init__() 
+                globals.SETTINGS_CHANGED = False
+                #TODO: CHeck if this even works?
 
             time.sleep(self.pid.Ts)
 
