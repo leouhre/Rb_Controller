@@ -37,7 +37,6 @@ class loop(threading.Thread):
                 if globals.CONNECTED_TO_MATLAB:
                     self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
                     time.sleep(5)
-                pass
             else:
                 break
 
