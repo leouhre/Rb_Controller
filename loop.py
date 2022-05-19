@@ -175,6 +175,10 @@ class loop(threading.Thread):
                 if globals.CONNECTED_TO_MATLAB:
                     self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
+            
+            if SETTINGS_CHANGED:
+                #TODO: re read config 
+                pass
 
             time.sleep(self.pid.Ts)
 

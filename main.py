@@ -54,6 +54,7 @@ def apply_settings(answer):
         with open('config.txt','w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
+        globals.SETTINGS_CHANGED = True
 
     save_changes_window.visible = False
     settings_window.visible = False
