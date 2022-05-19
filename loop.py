@@ -114,7 +114,7 @@ class loop(threading.Thread):
             # SAFETY: AVERAGE MUST NO BE HIGHER THAN 200C
             if globals.temperature_average > 203:
                 # Send warning to pop-up box
-                globals.STOP_REGULATING = True
+                globals.OUTPUT_OFF = True
 
             try:
                 message = self.tcp_socket.recv(1024).decode("utf_8")
@@ -159,7 +159,7 @@ class loop(threading.Thread):
                 pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(pidout)          
 
-            if abs(globals.temperature_target - globals.temperature_average) < 1:
+            if abs(globals.temperature_target - globals.temperature_average) < 1: #TODO: This 1 is user defined now
                 count += 1
                 if count == 10/self.pid.freq: # Temperature has been within 1C of target for more at least 10 seconds
                     globals.READY = True
