@@ -1,6 +1,6 @@
-#! regulates temperature of rubidium cell
+#! Creates UI and initializes loop for regulating temperature.
 #Python packages 
-import threading, time,sys
+import time,sys
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
@@ -60,7 +60,7 @@ def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
 
 def adjust_brightnes():
-
+    #TODO: implement this
     print(f"brightness={brightness_slider.value}")
 
 def increment(n): 
@@ -100,8 +100,7 @@ def numpad(btn):
                 globals.SET = False
         case 'c':
             selected_widget.value = selected_widget.value[:-1]
-
-        case 0|1|2|3|4|5|6|7|8|9:
+        case _:
             selected_widget.append(btn)
             globals.SET = False
 
@@ -112,7 +111,7 @@ def spawn_numpad(master,size):
     for i in range(9):
         btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3)
         btn.text_size = size
-    for i, x in enumerate(['.','0','c']):
+    for i, x in enumerate(['.',0,'c']):
         btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3)
         btn.text_size = size
 
@@ -324,12 +323,13 @@ textboxes = (
 for textbox in textboxes:
     textbox.when_clicked = clicked 
 
+
+#initializations
 selected_widget = settemp
 
 with open('config.txt', 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
-
 
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()
