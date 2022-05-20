@@ -54,7 +54,7 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except:
-                # TODO: Do not only send to MATLAB but also show on pop-up screen
+                globals.error_msg = 'Error when connecting to EA PSU'
                 self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
                 time.sleep(5)                
                 pass
@@ -180,6 +180,7 @@ class loop(threading.Thread):
                 self.pid.__init__() 
                 globals.SETTINGS_CHANGED = False
                 #TODO: CHeck if this even works?
+
 
             time.sleep(self.pid.Ts)
 
