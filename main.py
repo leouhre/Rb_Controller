@@ -315,6 +315,7 @@ def clicked(event_data):
     global selected_widget
     selected_widget = event_data.widget
 
+#Tuple of all settings textboxes
 textboxes = (
     proportional_gain_textbox, 
     integral_gain_textbox,
@@ -326,6 +327,7 @@ textboxes = (
     slope_length_textbox,
     wait_time_textbox)
 
+#assing event method "clicked" to textboxes
 for textbox in textboxes:
     textbox.when_clicked = clicked 
 
