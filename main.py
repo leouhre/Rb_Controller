@@ -215,7 +215,6 @@ ready_text = Text(temp_box, text="NOT READY",color = "red")
 temp_title = Text(temp_box, text="Actual Temperature")
 temp = Text(temp_box, text="0")
 temp.text_size = 28
-temp.repeat(100, update_temperature)
 
 time_scale_combo = Combo(controller_window,options=['show last 10s','show last 20s',
                                                     'show last 30s','show last 60s',
@@ -267,10 +266,6 @@ increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1]
 increasetemp_button.text_size = 20
 decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
 decreasetemp_button.text_size = 20
-
-#invisible button for check loops
-gui_loop = Text(app,visible=False)
-gui_loop.repeat(1000,ui_visual_updates)
 
 #Settings window
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
@@ -327,6 +322,11 @@ wait_time_textbox = TextBox(settings_window,grid=[1,12])
 
 #numpad
 spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
+
+#Updates
+gui_loop = Text(app,visible=False) #invisible button for check loops
+gui_loop.repeat(1000,ui_visual_updates)
+temp.repeat(100, update_temperature)
 
 #events
 def clicked(event_data):
