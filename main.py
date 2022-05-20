@@ -181,7 +181,6 @@ popup_msg = Text(popup_window,text="",color='red')
 Text(popup_window,text="",size=10)
 PushButton(popup_window,text="Close",command=close_popup_message,width=10)
 
-
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
 brightness_window.text_size = 40
 brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
@@ -193,11 +192,9 @@ PushButton(save_changes_window,text='NO',align='right',width='fill',command=appl
 save_changes_window.bg = background_color
 save_changes_window.text_size = 24
 
-
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
 Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',grid=[0,0,3,1]) 
-
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
 brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
@@ -209,22 +206,18 @@ pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,
 pause_output_button.text_size = 20
 set_temp_button = PushButton(controller_window,text="Set\nTemp",grid=[2,1],command=set_temperature,height=1,width=4)
 set_temp_button.text_size = 20
-
 temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
 ready_text = Text(temp_box, text="NOT READY",color = "red")
 temp_title = Text(temp_box, text="Actual Temperature")
 temp = Text(temp_box, text="0")
 temp.text_size = 28
-
 time_scale_combo = Combo(controller_window,options=['show last 10s','show last 20s',
                                                     'show last 30s','show last 60s',
                                                     'show last 120s','show last 300s',
                                                     'show last 600s','show all'], grid=[4,1],align='bottom',width=15)
 time_scale_combo.text_size = 18
-
 #Row 2
 spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
-
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
 f = plt.figure(figsize=(4,3.5))
@@ -251,13 +244,11 @@ canvas = FigureCanvasTkAgg(f, plot_box.tk)
 canvas.draw()
 canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
 #row 4
 set_box = Box(controller_window,grid=[2,4,1,6])
 Text(set_box, text="Set Temperature")
 settemp = Text(set_box, text='1')
 settemp.text_size = 28
-
 #row 8
 crement_box = Box(controller_window,grid=[2,10])
 scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
@@ -270,14 +261,12 @@ decreasetemp_button.text_size = 20
 #Settings window
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
 settings_window.text_size = 13 
-
 #Title row 0
 Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
 controller_button.text_size = 16
-
 #PID row 2
 Text(settings_window,text='Proportional:',grid=[1,2])
 Text(settings_window,text='Intergral:',grid=[2,2])
@@ -287,25 +276,20 @@ Text(settings_window,text='PID Gains:',grid=[0,3])
 proportional_gain_textbox = TextBox(settings_window,grid=[1,3])
 integral_gain_textbox = TextBox(settings_window,grid=[2,3])
 derivative_gain_textbox = TextBox(settings_window,grid=[3,3])
-
 #Temperature row 4
 temperature_limit_title = Text(settings_window,text='Temperature Limit',grid=[1,4])
 temperature_offset_title = Text(settings_window,text='Temperature Offset',grid=[2,4])
-
 #Temperature textboxes row 5
 Text(settings_window,text='Temperature:',grid=[0,5])
 temperature_limit_textbox = TextBox(settings_window,grid=[1,5])
 temperature_offset_textbox = TextBox(settings_window,grid=[2,5])
-
-#row 6
+#settling type row 6 
 Text(settings_window,text='Settling type:',grid=[0,7])
-
-#row 7
+#settlings param row 7
 Text(settings_window,text='Max Temperature \n Fluctuations[+/-]: ',grid=[1,7])
 #row 8
 contant_error_checkbox = CheckBox(settings_window,text='Constant Error',grid=[0,8])
 settling_temperature_fluctuations_textbox = TextBox(settings_window,grid=[1,8])
-
 #row 9
 Text(settings_window,text='Settle slope [C/s]:',grid=[1,9])
 Text(settings_window,text='Slope length [s]:',grid=[2,9])
@@ -313,13 +297,11 @@ Text(settings_window,text='Slope length [s]:',grid=[2,9])
 slope_checkbox = CheckBox(settings_window,text='Slope',grid=[0,10])
 settle_slope_textbox = TextBox(settings_window,grid=[1,10])
 slope_length_textbox = TextBox(settings_window,grid=[2,10])
-
 #row 11
 Text(settings_window,text='Settle wait time[s]:',grid=[1,11])
 #row 12
 slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
-
 #numpad
 spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
 
