@@ -109,7 +109,7 @@ class loop(threading.Thread):
                 except ConnectionResetError:
                     globals.CONNECTED_TO_MATLAB = False
 
-            # SAFETY: AVERAGE MUST NO BE HIGHER THAN 200C
+            # SAFETY
             if globals.temperature_average > globals.MAX_TEMP:
                 globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
                 globals.OUTPUT_OFF = True
@@ -146,20 +146,23 @@ class loop(threading.Thread):
                             globals.SET = False
 
             if globals.BYPASS_MODE:
-                self.psu.output_off()
-                self.psu.remote_off()
+                if self.psu.get_status()['output on']:
+                    self.psu.output_off()
+                if self.psu.get_status()['remote on']:
+                    self.psu.remote_off()
                 time.sleep(1)
                 continue
-            
-            self.psu.remote_on()
+
+            if not self.psu.get_status()['output on']:
+                self.psu.remote_on()
 
             if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
                 pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(pidout)          
 
-            if abs(globals.temperature_target - globals.temperature_average) < globals.MAX_TEMP_FLUCTUATION: #TODO: This 1 is user defined now
+            if abs(globals.temperature_target - globals.temperature_average) < globals.MAX_TEMP_FLUCTUATION:
                 count += 1
-                if count == globals.SETTLE_WAIT_TIME/self.pid.freq: # Temperature has been within 1C of target for more at least 10 seconds
+                if count == globals.SETTLE_WAIT_TIME/self.pid.freq:
                     globals.READY = True
                     if globals.CONNECTED_TO_MATLAB:
                         self.tcp_socket.sendall("READY\n".encode()) # Send READY to matlab via serial
