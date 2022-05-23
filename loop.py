@@ -90,6 +90,54 @@ class loop(threading.Thread):
 
         atexit.register(safeExit)
 
+    def safemsg_matlab(self,msg):
+        if not globals.CONNECTED_TO_MATLAB:
+            return False
+        try:
+            self.tcp_socket.sendall(f"{msg}\n".encode())
+        except:
+            globals.error_msg = "Connection to matlab lost"
+            globals.CONNECTED_TO_MATLAB = False
+        return True
+
+    def saferecv_matlab(self):
+        if not globals.CONNECTED_TO_MATLAB:
+            return ''
+        try:
+            msg = self.tcp_socket.recv(1024).decode("utf_8")
+        except:
+            globals.error_msg = "Connection to matlab lost"
+            globals.CONNECTED_TO_MATLAB = False
+        return msg
+    
+    def decodemsg(self,msg):
+        if not msg:
+            return
+
+        match str(msg[0]):
+            case "t": #Temperature given
+                globals.temperature_target = float(msg[2:7])
+                globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                globals.SET = True
+                globals.OUTPUT_PAUSE = False
+                
+            case "o": #output off
+                globals.OUTPUT_OFF = True
+                self.psu.output_off()
+            
+            case "p": #outputpause
+                globals.OUTPUT_PAUSE = True
+
+            case "!": #stop program
+                globals.STOP_RUNNING = True
+
+            case "b": #Bypass mode
+                globals.BYPASS_MODE = True
+
+            case "s": #release Set button
+                globals.SET = False
+
+
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
@@ -102,12 +150,14 @@ class loop(threading.Thread):
             globals.temperature_average = 0
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/globals.NUMBER_OF_SENSORS
+            
+            self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
-            if globals.CONNECTED_TO_MATLAB:
-                try:
-                    self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
-                except ConnectionResetError:
-                    globals.CONNECTED_TO_MATLAB = False
+            # if globals.CONNECTED_TO_MATLAB:
+            #     try:
+            #         self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
+            #     except ConnectionResetError:
+            #         globals.CONNECTED_TO_MATLAB = False
 
             # SAFETY
             if globals.temperature_average > globals.MAX_TEMP:
@@ -115,36 +165,10 @@ class loop(threading.Thread):
                 globals.OUTPUT_OFF = True
                 self.psu.output_off()
 
-            if globals.CONNECTED_TO_MATLAB:
-                try:
-                    message = self.tcp_socket.recv(1024).decode("utf_8")
-                except:
-                    globals.error_msg = "Connection to matlab lost"
-                    globals.CONNECTED_TO_MATLAB = False
-                else:
-                    match str(message[0]):
-                        case "t": #Temperatur given
-                            globals.temperature_target = float(message[2:7])
-                            globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
-                            globals.SET = True
-                            globals.OUTPUT_PAUSE = False
-                            
-                        case "o": #output off
-                            globals.OUTPUT_OFF = True
-                            self.psu.output_off()
-                        
-                        case "p": #outputpause
-                            globals.OUTPUT_PAUSE = True
+            message = self.saferecv_matlab()
+            self.decodemsg(message)
 
-                        case "!": #stop program
-                            globals.STOP_RUNNING = True
-
-                        case "b": #Bypass mode
-                            globals.BYPASS_MODE = True
-
-                        case "s": #release Set button
-                            globals.SET = False
-
+            #TODO: Check if if statement can be removed with no exceptions then more readable
             if globals.BYPASS_MODE:
                 if self.psu.get_status()['output on']:
                     self.psu.output_off()
@@ -164,17 +188,15 @@ class loop(threading.Thread):
                 count += 1
                 if count == globals.SETTLE_WAIT_TIME/self.pid.freq:
                     globals.READY = True
-                    if globals.CONNECTED_TO_MATLAB:
-                        self.tcp_socket.sendall("READY\n".encode()) # Send READY to matlab via serial
+                    self.safemsg_matlab("READY")
             else: 
                 count = 0
-                if globals.READY and globals.CONNECTED_TO_MATLAB:
-                    self.tcp_socket.sendall("NOT_READY\n".encode()) # Send NOT_READY to matlab via serial
+                if globals.READY:
+                    self.safemsg_matlab("NOT_READY")
                 globals.READY = False
                             
             if globals.TARGET_TEMP_CHANGED.BY_UI:
-                if globals.CONNECTED_TO_MATLAB:
-                    self.tcp_socket.sendall("TARGET_CHANGED\n{:.2f}\n".format(globals.temperature_target).encode())
+                self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
                 globals.TARGET_TEMP_CHANGED.BY_UI = False
             
             if globals.SETTINGS_CHANGED:
