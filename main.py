@@ -307,7 +307,7 @@ spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
 
 #Updates
 gui_loop = Text(app,visible=False) #invisible button for check loops
-gui_loop.repeat(1000,ui_visual_updates)
+gui_loop.repeat(100,ui_visual_updates)
 temp.repeat(100, update_temperature)
 
 #events

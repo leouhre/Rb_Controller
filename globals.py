@@ -31,3 +31,5 @@ def initialize_variables():
     error_msg = ""
     CONNECTED_TO_MATLAB = False
     NUMBER_OF_SENSORS = 8
+
+if __name__ == '__main__'
