@@ -105,31 +105,29 @@ class loop(threading.Thread):
         return msg
     
     def decodemsg(self,msg):
-        if not msg:
-            return
-
-        match str(msg[0]):
-            case "t": #Temperature given
-                globals.temperature_target = float(msg[2:7])
-                globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
-                globals.SET = True
-                globals.OUTPUT_PAUSE = False
+        if msg:
+            match str(msg[0]):
+                case "t": #Temperature given
+                    globals.temperature_target = float(msg[2:7])
+                    globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                    globals.SET = True
+                    globals.OUTPUT_PAUSE = False
+                    
+                case "o": #output off
+                    globals.OUTPUT_OFF = True
+                    self.psu.output_off()
                 
-            case "o": #output off
-                globals.OUTPUT_OFF = True
-                self.psu.output_off()
-            
-            case "p": #outputpause
-                globals.OUTPUT_PAUSE = True
+                case "p": #outputpause
+                    globals.OUTPUT_PAUSE = True
 
-            case "!": #stop program
-                globals.STOP_RUNNING = True
+                case "!": #stop program
+                    globals.STOP_RUNNING = True
 
-            case "b": #Bypass mode
-                globals.BYPASS_MODE = True
+                case "b": #Bypass mode
+                    globals.BYPASS_MODE = True
 
-            case "s": #release Set button
-                globals.SET = False
+                case "s": #release Set button
+                    globals.SET = False
     
     def get_average_temp(self,n):
         t = 0
