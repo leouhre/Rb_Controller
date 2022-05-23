@@ -90,12 +90,10 @@ def set_output_pause():
 def set_output_off():
     globals.OUTPUT_OFF = not globals.OUTPUT_OFF
 
-
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
         return sys.maxsize
     return max(int(time_scale_combo.value[10:-1]),0)
-
 
 def numpad(btn):
     match btn:
@@ -107,8 +105,6 @@ def numpad(btn):
         case _:
             selected_widget.append(btn)
     globals.SET = False
-
-
 
 def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
@@ -220,30 +216,6 @@ time_scale_combo.text_size = 18
 spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
-f = plt.figure(figsize=(4,3.5))
-axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
-line, = axis.plot([], [], linewidth = 2)
-axis.set_xlabel('Time[s]')
-axis.set_ylabel('Temperature[C]')
-
-start_time = time.perf_counter()
-time_data,temperature_data = [],[]
-
-def animate(i):
-    current_time = time.perf_counter() - start_time
-    time_data.append(current_time)
-    temperature_data.append(globals.temperature_average)
-    tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
-    line.set_data(time_data, temperature_data)
-    axis.set_xlim(xmin=tmin_index,xmax=time_data[-1])
-    canvas.draw()
-
-anim = animation.FuncAnimation(f, animate, interval = 1000)
-
-canvas = FigureCanvasTkAgg(f, plot_box.tk)
-canvas.draw()
-canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 #row 4
 set_box = Box(controller_window,grid=[2,4,1,6])
 Text(set_box, text="Set Temperature")
@@ -305,9 +277,34 @@ wait_time_textbox = TextBox(settings_window,grid=[1,12])
 #numpad
 spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
 
+#plot
+f = plt.figure(figsize=(4,3.5))
+axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
+line, = axis.plot([], [], linewidth = 2)
+axis.set_xlabel('Time[s]')
+axis.set_ylabel('Temperature[C]')
+
+start_time = time.perf_counter()
+time_data,temperature_data = [],[]
+
+def animate(i):
+    current_time = time.perf_counter() - start_time
+    time_data.append(current_time)
+    temperature_data.append(globals.temperature_average)
+    tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
+    line.set_data(time_data, temperature_data)
+    axis.set_xlim(xmin=tmin_index,xmax=time_data[-1])
+    canvas.draw()
+
+anim = animation.FuncAnimation(f, animate, interval = 1000)
+
+canvas = FigureCanvasTkAgg(f, plot_box.tk)
+canvas.draw()
+canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
 #Updates
-gui_loop = Text(app,visible=False) #invisible button for check loops
-gui_loop.repeat(100,ui_visual_updates)
+app.repeat(100, ui_visual_updates)
 temp.repeat(100, update_temperature)
 
 #events
