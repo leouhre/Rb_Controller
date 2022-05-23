@@ -1,6 +1,7 @@
 #! Creates UI and initializes loop for regulating temperature.
 #Python packages 
-import time,sys
+import time
+import sys
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +27,7 @@ def set_temperature():
     globals.SET = True
     globals.TARGET_TEMP_CHANGED.BY_UI = True 
 
-#functions for GUI
+#GUI related methods 
 def close_popup_message():
     popup_msg.value = ""
     popup_window.visible = False
