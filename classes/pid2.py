@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from globals import MAX_TEMP_FLUCTUATION
+
 class PID2():
     P = Path('C:\\','Users','leouh', 'Documents', 'Rb_Controller')
     def __init__(self):
@@ -9,6 +11,8 @@ class PID2():
             self.kd = float(config.readline())
             self.alpha = float(config.readline())
             self.freq = float(config.readline())
+            self.max_fluctuations = float(config.readline())
+            self.settle_wait_time = float(config.readline())
         self.Ts = 1/self.freq
         # Avoid division with zero if integral gain is 0 (disabled)
         if self.ki:
@@ -26,6 +30,15 @@ class PID2():
     u_past = 0
     y_past = 0
     uD_past = 0
+
+    settlecount = 0
+
+    def settle_check(self, t, t_target):
+        if abs(t_target - t) < self.max_fluctuations:
+            self.settlecount += 1
+        else:
+            self.settlecount = 0
+        return self.settlecount == self.settle_wait_time/self.freq
 
     # Simple PID controller. Explicitly dealing with wind-up
     def update(self, t, t_target):
