@@ -130,6 +130,11 @@ class loop(threading.Thread):
                     globals.SET = False
     
     def get_average_temp(self,n):
+        # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
+        try:
+            ret = self.rt8.getIoGroup(self.channels, self.values)
+        except ValueError:
+            print(ret)
         t = 0
         for value in self.values:
             t += value.getTemperature()
@@ -140,12 +145,6 @@ class loop(threading.Thread):
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
-            # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
-            try:
-                ret = self.rt8.getIoGroup(self.channels, self.values)
-            except ValueError:
-                print(ret)
-
             globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
             self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
