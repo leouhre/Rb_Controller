@@ -20,14 +20,11 @@ MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
 
-def set_target_temperature(temperature):
-    globals.temperature_target = max(min(temperature,MAX_TEMP),MIN_TEMP)
-    globals.TARGET_TEMP_CHANGED.BY_UI = True #will be set false by loop.py when it has reacted
-
 def set_temperature():
-    set_target_temperature(float(settemp.value))
     settemp.value = "{:3.2f}".format(max(min(float(settemp.value),MAX_TEMP),MIN_TEMP))
+    globals.temperature_target = float(settemp.value)
     globals.SET = True
+    globals.TARGET_TEMP_CHANGED.BY_UI = True 
 
 #functions for GUI
 def close_popup_message():
