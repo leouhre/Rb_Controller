@@ -53,8 +53,6 @@ def apply_settings(answer):
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
-        globals.MAX_TEMP_FLUCTUATION= float(settling_temperature_fluctuations_textbox.value)
-        globals.SETTLE_WAIT_TIME = float(wait_time_textbox.value)
         globals.SETTINGS_CHANGED = True
 
     save_changes_window.visible = False
@@ -337,8 +335,6 @@ with open('config.txt', 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
-    globals.MAX_TEMP_FLUCTUATION= float(settling_temperature_fluctuations_textbox.value)
-    globals.SETTLE_WAIT_TIME = float(wait_time_textbox.value)
 
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()
