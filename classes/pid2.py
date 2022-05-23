@@ -1,9 +1,9 @@
 from pathlib import Path
 
 class PID2():
+    P = Path('C:\\','Users','leouh', 'Documents', 'Rb_Controller')
     def __init__(self):
-        P = Path('C:\\','Users','leouh', 'Documents', 'Rb_Controller')
-        with open(P / 'config.txt', 'r') as config:
+        with open(self.P / 'config.txt', 'r') as config:
             self.kp = float(config.readline())
             self.ki = float(config.readline())
             self.kd = float(config.readline())
@@ -15,6 +15,7 @@ class PID2():
             self.taui = self.kp/self.ki
         if self.kd:
             self.taud = self.kd/self.kp
+        
     
     integral_error = 0
     prev_t = 0
@@ -29,11 +30,12 @@ class PID2():
     # Simple PID controller. Explicitly dealing with wind-up
     def update(self, t, t_target):
         error = t_target - t
-        pidout = self.kp * error
-        pidout += self.ki * self.integral_error * self.Ts
+        p = self.kp * error
+        i = self.ki * self.integral_error * self.Ts
         derivative = t - self.prev_t
-        pidout += self.kd * derivative / self.Ts
+        d = self.kd * derivative / self.Ts
         self.prev_t = t
+        pidout = p + i + d
         #pidout *= self.kp
         if self.lower_lim < pidout < self.upper_lim:
             self.integral_error += error
