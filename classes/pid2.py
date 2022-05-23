@@ -33,11 +33,13 @@ class PID2():
 
     settlecount = 0
 
-    def settle_check(self, t, t_target):
+    def settle_update(self, t, t_target):
         if abs(t_target - t) < self.max_fluctuations:
             self.settlecount += 1
         else:
             self.settlecount = 0
+
+    def settle_check(self):
         return self.settlecount == self.settle_wait_time/self.freq
 
     # Simple PID controller. Explicitly dealing with wind-up
