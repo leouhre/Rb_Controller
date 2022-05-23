@@ -34,9 +34,8 @@ class loop(threading.Thread):
                 self.rt8.open()
             except:
                 globals.error_msg = "Error when connecting to LucidControl RI8"
-                if globals.CONNECTED_TO_MATLAB:
-                    self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
-                    time.sleep(5)
+                self.safemsg_matlab("Error when connecting to LucidControl RI8")
+                time.sleep(5)
             else:
                 break
 
@@ -54,17 +53,14 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except:
-                globals.error_msg = 'Error when connecting to EA PSU'
-                if globals.CONNECTED_TO_MATLAB:    
-                    self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
+                globals.error_msg = "Error when connecting to EA PSU"
+                self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
             else:
                 break
 
         globals.CONNECTED_TO_INSTRUMENTS = True
-        if globals.CONNECTED_TO_MATLAB:
-            self.tcp_socket.sendall("CONNECTED\n".encode())
-
+        self.safemsg_matlab("CONNECTED")
 
         # Initiate measurements at constant voltage
         self.psu.set_current(4)
@@ -74,21 +70,19 @@ class loop(threading.Thread):
         # Initialize PID
         self.pid = PID2()
 
-        def safeExit():
-            globals.error_msg = "Regulation crashed"
-            if globals.CONNECTED_TO_MATLAB:
-                self.tcp_socket.sendall("Regulation crashed\n".encode())
-            try:
-                self.psu.output_off()
-                self.psu.remote_off()
-                self.psu.close()
-            except:
-                globals.error_msg = "Connection to PSU lost. Turn off output manually"
-                if globals.CONNECTED_TO_MATLAB:
-                    self.tcp_socket.sendall("Connection to PSU lost. Turn off output manually\n".encode())
-            self.rt8.close()
+        atexit.register(self.safeexit)
 
-        atexit.register(safeExit)
+    def safeexit(self):
+        globals.error_msg = "Regulation crashed"
+        self.safemsg_matlab("Regulation crashed")
+        try:
+            self.psu.output_off()
+            self.psu.remote_off()
+            self.psu.close()
+        except:
+            globals.error_msg = "Connection to PSU lost. Turn off output manually"
+            self.safemsg_matlab("Connection to PSU lost. Turn off output manually")
+        self.rt8.close()
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
@@ -136,6 +130,13 @@ class loop(threading.Thread):
 
             case "s": #release Set button
                 globals.SET = False
+    
+    def get_average_temp(self,n):
+        t = 0
+        for value in self.values:
+            t += value.getTemperature()
+        return t/n
+            
 
 
     def run(self):
@@ -147,17 +148,8 @@ class loop(threading.Thread):
             except ValueError:
                 print(ret)
 
-            globals.temperature_average = 0
-            for value in self.values:
-                globals.temperature_average += value.getTemperature()/globals.NUMBER_OF_SENSORS
-            
+            globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
             self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
-
-            # if globals.CONNECTED_TO_MATLAB:
-            #     try:
-            #         self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
-            #     except ConnectionResetError:
-            #         globals.CONNECTED_TO_MATLAB = False
 
             # SAFETY
             if globals.temperature_average > globals.MAX_TEMP:
@@ -184,13 +176,12 @@ class loop(threading.Thread):
                 pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(pidout)          
 
-            if abs(globals.temperature_target - globals.temperature_average) < globals.MAX_TEMP_FLUCTUATION:
-                count += 1
-                if count == globals.SETTLE_WAIT_TIME/self.pid.freq:
-                    globals.READY = True
-                    self.safemsg_matlab("READY")
-            else: 
-                count = 0
+            self.pid.settle_update(globals.temperature_average,globals.temperature_target)
+
+            if self.pid.settle_check():
+                globals.READY = True
+                self.safemsg_matlab("READY")
+            else:
                 if globals.READY:
                     self.safemsg_matlab("NOT_READY")
                 globals.READY = False
