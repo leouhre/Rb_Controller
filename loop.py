@@ -33,7 +33,7 @@ class loop(threading.Thread):
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
             except:
-                # TODO: Do not only send to MATLAB but also show on pop-up screen
+                globals.error_msg = "Error when connecting to LucidControl RI8"
                 if globals.CONNECTED_TO_MATLAB:
                     self.tcp_socket.sendall("Error when connecting to LucidControl RI8\n".encode())
                     time.sleep(5)
@@ -55,14 +55,16 @@ class loop(threading.Thread):
                 self.psu.remote_on()
             except:
                 globals.error_msg = 'Error when connecting to EA PSU'
-                self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
+                if globals.CONNECTED_TO_MATLAB:    
+                    self.tcp_socket.sendall("Error when connecting to EA PSU\n".encode())
                 time.sleep(5)                
-                pass
             else:
                 break
 
         globals.CONNECTED_TO_INSTRUMENTS = True
-        #self.tcp_socket.sendall("CONNECTED\n".encode())
+        if globals.CONNECTED_TO_MATLAB:
+            self.tcp_socket.sendall("CONNECTED\n".encode())
+
 
         # Initiate measurements at constant voltage
         self.psu.set_current(4)
@@ -72,23 +74,19 @@ class loop(threading.Thread):
         # Initialize PID
         self.pid = PID2()
 
-        # TODO: Should be made compatible with pop-up screens and CONNECTED_TO_MATLAB
         def safeExit():
-            try:
-                self.tcp_socket.sendall("Python application has ended\n".encode())
-            except OSError:
-                print("Connection lost")
+            globals.error_msg = "Regulation crashed"
+            if globals.CONNECTED_TO_MATLAB:
+                self.tcp_socket.sendall("Regulation crashed\n".encode())
             try:
                 self.psu.output_off()
                 self.psu.remote_off()
                 self.psu.close()
-                print("PSU output if off")
             except:
-                print("Connection to EA PSU lost")
-            try:
-                self.rt8.close()
-            except:
-                print("Connection to LucidControl RI8 lost")
+                globals.error_msg = "Connection to PSU lost. Turn off output manually"
+                if globals.CONNECTED_TO_MATLAB:
+                    self.tcp_socket.sendall("Connection to PSU lost. Turn off output manually\n".encode())
+            self.rt8.close()
 
         atexit.register(safeExit)
 
@@ -104,48 +102,48 @@ class loop(threading.Thread):
             globals.temperature_average = 0
             for value in self.values:
                 globals.temperature_average += value.getTemperature()/globals.NUMBER_OF_SENSORS
-            try:
-                self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
-            except ConnectionResetError:
-                #globals.STOP_RUNNING = True
-                break
+
+            if globals.CONNECTED_TO_MATLAB:
+                try:
+                    self.tcp_socket.sendall("AVG_TEMP\n{:.1f}\n".format(globals.temperature_average).encode())
+                except ConnectionResetError:
+                    globals.CONNECTED_TO_MATLAB = False
 
             # SAFETY: AVERAGE MUST NO BE HIGHER THAN 200C
-            if globals.temperature_average > 203:
-                # Send warning to pop-up box
+            if globals.temperature_average > globals.MAX_TEMP:
+                globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
                 globals.OUTPUT_OFF = True
                 self.psu.output_off()
 
-            try:
-                message = self.tcp_socket.recv(1024).decode("utf_8")
-            except OSError:
-                message = "hello"
-            except:
-                #globals.STOP_RUNNING = True
-                break
+            if globals.CONNECTED_TO_MATLAB:
+                try:
+                    message = self.tcp_socket.recv(1024).decode("utf_8")
+                except:
+                    globals.error_msg = "Connection to matlab lost"
+                    globals.CONNECTED_TO_MATLAB = False
+                else:
+                    match str(message[0]):
+                        case "t": #Temperatur given
+                            globals.temperature_target = float(message[2:7])
+                            globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                            globals.SET = True
+                            globals.OUTPUT_PAUSE = False
+                            
+                        case "o": #output off
+                            globals.OUTPUT_OFF = True
+                            self.psu.output_off()
+                        
+                        case "p": #outputpause
+                            globals.OUTPUT_PAUSE = True
 
-            match str(message[0]):
-                case "t": #Temperatur given
-                    globals.temperature_target = float(message[2:7])
-                    globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
-                    globals.SET = True
-                    globals.OUTPUT_PAUSE = False
-                    
-                case "o": #output off
-                    globals.OUTPUT_OFF = True
-                    self.psu.output_off()
-                
-                case "p": #outputpause
-                    globals.OUTPUT_PAUSE = True
+                        case "!": #stop program
+                            globals.STOP_RUNNING = True
 
-                case "!": #stop program
-                    globals.STOP_RUNNING = True
+                        case "b": #Bypass mode
+                            globals.BYPASS_MODE = True
 
-                case "b": #Bypass mode
-                    globals.BYPASS_MODE = True
-
-                case "s": #release Set button
-                    globals.SET = False
+                        case "s": #release Set button
+                            globals.SET = False
 
             if globals.BYPASS_MODE:
                 self.psu.output_off()
@@ -155,13 +153,13 @@ class loop(threading.Thread):
             
             self.psu.remote_on()
 
-            if not globals.OUTPUT_PAUSE or not globals.globals.OUTPUT_OFF:
+            if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
                 pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
                 self.psu.set_voltage(pidout)          
 
-            if abs(globals.temperature_target - globals.temperature_average) < 1: #TODO: This 1 is user defined now
+            if abs(globals.temperature_target - globals.temperature_average) < globals.MAX_TEMP_FLUCTUATION: #TODO: This 1 is user defined now
                 count += 1
-                if count == 10/self.pid.freq: # Temperature has been within 1C of target for more at least 10 seconds
+                if count == globals.SETTLE_WAIT_TIME/self.pid.freq: # Temperature has been within 1C of target for more at least 10 seconds
                     globals.READY = True
                     if globals.CONNECTED_TO_MATLAB:
                         self.tcp_socket.sendall("READY\n".encode()) # Send READY to matlab via serial

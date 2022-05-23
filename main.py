@@ -16,13 +16,12 @@ import globals
 
 #names
 globals.initialize_variables()
-MAX_TEMP = 200
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
 
 def set_temperature():
-    settemp.value = "{:3.2f}".format(max(min(float(settemp.value),MAX_TEMP),MIN_TEMP))
+    settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
     globals.temperature_target = float(settemp.value)
     globals.SET = True
     globals.TARGET_TEMP_CHANGED.BY_UI = True 
@@ -53,6 +52,9 @@ def apply_settings(answer):
         with open('config.txt','w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
+        globals.MAX_TEMP = float(temperature_limit_textbox.value)
+        globals.MAX_TEMP_FLUCTUATION= float(settling_temperature_fluctuations_textbox.value)
+        globals.SETTLE_WAIT_TIME = float(wait_time_textbox.value)
         globals.SETTINGS_CHANGED = True
 
     save_changes_window.visible = False
@@ -69,7 +71,7 @@ def adjust_brightnes():
 def increment(n): 
     if not settemp.value:
         settemp.value = round(n*float(scale_button.text),1)
-    elif not (float(settemp.value) + n*float(scale_button.text) > MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < MIN_TEMP):
+    elif not (float(settemp.value) + n*float(scale_button.text) > globals.MAX_TEMP or float(settemp.value) + n*float(scale_button.text) < MIN_TEMP):
         settemp.value = round(float(settemp.value) + n*float(scale_button.text),1)
     globals.SET = False
 
@@ -334,6 +336,9 @@ selected_widget = settemp
 with open('config.txt', 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
+    globals.MAX_TEMP = float(temperature_limit_textbox.value)
+    globals.MAX_TEMP_FLUCTUATION= float(settling_temperature_fluctuations_textbox.value)
+    globals.SETTLE_WAIT_TIME = float(wait_time_textbox.value)
 
 #TODO: use the uncommented line when in lab
 # main_loop_thread = loop.loop()

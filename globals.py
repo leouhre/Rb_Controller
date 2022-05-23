@@ -13,6 +13,9 @@ def initialize_variables():
     global NUMBER_OF_SENSORS
     global SETTINGS_CHANGED
     global error_msg
+    global MAX_TEMP
+    global MAX_TEMP_FLUCTUATION
+    global SETTLE_WAIT_TIME
 
 
     temperature_target = 0
@@ -29,5 +32,8 @@ def initialize_variables():
         BY_UI = False
         BY_MATLAB = False
     error_msg = ""
+    MAX_TEMP = 209
+    MAX_TEMP_FLUCTUATION = 1
+    SETTLE_WAIT_TIME = 100
     CONNECTED_TO_MATLAB = False
     NUMBER_OF_SENSORS = 8
