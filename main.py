@@ -29,7 +29,7 @@ def set_temperature():
     settemp.value = "{:3.2f}".format(max(min(float(settemp.value),MAX_TEMP),MIN_TEMP))
     globals.SET = True
 
-#functions for Main GUI
+#functions for GUI
 def close_popup_message():
     popup_msg.value = ""
     popup_window.visible = False
@@ -166,6 +166,7 @@ def ui_visual_updates():
         popup_window.visible = True
         globals.error_msg = ""
 
+#GUI
 app = App(visible=False)
 app.text_color = 'white'
 
@@ -277,7 +278,7 @@ wait_time_textbox = TextBox(settings_window,grid=[1,12])
 #numpad
 spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
 
-#plot
+#temperature/time plot
 f = plt.figure(figsize=(4,3.5))
 axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
@@ -303,7 +304,7 @@ canvas.draw()
 canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-#Updates
+#schduled updates
 app.repeat(100, ui_visual_updates)
 temp.repeat(100, update_temperature)
 
@@ -312,7 +313,7 @@ def clicked(event_data):
     global selected_widget
     selected_widget = event_data.widget
 
-#Tuple of all settings textboxes
+    #Tuple of all settings textboxes
 textboxes = (
     proportional_gain_textbox, 
     integral_gain_textbox,
@@ -324,7 +325,7 @@ textboxes = (
     slope_length_textbox,
     wait_time_textbox)
 
-#assing event method "clicked" to textboxes
+    #assing event method "clicked" to textboxes
 for textbox in textboxes:
     textbox.when_clicked = clicked 
 
