@@ -340,9 +340,8 @@ canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 controller_window.repeat(100, updates_controller)
 settings_window.repeat(100, updates_settings)
 popup_window.repeat(100, updates_popup)
-popup_window.repeat(1000, updates_connecting)
+connecting_window.repeat(1000, updates_connecting)
 temp.repeat(100, update_temperature)
-
 
 #events
 def clicked(event_data):

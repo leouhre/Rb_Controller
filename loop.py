@@ -186,7 +186,6 @@ class loop(threading.Thread):
             self.pid.__init__() 
             globals.SETTINGS_CHANGED = False
             #TODO: CHeck if this even works?
-
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
