@@ -19,6 +19,7 @@ globals.initialize_variables()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
+config_path = 'config.txt'
 
 def set_temperature():
     settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
@@ -44,12 +45,12 @@ def apply_settings(answer):
     global selected_widget
     global textboxes
     if answer == 'no':
-        with open('config.txt','r') as config:
+        with open(config_path,'r') as config:
             for textbox in textboxes:
                 textbox.value = float(config.readline())
     
     if answer == 'yes':
-        with open('config.txt','w') as config:
+        with open(config_path,'w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
@@ -93,6 +94,16 @@ def get_min_xlim():
         return sys.maxsize
     return max(int(time_scale_combo.value[10:-1]),0)
 
+def connect_to_matlab():
+    globals.ATTEMPT_TO_CONNECT = True
+    connecting_window.visible = True
+    controller_window.disable()
+
+def stop_connecting_to_matlab():
+    globals.ATTEMPT_TO_CONNECT = False
+    connecting_window.visible = False
+    controller_window.enable()
+
 def numpad(btn):
     match btn:
         case '.':
@@ -116,11 +127,10 @@ def spawn_numpad(master,size):
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
-def ui_visual_updates():
+def updates_controller():
     if globals.STOP_RUNNING:
         app.destroy()
 
-    #Updates in controller window
     if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
         settemp.value = globals.temperature_target
         globals.TARGET_TEMP_CHANGED.BY_MATLAB = False
@@ -147,13 +157,20 @@ def ui_visual_updates():
     else:
         set_temp_button.enable()
 
-    #updates in settings windows
+    if globals.CONNECTED_TO_MATLAB:
+        connect_to_matlab_button.text_color = 'green'
+        connect_to_matlab_button.disable()
+    else:
+        connect_to_matlab_button.text_color = 'red'
+        connect_to_matlab_button.enable()
+
+def updates_settings():
     if globals.BYPASS_MODE:
         use_power_supply_button.bg = 'grey'
     else:
         use_power_supply_button.bg = background_color
-    
-    #popup_window
+
+def updates_popup():
     if globals.error_msg:
         msg = globals.error_msg
         splits = len(msg)//14
@@ -163,10 +180,26 @@ def ui_visual_updates():
         popup_msg.value = msg
         popup_window.visible = True
         globals.error_msg = ""
+        
+def updates_connecting():
+    if globals.CONNECTED_TO_MATLAB:
+        connecting_window.visible = False
+    else:
+        if '...' in connecting_text.value:
+            connecting_text.value = "Connecting to matlab"
+        else:
+            connecting_text.append('.')
+
 
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
+
+connecting_window = Window(app,title="connecting",visible=False,width=300,height=300)
+connecting_window.text_size = 28
+connecting_window.bg = background_color
+connecting_text = Text(connecting_window,text="Connecting to matlab",size=10)
+cancel_pushbutton = PushButton(connecting_window,text="Cancel",width=10,command=stop_connecting_to_matlab)
 
 popup_window = Window(app,title="WARNING",visible=False,width=300,height=300)
 popup_window.text_size = 28
@@ -189,7 +222,8 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',grid=[0,0,3,1]) 
+Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',grid=[1,0,2,1]) 
+connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
 brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
@@ -303,8 +337,12 @@ canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 #schduled updates
-app.repeat(100, ui_visual_updates)
+controller_window.repeat(100, updates_controller)
+settings_window.repeat(100, updates_settings)
+popup_window.repeat(100, updates_popup)
+popup_window.repeat(1000, updates_connecting)
 temp.repeat(100, update_temperature)
+
 
 #events
 def clicked(event_data):
@@ -331,7 +369,7 @@ for textbox in textboxes:
 #initializations
 selected_widget = settemp
 
-with open('config.txt', 'r') as config:
+with open(config_path, 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
@@ -340,7 +378,7 @@ with open('config.txt', 'r') as config:
 # main_loop_thread = loop.loop()
 main_loop_thread = loop_simulator.loop()
 main_loop_thread.start()
-app.display()
+app.display() # infinite loo
 
 globals.STOP_RUNNING = True
 main_loop_thread.join
