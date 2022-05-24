@@ -140,8 +140,6 @@ class loop(threading.Thread):
         return t/n
     
     def loop(self):
-        self.listen_to_matlab()
-
         globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
         self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
@@ -192,9 +190,10 @@ class loop(threading.Thread):
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
+            self.listen_to_matlab()
             self.loop()
             time.sleep(self.pid.Ts)
-            
+
         self.psu.close()
         self.tcp_socket.close()
         self.rt8.close()
