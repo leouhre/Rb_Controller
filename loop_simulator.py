@@ -9,7 +9,6 @@ class loop(threading.Thread):
         threading.Thread.__init__(self)
         self.FREQUENCY = 0.4
         # Initialize the Elektro-Automatik Power Supply
-        globals.CONNECTED = True
         self.count = 0
 
     def run(self):
