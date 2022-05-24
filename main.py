@@ -195,10 +195,10 @@ def updates_connecting():
 app = App(visible=False)
 app.text_color = 'white'
 
-connecting_window = Window(app,title="connecting",visible=False,width=300,height=300)
-connecting_window.text_size = 28
+connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
+connecting_window.text_size = 18
 connecting_window.bg = background_color
-connecting_text = Text(connecting_window,text="Connecting to matlab",size=10)
+connecting_text = Text(connecting_window,text="Connecting to matlab")
 cancel_pushbutton = PushButton(connecting_window,text="Cancel",width=10,command=stop_connecting_to_matlab)
 
 popup_window = Window(app,title="WARNING",visible=False,width=300,height=300)
