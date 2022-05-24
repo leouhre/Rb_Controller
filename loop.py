@@ -1,32 +1,20 @@
 # Python packages
 import time, threading, socket, atexit
 
-# Our scripts
-from classes.pid2 import PID2
-import globals
-
 # Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
 from lucidIo.Values import ValueTMS2
 from lucidIo.Values import ValueTMS4
-
 # Import power supply unit
 import ea_psu_controller as ea
+
+# Our scripts
+from classes.pid2 import PID2
+import globals
 
 class loop(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-
-        # TODO: Move into function called by "connect to matlab" button on ui
-        while True:
-            try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
-            except OSError:
-                pass
-            else:
-                self.tcp_socket.setblocking(0)
-                break
-
         # Initialize the LucidControl RTD measurement device
         while True:
             try:
@@ -103,6 +91,17 @@ class loop(threading.Thread):
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
         return msg
+
+    def listen_to_matlab(self):
+        while globals.ATTEMPT_TO_CONNECT:
+            try:
+                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
+            except OSError:
+                time.sleep(1)
+            else:
+                self.tcp_socket.setblocking(0)
+                globals.CONNECTED_TO_MATLAB = True
+                break
     
     def decodemsg(self,msg):
         if msg:
@@ -141,10 +140,11 @@ class loop(threading.Thread):
         return t/n
             
 
-
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
+            self.listen_to_matlab()
+
             globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
             self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
