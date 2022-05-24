@@ -138,63 +138,63 @@ class loop(threading.Thread):
         for value in self.values:
             t += value.getTemperature()
         return t/n
-            
+    
+    def loop(self):
+        self.listen_to_matlab()
+
+        globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
+        self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
+
+        # SAFETY
+        if globals.temperature_average > globals.MAX_TEMP:
+            globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
+            globals.OUTPUT_OFF = True
+            self.psu.output_off()
+
+        message = self.saferecv_matlab()
+        self.decodemsg(message)
+
+        #TODO: Check if if statement can be removed with no exceptions then more readable
+        if globals.BYPASS_MODE:
+            if self.psu.get_status()['output on']:
+                self.psu.output_off()
+            if self.psu.get_status()['remote on']:
+                self.psu.remote_off()
+            time.sleep(1)
+            return
+
+        if not self.psu.get_status()['output on']:
+            self.psu.remote_on()
+
+        if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
+            pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
+            self.psu.set_voltage(pidout)          
+
+        self.pid.settle_update(globals.temperature_average,globals.temperature_target)
+
+        if self.pid.settle_check():
+            globals.READY = True
+            self.safemsg_matlab("READY")
+        else:
+            if globals.READY:
+                self.safemsg_matlab("NOT_READY")
+            globals.READY = False
+                        
+        if globals.TARGET_TEMP_CHANGED.BY_UI:
+            self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
+            globals.TARGET_TEMP_CHANGED.BY_UI = False
+        
+        if globals.SETTINGS_CHANGED:
+            self.pid.__init__() 
+            globals.SETTINGS_CHANGED = False
+            #TODO: CHeck if this even works?
 
     def run(self):
         # Loop
         while not globals.STOP_RUNNING:
-            self.listen_to_matlab()
-
-            globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
-            self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
-
-            # SAFETY
-            if globals.temperature_average > globals.MAX_TEMP:
-                globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
-                globals.OUTPUT_OFF = True
-                self.psu.output_off()
-
-            message = self.saferecv_matlab()
-            self.decodemsg(message)
-
-            #TODO: Check if if statement can be removed with no exceptions then more readable
-            if globals.BYPASS_MODE:
-                if self.psu.get_status()['output on']:
-                    self.psu.output_off()
-                if self.psu.get_status()['remote on']:
-                    self.psu.remote_off()
-                time.sleep(1)
-                continue
-
-            if not self.psu.get_status()['output on']:
-                self.psu.remote_on()
-
-            if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
-                pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
-                self.psu.set_voltage(pidout)          
-
-            self.pid.settle_update(globals.temperature_average,globals.temperature_target)
-
-            if self.pid.settle_check():
-                globals.READY = True
-                self.safemsg_matlab("READY")
-            else:
-                if globals.READY:
-                    self.safemsg_matlab("NOT_READY")
-                globals.READY = False
-                            
-            if globals.TARGET_TEMP_CHANGED.BY_UI:
-                self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
-                globals.TARGET_TEMP_CHANGED.BY_UI = False
-            
-            if globals.SETTINGS_CHANGED:
-                self.pid.__init__() 
-                globals.SETTINGS_CHANGED = False
-                #TODO: CHeck if this even works?
-
-
+            self.loop()
             time.sleep(self.pid.Ts)
-
+            
         self.psu.close()
         self.tcp_socket.close()
         self.rt8.close()
