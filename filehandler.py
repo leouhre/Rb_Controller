@@ -17,9 +17,9 @@ def deques_to_txtfile(**data:deque):
 
 def all_textfile(sensors,time,clock):
     with open(f"all_data.txt", "w") as f:
-        for i in range(len(time)):
-            for sensor in sensors:
-                f.write(str(sensor[i]) + ",")
-            f.write(str(time[i]) + ",")
-            f.write(str(clock[i]) + "\n")
+        for sensor in sensors:
+            for value, t, c in zip(sensor,time,clock):
+            f.write(str(value) + ",")
+            f.write(str(t) + ",")
+            f.write(str(c) + "\n")
         
