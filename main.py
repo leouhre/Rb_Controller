@@ -66,6 +66,7 @@ def show_brightness_window():
 def adjust_brightnes():
     #TODO: implement this
     print(f"brightness={brightness_slider.value}")
+    globals.error_msg = "Hi"
 
 def increment(n): 
     if not settemp.value:
