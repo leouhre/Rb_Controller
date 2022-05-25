@@ -113,7 +113,7 @@ try:
 		t.append(t_temp)
 		c.append(time.strftime("%H:%M:%S", time.localtime()))
 
-		time.sleep(0.1)
+		time.sleep(PI.Ts)
 
 except KeyboardInterrupt:
 	pass
