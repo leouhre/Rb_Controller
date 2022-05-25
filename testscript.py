@@ -80,10 +80,10 @@ psu.set_voltage(0)
 psu.output_on()
 
 #temperature from terminal 
-T_target = 200
-psu.set_voltage(float(sys.argv[1]))
+T_target = float(sys.argv[1])
+#psu.set_voltage(float(sys.argv[1]))
 #initialize PID
-#PI = PID() 
+PI = PID() 
 
 
 
@@ -105,9 +105,9 @@ try:
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
 
-		#PI.update_error(temp_average,T_target)
-		#psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
-		#v.append(PI.proportional() + PI.integral())
+		PI.update_error(temp_average,T_target)
+		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
+		v.append(PI.proportional() + PI.integral())
 
 		t.append(t_temp)
 		c.append(time.strftime("%H:%M:%S", time.localtime()))
