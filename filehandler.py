@@ -19,7 +19,7 @@ def all_textfile(sensors,time,clock):
     with open(f"all_data.txt", "w") as f:
         for sensor in sensors:
             for value, t, c in zip(sensor,time,clock):
-            f.write(str(value) + ",")
+                f.write(str(value) + ",")
             f.write(str(t) + ",")
             f.write(str(c) + "\n")
         
