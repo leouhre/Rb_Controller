@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from globals import MAX_TEMP_FLUCTUATION
-
 class PID2():
     P = Path('C:\\','Users','leouh', 'Documents', 'Rb_Controller')
     def __init__(self):
