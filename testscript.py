@@ -9,8 +9,9 @@ from collections import deque
 
 
 #our scripts
-from classes.pid import PID
+from classes.pid2 import PID2
 import filehandler
+
 
 # Import functionality of RTD measurement device
 # import lucidIo
@@ -83,7 +84,7 @@ psu.output_on()
 T_target = float(sys.argv[1])
 #psu.set_voltage(float(sys.argv[1]))
 #initialize PID
-PI = PID() 
+PI = PID2() 
 
 
 
@@ -104,15 +105,15 @@ try:
 		data[num_of_sensors].append(temp_average)
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
-
-		PI.update_error(temp_average,T_target)
-		psu.set_voltage(max(min(PI.proportional() + PI.integral(),28),0)) 
-		v.append(PI.proportional() + PI.integral())
+		
+		pidout = PI.update(temp_average,T_target)
+		psu.set_voltage(pidout) 
+		v.append(pidout)
 
 		t.append(t_temp)
 		c.append(time.strftime("%H:%M:%S", time.localtime()))
 
-		time.sleep(1)
+		time.sleep(0.1)
 
 except KeyboardInterrupt:
 	pass

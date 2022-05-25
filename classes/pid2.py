@@ -1,11 +1,9 @@
 from pathlib import Path
 
-from globals import MAX_TEMP_FLUCTUATION
-
 class PID2():
     P = Path('C:\\','Users','leouh', 'Documents', 'Rb_Controller')
     def __init__(self):
-        with open(self.P / 'config.txt', 'r') as config:
+        with open('config.txt', 'r') as config:
             self.kp = float(config.readline())
             self.ki = float(config.readline())
             self.kd = float(config.readline())
@@ -25,7 +23,7 @@ class PID2():
     prev_t = 0
 
     upper_lim = 28
-    lower_lim = -4
+    lower_lim = 0
     
     u_past = 0
     y_past = 0
