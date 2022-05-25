@@ -10,8 +10,7 @@ from matplotlib import animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 #our scripts
-# import loop
-import loop_simulator
+import loop
 import globals
 
 #names
@@ -36,6 +35,7 @@ def swap_windows(to):
     global selected_widget
     if to == 'controller':
         save_changes_window.visible = True
+
     if to == 'settings':
         selected_widget = proportional_gain_textbox
         settings_window.visible = True
@@ -59,6 +59,7 @@ def apply_settings(answer):
     save_changes_window.visible = False
     settings_window.visible = False
     selected_widget = settemp
+    controller_window.visible = True
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
@@ -375,10 +376,11 @@ with open(config_path, 'r') as config:
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
 #TODO: use the uncommented line when in lab
-# main_loop_thread = loop.loop()
-main_loop_thread = loop_simulator.loop()
+
+main_loop_thread = loop.loop()
+# main_loop_thread = loop_simulator.loop()
 main_loop_thread.start()
-app.display() # infinite loo
+app.display() # infinite loop
 
 globals.STOP_RUNNING = True
 main_loop_thread.join
