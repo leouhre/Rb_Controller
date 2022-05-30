@@ -60,6 +60,7 @@ def apply_settings(answer):
     settings_window.visible = False
     selected_widget = settemp
     controller_window.visible = True
+    controller_window.full_screen = True
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
@@ -369,6 +370,7 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
+controller_window.full_screen = True
 
 with open(config_path, 'r') as config:
     for textbox in textboxes:
@@ -379,5 +381,4 @@ main_loop_thread = loop.loop()
 main_loop_thread.start()
 app.display() # infinite loop
 
-globals.STOP_RUNNING = True
 main_loop_thread.join
