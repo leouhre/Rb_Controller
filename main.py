@@ -375,10 +375,7 @@ with open(config_path, 'r') as config:
         textbox.value = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-#TODO: use the uncommented line when in lab
-
 main_loop_thread = loop.loop()
-# main_loop_thread = loop_simulator.loop()
 main_loop_thread.start()
 app.display() # infinite loop
 
