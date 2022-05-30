@@ -53,8 +53,8 @@ def apply_settings(answer):
         with open(config_path,'w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
-            config.write(alpha+ "\n")
-            config.write(freq + "\n")
+            config.write(str(alpha) + "\n")
+            config.write(str(freq) + "\n")
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
         globals.SETTINGS_CHANGED = True
 
