@@ -16,7 +16,7 @@ def initialize_variables():
     global MAX_TEMP
     global MAX_TEMP_FLUCTUATION
     global SETTLE_WAIT_TIME
-
+    global ATTEMPT_TO_CONNECT
 
     temperature_target = 0
     temperature_average = 0
@@ -36,4 +36,5 @@ def initialize_variables():
     MAX_TEMP_FLUCTUATION = 1
     SETTLE_WAIT_TIME = 100
     CONNECTED_TO_MATLAB = False
+    ATTEMPT_TO_CONNECT = False
     NUMBER_OF_SENSORS = 8
