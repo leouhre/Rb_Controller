@@ -189,8 +189,10 @@ class loop(threading.Thread):
             #TODO: CHeck if this even works?
     def run(self):
         # Loop
+        print(globals.STOP_RUNNING)
         while not globals.STOP_RUNNING:
             self.listen_to_matlab()
+            print("loop")
             self._loop()
             time.sleep(self.pid.Ts)
 
