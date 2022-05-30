@@ -1,6 +1,6 @@
 # Python packages
 from shutil import ExecError
-import time, threading, socket, atexit
+import time, threading, socket, atexit,serial
 
 # Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -45,7 +45,7 @@ class loop(threading.Thread):
             try:
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
-            except Exception as ex:
+            except ea.ExceptionPSU as ex:
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
@@ -149,7 +149,7 @@ class loop(threading.Thread):
         # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
         try:
             ret = self.rt8.getIoGroup(self.channels, self.values)
-        except Exception as ex:
+        except serial.SerialException as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
