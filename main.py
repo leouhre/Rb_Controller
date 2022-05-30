@@ -53,6 +53,8 @@ def apply_settings(answer):
         with open(config_path,'w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
+            config.write(float(alpha) + "\n")
+            config.write(float(freq) + "\n")
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
         globals.SETTINGS_CHANGED = True
 
@@ -376,9 +378,14 @@ for textbox in textboxes:
 selected_widget = settemp
 controller_window.full_screen = True
 
+alpha = 0
+freq = 0
+
 with open(config_path, 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
+    alpha = float(config.readline())
+    freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
 main_loop_thread = loop.loop()
