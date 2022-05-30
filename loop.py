@@ -162,14 +162,15 @@ class loop(threading.Thread):
             print(ret)
         t = 0
         for value in self.values:
-            if -1000 > value: 
+            sensor = value.getTemperature()
+            if -1000 > sensor: 
                 print(f"sensor{self.values.index(value)+1} is shortcircuited")
                 return 0
-            elif value > 1000:
+            elif sensor > 1000:
                 print(f"sensor{self.values.index(value)+1} is disconected")
                 return 0
             else:
-                t += value.getTemperature()
+                t += sensor
         return t/n
     
     def _loop(self):
