@@ -21,10 +21,14 @@ text_color = 'white'
 config_path = 'config.txt'
 
 def set_temperature():
-    settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
-    globals.temperature_target = float(settemp.value)
-    globals.SET = True
-    globals.TARGET_TEMP_CHANGED.BY_UI = True 
+    try:
+        settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
+    except ValueError:
+        globals.error_msg = "NaN"
+    else:
+        globals.temperature_target = float(settemp.value)
+        globals.SET = True
+        globals.TARGET_TEMP_CHANGED.BY_UI = True 
 
 #GUI related methods 
 def close_popup_message():
@@ -43,7 +47,14 @@ def swap_windows(to):
 
 def apply_settings(answer):
     global selected_widget
-    global textboxes
+
+    for textbox in textboxes:
+            try:
+                float(textbox.value)
+            except ValueError:
+                globals.error_msg = "NaN"
+                answer = 'no'
+    
     if answer == 'no':
         with open(config_path,'r') as config:
             for textbox in textboxes:
@@ -54,7 +65,8 @@ def apply_settings(answer):
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
             config.write(str(alpha) + "\n")
-            config.write(str(freq) + "\n")
+            config.write(str(freq) + "\n")  
+            
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
         globals.SETTINGS_CHANGED = True
 

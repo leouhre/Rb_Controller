@@ -46,9 +46,11 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except ea.psu_ea.ExceptionPSU as ex:
+
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
+
                 globals.error_msg = "Error when connecting to EA PSU"
                 self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
@@ -151,16 +153,23 @@ class loop(threading.Thread):
                     globals.SET = False
     
     def get_average_temp(self,n):
-        # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
         try:
             ret = self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
+            print(ret)
         t = 0
         for value in self.values:
-            t += value.getTemperature()
+            if -1000 > value: 
+                print(f"sensor{self.values.index(value)+1} is shortcircuited")
+                return 0
+            elif value > 1000:
+                print(f"sensor{self.values.index(value)+1} is disconected")
+                return 0
+            else:
+                t += value.getTemperature()
         return t/n
     
     def _loop(self):
