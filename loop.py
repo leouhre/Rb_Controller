@@ -78,7 +78,12 @@ class loop(threading.Thread):
         except:
             globals.error_msg = "Connection to PSU lost. Turn off output manually"
             self.safemsg_matlab("Connection to PSU lost. Turn off output manually")
-        self.rt8.close()
+        try:
+            self.rt8.close()
+        except TimeoutError as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
