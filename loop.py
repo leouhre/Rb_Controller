@@ -1,4 +1,5 @@
 # Python packages
+from shutil import ExecError
 import time, threading, socket, atexit
 
 # Import RTD measurement device
@@ -20,7 +21,10 @@ class loop(threading.Thread):
             try:
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
-            except:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
                 globals.error_msg = "Error when connecting to LucidControl RI8"
                 self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
@@ -41,7 +45,10 @@ class loop(threading.Thread):
             try:
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
-            except:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
                 globals.error_msg = "Error when connecting to EA PSU"
                 self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
@@ -78,7 +85,10 @@ class loop(threading.Thread):
             return False
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
         return True
@@ -88,7 +98,10 @@ class loop(threading.Thread):
             return ''
         try:
             msg = self.tcp_socket.recv(1024).decode("utf_8")
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
         return msg
@@ -97,7 +110,10 @@ class loop(threading.Thread):
         while globals.ATTEMPT_TO_CONNECT:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
-            except OSError:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
                 time.sleep(1)
             else:
                 self.tcp_socket.setblocking(0)
@@ -133,8 +149,10 @@ class loop(threading.Thread):
         # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
         try:
             ret = self.rt8.getIoGroup(self.channels, self.values)
-        except ValueError:
-            print(ret)
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
         t = 0
         for value in self.values:
             t += value.getTemperature()

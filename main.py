@@ -103,6 +103,7 @@ def connect_to_matlab():
     controller_window.disable()
 
     main_loop_thread.safeexit()
+    app.destroy()
     exit()
 
 def stop_connecting_to_matlab():
