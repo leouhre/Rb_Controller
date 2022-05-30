@@ -219,7 +219,7 @@ class loop(threading.Thread):
         if globals.SETTINGS_CHANGED:
             self.pid.__init__() 
             globals.SETTINGS_CHANGED = False
-            #TODO: CHeck if this even works?
+
     def run(self):
         # Loop
         print(globals.STOP_RUNNING)
