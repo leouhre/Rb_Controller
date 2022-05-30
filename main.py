@@ -102,6 +102,9 @@ def connect_to_matlab():
     connecting_window.visible = True
     controller_window.disable()
 
+    main_loop_thread.safeexit()
+    exit()
+
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
     connecting_window.visible = False
