@@ -10,6 +10,7 @@ def initialize_variables():
     global SET
     global TARGET_TEMP_CHANGED
     global CONNECTED_TO_MATLAB
+    global ATTEMPT_TO_CONNECT
     global NUMBER_OF_SENSORS
     global SETTINGS_CHANGED
     global error_msg
@@ -34,6 +35,7 @@ def initialize_variables():
     error_msg = ""
     MAX_TEMP = 209
     MAX_TEMP_FLUCTUATION = 1
-    SETTLE_WAIT_TIME = 100
+    SETTLE_WAIT_TIME = 10
     CONNECTED_TO_MATLAB = False
-    NUMBER_OF_SENSORS = 8
+    ATTEMPT_TO_CONNECT= False
+    NUMBER_OF_SENSORS = 4
