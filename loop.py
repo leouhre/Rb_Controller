@@ -196,6 +196,8 @@ class loop(threading.Thread):
             return
 
         if not self.psu.get_status()['output on']:
+                self.psu.output_on()
+        if not self.psu.get_status()['remote on']:
             self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
