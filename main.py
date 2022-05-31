@@ -1,5 +1,6 @@
 #! Creates UI and initializes loop for regulating temperature.
 #Python packages 
+from curses import window
 import errno
 import time
 import sys
@@ -194,13 +195,6 @@ def updates_settings():
 
 def updates_popup():
     if globals.error_msg:
-        # msg = globals.error_msg
-        # splits = len(msg)//14
-        # for x in range(1,splits+1):
-        #     i = msg.rfind(' ',0,14*x)
-        #     msg = msg[:i] + '\n' + msg[i:]
-        # popup_msg.value = msg
-        # popup_window.visible = True
         msg = globals.error_msg
         globals.error_msg = ""
         popup_window.warn(title='error',text=msg)
@@ -218,6 +212,8 @@ def updates_connecting():
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
+
+Window(app,title="guizero",width=780,height=460)
 
 connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
 connecting_window.text_size = 18
