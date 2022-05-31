@@ -1,5 +1,6 @@
 #! Creates UI and initializes loop for regulating temperature.
 #Python packages 
+import errno
 import time
 import sys
 import tkinter as tk
@@ -193,14 +194,16 @@ def updates_settings():
 
 def updates_popup():
     if globals.error_msg:
+        # msg = globals.error_msg
+        # splits = len(msg)//14
+        # for x in range(1,splits+1):
+        #     i = msg.rfind(' ',0,14*x)
+        #     msg = msg[:i] + '\n' + msg[i:]
+        # popup_msg.value = msg
+        # popup_window.visible = True
         msg = globals.error_msg
-        splits = len(msg)//14
-        for x in range(1,splits+1):
-            i = msg.rfind(' ',0,14*x)
-            msg = msg[:i] + '\n' + msg[i:]
-        popup_msg.value = msg
-        popup_window.visible = True
         globals.error_msg = ""
+        popup_window.warn(title='error',text=msg)
         
 def updates_connecting():
     if globals.CONNECTED_TO_MATLAB:
@@ -400,8 +403,8 @@ with open(config_path, 'r') as config:
     freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+#main_loop_thread = loop.loop()
+#main_loop_thread.start()
 app.display() # infinite loop
 
-main_loop_thread.join
+#main_loop_thread.join
