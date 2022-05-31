@@ -8,6 +8,7 @@ import numpy as np
 from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
 from matplotlib import animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from rpi_backlight import Backlight
 
 #our scripts
 import loop
@@ -15,6 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -80,9 +82,7 @@ def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
 
 def adjust_brightnes():
-    #TODO: implement this
-    print(f"brightness={brightness_slider.value}")
-    globals.error_msg = "Hi"
+    backlight.brightness = brightness_slider.value
 
 def increment(n): 
     if not settemp.value:
@@ -227,7 +227,7 @@ PushButton(popup_window,text="Close",command=close_popup_message,width=10)
 
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
 brightness_window.text_size = 40
-brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
+brightness_slider = Slider(brightness_window,start=10,end=100,command=adjust_brightnes,width=280,height=70)
 
 save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
 Text(save_changes_window,text='Save Changes?',align='top')
