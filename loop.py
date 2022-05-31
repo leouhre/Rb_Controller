@@ -1,5 +1,6 @@
 # Python packages
-import time, threading, socket, atexit
+from shutil import ExecError
+import time, threading, socket, atexit,serial
 
 # Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -20,7 +21,10 @@ class loop(threading.Thread):
             try:
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
-            except:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
                 globals.error_msg = "Error when connecting to LucidControl RI8"
                 self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
@@ -41,7 +45,12 @@ class loop(threading.Thread):
             try:
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
-            except:
+            except ea.psu_ea.ExceptionPSU as ex:
+
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
+
                 globals.error_msg = "Error when connecting to EA PSU"
                 self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
@@ -71,14 +80,22 @@ class loop(threading.Thread):
         except:
             globals.error_msg = "Connection to PSU lost. Turn off output manually"
             self.safemsg_matlab("Connection to PSU lost. Turn off output manually")
-        self.rt8.close()
+        try:
+            self.rt8.close()
+        except TimeoutError as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
             return False
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
         return True
@@ -88,7 +105,10 @@ class loop(threading.Thread):
             return ''
         try:
             msg = self.tcp_socket.recv(1024).decode("utf_8")
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
         return msg
@@ -97,7 +117,10 @@ class loop(threading.Thread):
         while globals.ATTEMPT_TO_CONNECT:
             try:
                 self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
-            except OSError:
+            except Exception as ex:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print (message)
                 time.sleep(1)
             else:
                 self.tcp_socket.setblocking(0)
@@ -130,17 +153,27 @@ class loop(threading.Thread):
                     globals.SET = False
     
     def get_average_temp(self,n):
-        # TODO: Test if this way of producing the error works. Maybe use value.getValue to check if short-circuited
         try:
             ret = self.rt8.getIoGroup(self.channels, self.values)
-        except ValueError:
+        except serial.SerialException as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
             print(ret)
         t = 0
         for value in self.values:
-            t += value.getTemperature()
+            sensor_temp = value.getTemperature()
+            if -1000 > sensor_temp: 
+                print(f"sensor{self.values.index(value)+1} is shortcircuited")
+                return 0
+            elif sensor_temp > 1000:
+                print(f"sensor{self.values.index(value)+1} is disconected")
+                return 0
+            else:
+                t += sensor_temp
         return t/n
     
-    def loop(self):
+    def _loop(self):
         globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
         self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
@@ -163,6 +196,8 @@ class loop(threading.Thread):
             return
 
         if not self.psu.get_status()['output on']:
+                self.psu.output_on()
+        if not self.psu.get_status()['remote on']:
             self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
@@ -186,12 +221,14 @@ class loop(threading.Thread):
         if globals.SETTINGS_CHANGED:
             self.pid.__init__() 
             globals.SETTINGS_CHANGED = False
-            #TODO: CHeck if this even works?
+
     def run(self):
         # Loop
+        print(globals.STOP_RUNNING)
         while not globals.STOP_RUNNING:
             self.listen_to_matlab()
-            self.loop()
+            print("loop")
+            self._loop()
             time.sleep(self.pid.Ts)
 
         self.psu.close()

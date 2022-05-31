@@ -21,10 +21,14 @@ text_color = 'white'
 config_path = 'config.txt'
 
 def set_temperature():
-    settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
-    globals.temperature_target = float(settemp.value)
-    globals.SET = True
-    globals.TARGET_TEMP_CHANGED.BY_UI = True 
+    try:
+        settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
+    except ValueError:
+        globals.error_msg = "NaN"
+    else:
+        globals.temperature_target = float(settemp.value)
+        globals.SET = True
+        globals.TARGET_TEMP_CHANGED.BY_UI = True 
 
 #GUI related methods 
 def close_popup_message():
@@ -43,7 +47,14 @@ def swap_windows(to):
 
 def apply_settings(answer):
     global selected_widget
-    global textboxes
+
+    for textbox in textboxes:
+            try:
+                float(textbox.value)
+            except ValueError:
+                globals.error_msg = "NaN"
+                answer = 'no'
+    
     if answer == 'no':
         with open(config_path,'r') as config:
             for textbox in textboxes:
@@ -53,6 +64,9 @@ def apply_settings(answer):
         with open(config_path,'w') as config:
             for textbox in textboxes:
                 config.write(textbox.value + "\n")
+            config.write(str(alpha) + "\n")
+            config.write(str(freq) + "\n")  
+            
         globals.MAX_TEMP = float(temperature_limit_textbox.value)
         globals.SETTINGS_CHANGED = True
 
@@ -60,6 +74,7 @@ def apply_settings(answer):
     settings_window.visible = False
     selected_widget = settemp
     controller_window.visible = True
+    controller_window.full_screen = True
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
@@ -100,6 +115,10 @@ def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
     connecting_window.visible = True
     controller_window.disable()
+
+    main_loop_thread.safeexit()
+    app.destroy()
+    exit()
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
@@ -369,18 +388,20 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
+controller_window.full_screen = True
+
+alpha = 0
+freq = 0
 
 with open(config_path, 'r') as config:
     for textbox in textboxes:
         textbox.value = float(config.readline())
+    alpha = float(config.readline())
+    freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-#TODO: use the uncommented line when in lab
-
 main_loop_thread = loop.loop()
-# main_loop_thread = loop_simulator.loop()
 main_loop_thread.start()
 app.display() # infinite loop
 
-globals.STOP_RUNNING = True
 main_loop_thread.join

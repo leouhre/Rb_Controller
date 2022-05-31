@@ -7,10 +7,14 @@ class PID2():
             self.kp = float(config.readline())
             self.ki = float(config.readline())
             self.kd = float(config.readline())
+            self.temperature_limit = float(config.readline())
+            self.temperature_offset = float(config.readline())
+            self.max_fluctuations = float(config.readline())
+            self.settle_slope = float(config.readline())
+            self.slope_length = float(config.readline())
+            self.settle_wait_time = float(config.readline())
             self.alpha = float(config.readline())
             self.freq = float(config.readline())
-            self.max_fluctuations = float(config.readline())
-            self.settle_wait_time = float(config.readline())
         self.Ts = 1/self.freq
         # Avoid division with zero if integral gain is 0 (disabled)
         if self.ki:
@@ -38,7 +42,7 @@ class PID2():
             self.settlecount = 0
 
     def settle_check(self):
-        return self.settlecount == self.settle_wait_time/self.freq
+        return self.settlecount > self.settle_wait_time/self.freq
 
     # Simple PID controller. Explicitly dealing with wind-up
     def update(self, t, t_target):
