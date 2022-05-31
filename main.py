@@ -16,7 +16,6 @@ import globals
 
 #names
 globals.initialize_variables()
-backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -46,6 +45,7 @@ def swap_windows(to):
         selected_widget = proportional_gain_textbox
         settings_window.visible = True
         settings_window.full_screen = True
+        settings_window.focus()
 
 def apply_settings(answer):
     global selected_widget
@@ -77,9 +77,11 @@ def apply_settings(answer):
     selected_widget = settemp
     controller_window.visible = True
     controller_window.full_screen = True
+    controller_window.focus()
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
+    brightness_window.focus()
 
 def adjust_brightnes():
     backlight.brightness = brightness_slider.value
@@ -124,6 +126,7 @@ def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
     connecting_window.visible = False
     controller_window.enable()
+    controller_window.focus()
 
 def numpad(btn):
     match btn:
@@ -228,6 +231,7 @@ PushButton(popup_window,text="Close",command=close_popup_message,width=10)
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
 brightness_window.text_size = 40
 brightness_slider = Slider(brightness_window,start=10,end=100,command=adjust_brightnes,width=280,height=70)
+brightness_slider.value = 100
 
 save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
 Text(save_changes_window,text='Save Changes?',align='top')
