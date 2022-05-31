@@ -139,10 +139,10 @@ def numpad(btn):
 def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
     for i in range(9):
-        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3,padx=8)
+        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=2)
         btn.text_size = size
     for i, x in enumerate(['.',0,'c']):
-        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3,padx=8)
+        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=2)
         btn.text_size = size
 
 def update_temperature():
