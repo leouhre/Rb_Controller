@@ -111,22 +111,23 @@ def set_output_off():
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
         return sys.maxsize
-    return max(int(time_scale_combo.value[10:-1]),0)
+    return int(time_scale_combo.value[10:-1])
 
 def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
     connecting_window.visible = True
     controller_window.disable()
 
-    main_loop_thread.safeexit()
-    app.destroy()
-    exit()
-
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
     connecting_window.visible = False
     controller_window.enable()
     controller_window.focus()
+
+def close_program():
+    main_loop_thread.safeexit()
+    app.destroy()
+    exit()
 
 def numpad(btn):
     match btn:
@@ -288,7 +289,9 @@ decreasetemp_button.text_size = 20
 settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
 settings_window.text_size = 13 
 #Title row 0
-Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
+Text(settings_window,text='Rb-controller\nSettings',grid=[0,0,2,1],align='left')
+terminate_button = PushButton(settings_window, text="Terminate",grid=[1,0],command=close_program)
+terminate_button.bg = 'red'
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
