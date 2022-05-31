@@ -85,7 +85,8 @@ def show_brightness_window():
     brightness_window.focus()
 
 def adjust_brightnes(slider_value):
-    brightness_slider.after(500,brightness,args=[int(slider_value)])
+    if slider_value == brightness_slider.value:
+        brightness_slider.after(500,brightness,args=[int(slider_value)])
 
 def brightness(percent):
     if int(brightness_slider.value) == percent:
