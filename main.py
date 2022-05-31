@@ -16,6 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -83,8 +84,12 @@ def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
     brightness_window.focus()
 
-def adjust_brightnes():
-    backlight.brightness = brightness_slider.value
+def adjust_brightnes(slider_value):
+    brightness_slider.cancel(brightness)
+    brightness_slider.after(500,brightness,args=[slider_value])
+
+def brightness(percent):
+    backlight.brightness = percent
 
 def increment(n): 
     if not settemp.value:
