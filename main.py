@@ -1,7 +1,5 @@
 #! Creates UI and initializes loop for regulating temperature.
 #Python packages 
-from curses import window
-import errno
 import time
 import sys
 import tkinter as tk
@@ -141,10 +139,10 @@ def numpad(btn):
 def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
     for i in range(9):
-        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3)
+        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3,padx=8)
         btn.text_size = size
     for i, x in enumerate(['.',0,'c']):
-        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3)
+        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3,padx=8)
         btn.text_size = size
 
 def update_temperature():
@@ -212,8 +210,6 @@ def updates_connecting():
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
-
-Window(app,title="guizero",width=780,height=460)
 
 connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
 connecting_window.text_size = 18
