@@ -139,10 +139,10 @@ def numpad(btn):
 def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
     for i in range(9):
-        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3,padx=6)
+        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=2)
         btn.text_size = size
     for i, x in enumerate(['.',0,'c']):
-        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3,padx=6)
+        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=2)
         btn.text_size = size
 
 def update_temperature():
@@ -273,7 +273,7 @@ settemp.text_size = 28
 #row 8
 crement_box = Box(controller_window,grid=[2,10])
 scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
-scale_button.text_size = 20
+scale_button.text_size = 10
 increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',padx=12,pady=5,width=2,height=1)
 increasetemp_button.text_size = 20
 decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
