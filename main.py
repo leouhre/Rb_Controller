@@ -213,7 +213,8 @@ def updates_connecting():
 app = App(visible=False)
 app.text_color = 'white'
 
-Window(app,title="guizero",width=780,height=460)
+Window(app,title="guizero",width=780,height=1)
+
 
 connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
 connecting_window.text_size = 18
