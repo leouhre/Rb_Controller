@@ -86,7 +86,7 @@ def show_brightness_window():
 
 def adjust_brightnes(slider_value):
     brightness_slider.cancel(brightness)
-    brightness_slider.after(500,brightness,args=[slider_value])
+    brightness_slider.after(500,brightness,args=[int(slider_value)])
 
 def brightness(percent):
     backlight.brightness = percent
