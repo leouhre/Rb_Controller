@@ -266,17 +266,17 @@ spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
 #row 4
-set_box = Box(controller_window,grid=[2,4,1,6])
+set_box = Box(controller_window,grid=[1,4,2,6])
 Text(set_box, text="Set Temperature")
 settemp = Text(set_box, text='1')
 settemp.text_size = 28
 #row 8
-crement_box = Box(controller_window,grid=[2,10])
-scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
+crement_box = Box(controller_window,grid=[1,10,2,1])
+scale_button = PushButton(crement_box,text="1",command=scale,align='right',width=2)
 scale_button.text_size = 20
-increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',padx=12,pady=5,width=2,height=1)
+increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',width=2)
 increasetemp_button.text_size = 20
-decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
+decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',width=2)
 decreasetemp_button.text_size = 20
 
 #Settings window
