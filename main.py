@@ -400,8 +400,8 @@ with open(config_path, 'r') as config:
     freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+#main_loop_thread = loop.loop()
+#main_loop_thread.start()
 app.display() # infinite loop
 
-main_loop_thread.join
+#main_loop_thread.join
