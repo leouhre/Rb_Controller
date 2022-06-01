@@ -202,6 +202,8 @@ def updates_settings():
     else:
         use_power_supply_button.bg = background_color
 
+    
+
 def updates_popup():
     if not popup_window.visible:
         return
@@ -212,6 +214,7 @@ def updates_popup():
         
 def updates_connecting():
     if not connecting_window.visible:
+        controller_window.enable()
         return
     if globals.CONNECTED_TO_MATLAB:
         connecting_window.visible = False
@@ -220,7 +223,6 @@ def updates_connecting():
             connecting_text.value = "Connecting to matlab"
         else:
             connecting_text.append('.')
-    print('updates connecting')
 
 def center_window(width, height, window):
     # get screen width and height
