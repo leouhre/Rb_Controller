@@ -138,17 +138,17 @@ class loop(threading.Thread):
                     globals.OUTPUT_PAUSE = False
                     
                 case "o": #output off
-                    globals.OUTPUT_OFF = True
+                    globals.OUTPUT_OFF = not globals.OUTPUT_OFF
                     self.psu.output_off()
                 
-                case "p": #outputpause
-                    globals.OUTPUT_PAUSE = True
+                case "p": #output pause
+                    globals.OUTPUT_PAUSE = not globals.OUTPUT_PAUSE
 
                 case "s": #stop program
                     globals.STOP_RUNNING = True
 
                 case "b": #Bypass mode
-                    globals.BYPASS_MODE = True
+                    globals.BYPASS_MODE = not globals.BYPASS_MODE
     
     def get_average_temp(self,n):
 
@@ -158,6 +158,7 @@ class loop(threading.Thread):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
+        else:
             print(ret)
         t = 0
         for value in self.values:
@@ -210,9 +211,10 @@ class loop(threading.Thread):
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
 
-        if self.pid.settle_check():
-            globals.READY = True
-            self.safemsg_matlab("READY")
+        if not globals.READY:
+            if self.pid.settle_check():
+                globals.READY = True
+                self.safemsg_matlab("READY")
         else:
             if globals.READY:
                 self.safemsg_matlab("NOT_READY")
