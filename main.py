@@ -16,7 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
-#backlight = Backlight()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -45,7 +45,6 @@ def swap_windows(to):
     if to == 'settings':
         selected_widget = proportional_gain_textbox
         settings_window.visible = True
-        settings_window.full_screen = True
         settings_window.focus()
 
 def apply_settings(answer):
@@ -77,7 +76,6 @@ def apply_settings(answer):
     settings_window.visible = False
     selected_widget = settemp
     controller_window.visible = True
-    controller_window.full_screen = True
     controller_window.focus()
 
 def show_brightness_window():
@@ -85,11 +83,7 @@ def show_brightness_window():
     brightness_window.focus()
 
 def adjust_brightnes(slider_value):
-    print(slider_value)
-
-def brightness(percent):
-    if int(brightness_slider.value) == percent:
-        backlight.brightness = percent
+    backlight.brightness = int(slider_value)
 
 def increment(n): 
     if not settemp.value:
@@ -406,6 +400,8 @@ for textbox in textboxes:
 #initializations
 selected_widget = settemp
 center_window(controller_window.width,controller_window.height,controller_window)
+center_window(settings_window.width,settings_window.height,settings_window)
+center_window(brightness_window.width,brightness_window.height,brightness_window)
 # controller_window.full_screen = True
 
 alpha = 0
