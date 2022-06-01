@@ -81,9 +81,8 @@ def apply_settings(answer):
     controller_window.focus()
 
 def show_brightness_window():
-    center_window(brightness_window.width,brightness_window.height,brightness_window)
     brightness_window.visible = not brightness_window.visible
-    brightness_window.focus()
+    center_window(brightness_window.width,brightness_window.height,brightness_window)
 
 def adjust_brightnes(slider_value):
     backlight.brightness = int(slider_value)
@@ -117,9 +116,9 @@ def get_min_xlim():
 
 def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
-    center_window(connecting_window.width,connecting_window.height,connecting_window)
-    connecting_window.visible = True
     controller_window.disable()
+    connecting_window.visible = True
+    center_window(connecting_window.width,connecting_window.height,connecting_window)
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
