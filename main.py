@@ -254,7 +254,7 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text=' ',grid=[1,0],width=20)
+Text(controller_window,text=' ',grid=[1,0],width=18)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
@@ -288,7 +288,7 @@ Text(set_box, text="Set Temperature")
 settemp = Text(set_box, text='1')
 settemp.text_size = 28
 #row 8
-crement_box = Box(controller_window,grid=[1,10,2,1],align='right')
+crement_box = Box(controller_window,grid=[1,9,2,1],align='right')
 scale_button = PushButton(crement_box,text="1",command=scale,align='right',width=2)
 scale_button.text_size = 20
 increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',width=2)
@@ -345,7 +345,7 @@ wait_time_textbox = TextBox(settings_window,grid=[1,12])
 spawn_numpad(Box(settings_window,grid=[3,5,2,12],align='right'),size=28)
 
 #temperature/time plot
-f = plt.figure(figsize=(4,3.5))
+f = plt.figure(figsize=(4,3.2))
 axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
 axis.set_xlabel('Time[s]')
