@@ -109,9 +109,13 @@ class loop(threading.Thread):
             print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
-        return msg
+            return ''
+        else:
+            return msg
 
     def listen_to_matlab(self):
+        if globals.CONNECTED_TO_MATLAB:
+            return
         while globals.ATTEMPT_TO_CONNECT:
             try:
                 self.tcp_socket = socket.create_connection(('169.254.195.94', 4000),timeout=2)
