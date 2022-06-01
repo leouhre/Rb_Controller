@@ -81,8 +81,8 @@ def apply_settings(answer):
     controller_window.focus()
 
 def show_brightness_window():
-    brightness_window.visible = not brightness_window.visible
     center_window(brightness_window.width,brightness_window.height,brightness_window)
+    brightness_window.visible = not brightness_window.visible
     brightness_window.focus()
 
 def adjust_brightnes(slider_value):
@@ -117,9 +117,9 @@ def get_min_xlim():
 
 def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
+    center_window(connecting_window.width,connecting_window.height,connecting_window)
     connecting_window.visible = True
     controller_window.disable()
-    center_window(connecting_window.width,connecting_window.height,connecting_window)
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
@@ -254,7 +254,7 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text=' ',grid=[1,0],width=18)
+Text(controller_window,text=' ',grid=[1,0],width=16)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
