@@ -154,6 +154,9 @@ def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
 def updates_controller():
+    if not controller_window.visible:
+        return
+
     if globals.STOP_RUNNING:
         app.destroy()
 
@@ -191,18 +194,25 @@ def updates_controller():
         connect_to_matlab_button.enable()
 
 def updates_settings():
+    if not settings_window.visible:
+        return
+
     if globals.BYPASS_MODE:
         use_power_supply_button.bg = 'grey'
     else:
         use_power_supply_button.bg = background_color
 
 def updates_popup():
+    if not popup_window.visible:
+        return
     if globals.error_msg:
         msg = globals.error_msg
         globals.error_msg = ""
         popup_window.warn(title='error',text=msg)
         
 def updates_connecting():
+    if not connecting_window.visible:
+        return
     if globals.CONNECTED_TO_MATLAB:
         connecting_window.visible = False
     else:
