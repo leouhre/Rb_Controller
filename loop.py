@@ -207,9 +207,10 @@ class loop(threading.Thread):
         if not self.psu.get_status()['remote on']:
                 self.psu.remote_on()
 
-        if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
+        if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
             pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
             self.psu.set_voltage(pidout)          
+
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
 
