@@ -123,6 +123,7 @@ class loop(threading.Thread):
             else:
                 self.tcp_socket.setblocking(0)
                 globals.CONNECTED_TO_MATLAB = True
+                self.safemsg_matlab("CONNECTED")
                 break
     
     def decodemsg(self,msg):
