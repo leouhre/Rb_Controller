@@ -41,6 +41,7 @@ def swap_windows(to):
     global selected_widget
     if to == 'controller':
         save_changes_window.visible = True
+        center_window(save_changes_window.width,save_changes_window.height,save_changes_window)
 
     if to == 'settings':
         selected_widget = proportional_gain_textbox
@@ -118,12 +119,12 @@ def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
     connecting_window.visible = True
     controller_window.disable()
+    center_window(connecting_window.width,connecting_window.height,connecting_window)
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
     connecting_window.visible = False
     controller_window.enable()
-    controller_window.focus()
 
 def close_program():
     main_loop_thread.safeexit()
