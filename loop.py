@@ -84,6 +84,7 @@ class loop(threading.Thread):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
+        exit()
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
@@ -126,6 +127,7 @@ class loop(threading.Thread):
                 self.tcp_socket.setblocking(0)
                 globals.CONNECTED_TO_MATLAB = True
                 self.safemsg_matlab("CONNECTED")
+                globals.ATTEMPT_TO_CONNECT = False
                 break
     
     def decodemsg(self,msg):
@@ -215,10 +217,10 @@ class loop(threading.Thread):
             if self.pid.settle_check():
                 globals.READY = True
                 self.safemsg_matlab("READY")
-        else:
-            if globals.READY:
-                self.safemsg_matlab("NOT_READY")
-            globals.READY = False
+            else:
+                if globals.READY:
+                    self.safemsg_matlab("NOT_READY")
+                globals.READY = False
                         
         if globals.TARGET_TEMP_CHANGED.BY_UI:
             self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
@@ -237,4 +239,3 @@ class loop(threading.Thread):
             time.sleep(self.pid.Ts)
 
         self.safeexit()
-        exit()
