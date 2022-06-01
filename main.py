@@ -45,6 +45,7 @@ def swap_windows(to):
     if to == 'settings':
         selected_widget = proportional_gain_textbox
         settings_window.visible = True
+        center_window(settings_window.width,settings_window.height,settings_window)
         settings_window.focus()
 
 def apply_settings(answer):
@@ -80,6 +81,7 @@ def apply_settings(answer):
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
+    center_window(brightness_window.width,brightness_window.height,brightness_window)
     brightness_window.focus()
 
 def adjust_brightnes(slider_value):
@@ -400,9 +402,6 @@ for textbox in textboxes:
 #initializations
 selected_widget = settemp
 center_window(controller_window.width,controller_window.height,controller_window)
-center_window(settings_window.width,settings_window.height,settings_window)
-center_window(brightness_window.width,brightness_window.height,brightness_window)
-# controller_window.full_screen = True
 
 alpha = 0
 freq = 0
