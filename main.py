@@ -16,7 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
-backlight = Backlight()
+#backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -215,6 +215,15 @@ def updates_connecting():
         else:
             connecting_text.append('.')
 
+def center_window(width, height, window):
+    # get screen width and height
+    screen_width = window.tk.winfo_screenwidth()
+    screen_height = window.tk.winfo_screenheight()
+
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 #GUI
 app = App(visible=False)
@@ -366,11 +375,11 @@ canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 #schduled updates
-# controller_window.repeat(100, updates_controller)
-# settings_window.repeat(100, updates_settings)
-# popup_window.repeat(100, updates_popup)
-# connecting_window.repeat(1000, updates_connecting)
-# temp.repeat(100, update_temperature)
+controller_window.repeat(100, updates_controller)
+settings_window.repeat(100, updates_settings)
+popup_window.repeat(100, updates_popup)
+connecting_window.repeat(1000, updates_connecting)
+temp.repeat(100, update_temperature)
 
 #events
 def clicked(event_data):
@@ -396,7 +405,8 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
-controller_window.full_screen = True
+center_window(controller_window.width,controller_window.height,controller_window)
+# controller_window.full_screen = True
 
 alpha = 0
 freq = 0
