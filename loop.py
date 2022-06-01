@@ -114,7 +114,7 @@ class loop(threading.Thread):
     def listen_to_matlab(self):
         while globals.ATTEMPT_TO_CONNECT:
             try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
+                self.tcp_socket = socket.create_connection(('169.254.195.94', 4000),timeout=2)
             except Exception as ex:
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
