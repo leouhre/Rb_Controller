@@ -210,6 +210,7 @@ def updates_connecting():
             connecting_text.value = "Connecting to matlab"
         else:
             connecting_text.append('.')
+    print('updates connecting')
 
 def center_window(width, height, window):
     # get screen width and height
