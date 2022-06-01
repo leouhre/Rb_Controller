@@ -213,13 +213,14 @@ class loop(threading.Thread):
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
 
-        if not globals.READY:
-            if self.pid.settle_check():
+        
+        if self.pid.settle_check():
+            if not globals.READY:
                 globals.READY = True
                 self.safemsg_matlab("READY")
-            else:
-                if globals.READY:
-                    self.safemsg_matlab("NOT_READY")
+        else:
+            if globals.READY:
+                self.safemsg_matlab("NOT_READY")
                 globals.READY = False
                         
         if globals.TARGET_TEMP_CHANGED.BY_UI:
