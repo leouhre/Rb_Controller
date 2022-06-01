@@ -235,7 +235,7 @@ def center_window(width, height, window):
     window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 #GUI
-app = App(visible=False)
+app = App()
 app.text_color = 'white'
 
 connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
