@@ -8,6 +8,7 @@ import numpy as np
 from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
 from matplotlib import animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from rpi_backlight import Backlight
 
 #our scripts
 import loop
@@ -15,6 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -39,11 +41,13 @@ def swap_windows(to):
     global selected_widget
     if to == 'controller':
         save_changes_window.visible = True
+        center_window(save_changes_window.width,save_changes_window.height,save_changes_window)
 
     if to == 'settings':
         selected_widget = proportional_gain_textbox
         settings_window.visible = True
-        settings_window.full_screen = True
+        center_window(settings_window.width,settings_window.height,settings_window)
+        settings_window.focus()
 
 def apply_settings(answer):
     global selected_widget
@@ -74,15 +78,14 @@ def apply_settings(answer):
     settings_window.visible = False
     selected_widget = settemp
     controller_window.visible = True
-    controller_window.full_screen = True
+    controller_window.focus()
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
+    center_window(brightness_window.width,brightness_window.height,brightness_window)
 
-def adjust_brightnes():
-    #TODO: implement this
-    print(f"brightness={brightness_slider.value}")
-    globals.error_msg = "Hi"
+def adjust_brightnes(slider_value):
+    backlight.brightness = int(slider_value)
 
 def increment(n): 
     if not settemp.value:
@@ -109,21 +112,23 @@ def set_output_off():
 def get_min_xlim():
     if 'all' in time_scale_combo.value:
         return sys.maxsize
-    return max(int(time_scale_combo.value[10:-1]),0)
+    return int(time_scale_combo.value[10:-1])
 
 def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
-    connecting_window.visible = True
     controller_window.disable()
-
-    main_loop_thread.safeexit()
-    app.destroy()
-    exit()
+    connecting_window.visible = True
+    center_window(connecting_window.width,connecting_window.height,connecting_window)
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
     connecting_window.visible = False
     controller_window.enable()
+
+def close_program():
+    main_loop_thread.safeexit()
+    app.destroy()
+    exit()
 
 def numpad(btn):
     match btn:
@@ -139,16 +144,19 @@ def numpad(btn):
 def spawn_numpad(master,size):
     numpad_box = Box(master,layout='grid')
     for i in range(9):
-        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=3)
+        btn = PushButton(numpad_box, text=i+1, grid=[int(i%3),int(i/3)],command=numpad,args=[i+1],width=2)
         btn.text_size = size
     for i, x in enumerate(['.',0,'c']):
-        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=3)
+        btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=2)
         btn.text_size = size
 
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
 def updates_controller():
+    if not controller_window.visible:
+        return
+
     if globals.STOP_RUNNING:
         app.destroy()
 
@@ -186,23 +194,28 @@ def updates_controller():
         connect_to_matlab_button.enable()
 
 def updates_settings():
+    if not settings_window.visible:
+        return
+
     if globals.BYPASS_MODE:
         use_power_supply_button.bg = 'grey'
     else:
         use_power_supply_button.bg = background_color
 
+    
+
 def updates_popup():
+    if not popup_window.visible:
+        return
     if globals.error_msg:
         msg = globals.error_msg
-        splits = len(msg)//14
-        for x in range(1,splits+1):
-            i = msg.rfind(' ',0,14*x)
-            msg = msg[:i] + '\n' + msg[i:]
-        popup_msg.value = msg
-        popup_window.visible = True
         globals.error_msg = ""
+        popup_window.warn(title='error',text=msg)
         
 def updates_connecting():
+    if not connecting_window.visible:
+        controller_window.enable()
+        return
     if globals.CONNECTED_TO_MATLAB:
         connecting_window.visible = False
     else:
@@ -211,6 +224,15 @@ def updates_connecting():
         else:
             connecting_text.append('.')
 
+def center_window(width, height, window):
+    # get screen width and height
+    screen_width = window.tk.winfo_screenwidth()
+    screen_height = window.tk.winfo_screenheight()
+
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 #GUI
 app = App(visible=False)
@@ -232,7 +254,8 @@ PushButton(popup_window,text="Close",command=close_popup_message,width=10)
 
 brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
 brightness_window.text_size = 40
-brightness_slider = Slider(brightness_window,start=0,end=100,command=adjust_brightnes,width=280,height=70)
+brightness_slider = Slider(brightness_window,start=10,end=100,command=adjust_brightnes,width=280,height=70)
+brightness_slider.value = 100
 
 save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
 Text(save_changes_window,text='Save Changes?',align='top')
@@ -243,7 +266,7 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text='Rubidium Cell Temperature Controller',align='left',grid=[1,0,2,1]) 
+Text(controller_window,text=' ',grid=[1,0],width=16)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
@@ -267,29 +290,31 @@ time_scale_combo = Combo(controller_window,options=['show last 10s','show last 2
                                                     'show last 600s','show all'], grid=[4,1],align='bottom',width=15)
 time_scale_combo.text_size = 18
 #Row 2
-spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),20)
+spawn_numpad(Box(controller_window,grid=[0,2,2,9],align='left'),22)
 #row 3 
 plot_box = Box(controller_window,grid=[3,3,2,8],align='right',layout='grid',border=True)
 #row 4
-set_box = Box(controller_window,grid=[2,4,1,6])
+set_box = Box(controller_window,grid=[1,4,2,6],align='right')
+Text(set_box, text=' ',width=20)
 Text(set_box, text="Set Temperature")
 settemp = Text(set_box, text='1')
 settemp.text_size = 28
 #row 8
-crement_box = Box(controller_window,grid=[2,10])
-scale_button = PushButton(crement_box,text="1",command=scale,align='right',padx=12,pady=5,width=2,height=1)
+crement_box = Box(controller_window,grid=[1,9,2,1],align='right')
+scale_button = PushButton(crement_box,text="1",command=scale,align='right',width=2)
 scale_button.text_size = 20
-increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',padx=12,pady=5,width=2,height=1)
+increasetemp_button = PushButton(crement_box,text="+",command=increment,args=[1],align='right',width=2)
 increasetemp_button.text_size = 20
-decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',padx=12,pady=5,width=2,height=1)
+decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1],align='right',width=2)
 decreasetemp_button.text_size = 20
 
 #Settings window
-settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
+settings_window = Window(app,title='Rb-controller Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
 settings_window.text_size = 13 
 #Title row 0
-Text(settings_window,text='Rb-controller Settings',grid=[0,0,2,1],align='left')
-use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
+terminate_button = PushButton(settings_window, text="Terminate",grid=[0,0],command=close_program)
+terminate_button.bg = 'red'
+use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[1,0,3,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
 controller_button.text_size = 16
@@ -329,10 +354,10 @@ Text(settings_window,text='Settle wait time[s]:',grid=[1,11])
 slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
 #numpad
-spawn_numpad(Box(settings_window,grid=[4,2,1,12]),size=24)
+spawn_numpad(Box(settings_window,grid=[3,5,2,12],align='right'),size=28)
 
 #temperature/time plot
-f = plt.figure(figsize=(4,3.5))
+f = plt.figure(figsize=(4,3.2))
 axis = plt.axes(xlim =(0, 10), ylim =(0, 200))
 line, = axis.plot([], [], linewidth = 2)
 axis.set_xlabel('Time[s]')
@@ -388,7 +413,7 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
-controller_window.full_screen = True
+center_window(controller_window.width,controller_window.height,controller_window)
 
 alpha = 0
 freq = 0
@@ -400,8 +425,8 @@ with open(config_path, 'r') as config:
     freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+#main_loop_thread = loop.loop()
+#main_loop_thread.start()
 app.display() # infinite loop
 
-main_loop_thread.join
+#main_loop_thread.join

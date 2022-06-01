@@ -71,8 +71,6 @@ class loop(threading.Thread):
         atexit.register(self.safeexit)
 
     def safeexit(self):
-        globals.error_msg = "Regulation crashed"
-        self.safemsg_matlab("Regulation crashed")
         try:
             self.psu.output_off()
             self.psu.remote_off()
@@ -132,7 +130,7 @@ class loop(threading.Thread):
             match str(msg[0]):
                 case "t": #Temperature given
                     globals.temperature_target = float(msg[2:7])
-                    globals.TARGET_TEMP_CHANGED.BY_MATLAB = True #will be set false by ui.py when it has reacted
+                    globals.TARGET_TEMP_CHANGED.BY_MATLAB = True 
                     globals.SET = True
                     globals.OUTPUT_PAUSE = False
                     
@@ -143,16 +141,14 @@ class loop(threading.Thread):
                 case "p": #outputpause
                     globals.OUTPUT_PAUSE = True
 
-                case "!": #stop program
+                case "s": #stop program
                     globals.STOP_RUNNING = True
 
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = True
-
-                case "s": #release Set button
-                    globals.SET = False
     
     def get_average_temp(self,n):
+
         try:
             ret = self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
@@ -195,10 +191,15 @@ class loop(threading.Thread):
             time.sleep(1)
             return
 
-        if not self.psu.get_status()['output on']:
+        if globals.OUTPUT_OFF:
+            if self.psu.get_status()['output on']:
+                self.psu.output_off()
+        else:
+            if not self.psu.get_status()['output on']:
                 self.psu.output_on()
+
         if not self.psu.get_status()['remote on']:
-            self.psu.remote_on()
+                self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
             pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
@@ -227,11 +228,8 @@ class loop(threading.Thread):
         print(globals.STOP_RUNNING)
         while not globals.STOP_RUNNING:
             self.listen_to_matlab()
-            print("loop")
             self._loop()
             time.sleep(self.pid.Ts)
 
-        self.psu.close()
-        self.tcp_socket.close()
-        self.rt8.close()
+        self.safeexit()
         exit()
