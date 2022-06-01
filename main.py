@@ -296,13 +296,12 @@ decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1
 decreasetemp_button.text_size = 20
 
 #Settings window
-settings_window = Window(app,title='Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
+settings_window = Window(app,title='Rb-controller Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
 settings_window.text_size = 13 
 #Title row 0
-Text(settings_window,text='Rb-controller\nSettings',grid=[0,0,2,1],align='left')
-terminate_button = PushButton(settings_window, text="Terminate",grid=[1,0],command=close_program)
+terminate_button = PushButton(settings_window, text="Terminate",grid=[0,0],command=close_program)
 terminate_button.bg = 'red'
-use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[2,0,2,1],command=set_bypass_mode)
+use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[1,0,3,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
 controller_button.text_size = 16
