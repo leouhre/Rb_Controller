@@ -16,7 +16,7 @@ import globals
 
 #names
 globals.initialize_variables()
-backlight = Backlight()
+#backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -126,6 +126,11 @@ def stop_connecting_to_matlab():
     controller_window.enable()
 
 def close_program():
+    # controller_window.cancel(updates_controller)
+    # settings_window.cancel(updates_settings)
+    # popup_window.cancel(updates_popup)
+    # connecting_window.cancel(0, updates_connecting)
+    # temp.cancel(update_temperature)
     globals.STOP_RUNNING = True
     app.destroy()
 
@@ -201,7 +206,9 @@ def updates_settings():
     else:
         use_power_supply_button.bg = background_color
 
-    
+    globals.CONSTANT_ERROR = contant_error_checkbox.value
+    globals.SLOPE = slope_checkbox.value
+    globals.TIMED = time_checkbox.value
 
 def updates_popup():
     if not popup_window.visible:
@@ -350,7 +357,7 @@ slope_length_textbox = TextBox(settings_window,grid=[2,10])
 #row 11
 Text(settings_window,text='Settle wait time[s]:',grid=[1,11])
 #row 12
-slope_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
+time_checkbox = CheckBox(settings_window,text='Timed',grid=[0,12])
 wait_time_textbox = TextBox(settings_window,grid=[1,12])
 #numpad
 spawn_numpad(Box(settings_window,grid=[3,5,2,12],align='right'),size=28)
@@ -413,6 +420,9 @@ for textbox in textboxes:
 #initializations
 selected_widget = settemp
 center_window(controller_window.width,controller_window.height,controller_window)
+contant_error_checkbox.value = 1
+slope_checkbox = 0
+time_checkbox = 1
 
 alpha = 0
 freq = 0
@@ -424,8 +434,9 @@ with open(config_path, 'r') as config:
     freq = float(config.readline())
     globals.MAX_TEMP = float(temperature_limit_textbox.value)
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+# main_loop_thread = loop.loop()
+# main_loop_thread.start()
 app.display() # infinite loop
 
-main_loop_thread.join
+globals.STOP_RUNNING = True
+# main_loop_thread.join
