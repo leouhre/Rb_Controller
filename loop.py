@@ -84,7 +84,6 @@ class loop(threading.Thread):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
-        exit()
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
@@ -155,13 +154,12 @@ class loop(threading.Thread):
     def get_average_temp(self,n):
 
         try:
-            ret = self.rt8.getIoGroup(self.channels, self.values)
+            self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
-        else:
-            print(ret)
+
         t = 0
         for value in self.values:
             sensor_temp = value.getTemperature()
@@ -233,11 +231,7 @@ class loop(threading.Thread):
             globals.SETTINGS_CHANGED = False
 
     def run(self):
-        # Loop
-        print(globals.STOP_RUNNING)
         while not globals.STOP_RUNNING:
             self.listen_to_matlab()
             self._loop()
             time.sleep(self.pid.Ts)
-
-        self.safeexit()

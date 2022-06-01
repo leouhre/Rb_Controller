@@ -126,9 +126,8 @@ def stop_connecting_to_matlab():
     controller_window.enable()
 
 def close_program():
-    main_loop_thread.safeexit()
+    globals.STOP_RUNNING = True
     app.destroy()
-    exit()
 
 def numpad(btn):
     match btn:
