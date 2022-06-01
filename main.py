@@ -253,7 +253,6 @@ save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
-Text(controller_window,text='    Rb-Cell Temperature Controller\n ',align='left',grid=[1,0,2,1]) 
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
 settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
 settings_button.text_size = 18
@@ -266,7 +265,7 @@ pause_output_button = PushButton(controller_window,text="Pause\nOutput",grid=[1,
 pause_output_button.text_size = 20
 set_temp_button = PushButton(controller_window,text="Set\nTemp",grid=[2,1],command=set_temperature,height=1,width=4)
 set_temp_button.text_size = 20
-temp_box = Box(controller_window,grid=[3,1,1,1],align='right')
+temp_box = Box(controller_window,grid=[3,0,1,2],align='right')
 ready_text = Text(temp_box, text="NOT READY",color = "red")
 temp_title = Text(temp_box, text="Actual Temperature")
 temp = Text(temp_box, text="0")
