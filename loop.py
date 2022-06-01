@@ -71,8 +71,6 @@ class loop(threading.Thread):
         atexit.register(self.safeexit)
 
     def safeexit(self):
-        globals.error_msg = "Regulation crashed"
-        self.safemsg_matlab("Regulation crashed")
         try:
             self.psu.output_off()
             self.psu.remote_off()
