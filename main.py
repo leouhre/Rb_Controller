@@ -218,8 +218,6 @@ def updates_settings():
     globals.TIMED = time_checkbox.value
 
 def updates_popup():
-    if not popup_window.visible:
-        return
     if globals.error_msg:
         msg = globals.error_msg
         globals.error_msg = ""
