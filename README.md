@@ -11,8 +11,7 @@ This project was developed on a Raspberry Pi model 2B running Raspberry Pi OS (V
 	```sh
 	sudo apt install matchbox-keyboard
 	```
-- setup virtual ip address (https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
-  (virtual IP: 192.168.137.132)
+* Setup virtual ip address [guide](https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
 - install python 3.10.4 (https://allurcode.com/install-latest-version-of-python-on-raspberry-pi/) DO NOT MAKE THE NEW VERSION DEFAULT
 - virtual environment setup (https://docs.python.org/3/tutorial/venv.html) USE python3.10.4 to create environment
   REMEMBER TO ACTIVATE: source .venv/RbController/bin/activate
