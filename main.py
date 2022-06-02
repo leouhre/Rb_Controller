@@ -250,14 +250,6 @@ connecting_text = Text(connecting_window,text="Connecting to matlab")
 cancel_pushbutton = PushButton(connecting_window,text="Cancel",width=10,command=stop_connecting_to_matlab)
 connecting_window.visible = False
 
-# popup_window = Window(app,title="WARNING",visible=False,width=300,height=300)
-# popup_window.text_size = 28
-# popup_window.bg = background_color
-# Text(popup_window,text="",size=10)
-# popup_msg = Text(popup_window,text="",color='red')
-# Text(popup_window,text="",size=10)
-# PushButton(popup_window,text="Close",command=close_popup_message,width=10)
-
 brightness_window = Window(app,title="Brightness settings",height=200,width=400)
 center_window(brightness_window.width,brightness_window.height,brightness_window)
 brightness_window.text_size = 40
