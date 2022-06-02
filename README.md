@@ -1,8 +1,8 @@
 # Rb_Controller
 
-This project was developed on a Raspberry Pi model 2B running Raspberry Pi OS (VERSION?) using the official 7" touch display.
+This project was developed on a Raspberry Pi model 2B running Raspberry Pi OS (VERSION?). The official 7" touch display was used.
 
-## Prerequisites
+## Installation
 
 * Install Raspberry Pi OS on SD card
 * Rotate display in settings
@@ -11,13 +11,36 @@ This project was developed on a Raspberry Pi model 2B running Raspberry Pi OS (V
 	```sh
 	sudo apt install matchbox-keyboard
 	```
-* Setup virtual ip address [guide](https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
-- install python 3.10.4 (https://allurcode.com/install-latest-version-of-python-on-raspberry-pi/) DO NOT MAKE THE NEW VERSION DEFAULT
-- virtual environment setup (https://docs.python.org/3/tutorial/venv.html) USE python3.10.4 to create environment
-  REMEMBER TO ACTIVATE: source .venv/RbController/bin/activate
-- git setup (git clone)
-- update pip and install requirements.txt (from ~/Rb_Controller run pip install -r requirements.txt)
-- I had to fix pip by going into ~/Python3.10.4/ and run './configure' then 'make' and then 'sudo make install' 
+* Setup static ip address using this [guide](https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
+* Install python v. 3.10.4 or newer. There is a guide [here](https://allurcode.com/install-latest-version-of-python-on-raspberry-pi/). 
+	OBS. DO NOT MAKE THE NEW VERSION DEFAULT
+* Virtual environment [setup](https://docs.python.org/3/tutorial/venv.html) 
+	OBS. Use python3.10.4 to create virtual environment
+* Activate the virtaul environment
+	```sh
+	source .venv/RbController/bin/activate
+	```
+Verify that 
+	```sh
+	python --version
+
+ 	```
+and 
+	```
+	pip --version
+	```
+are using python3.10.4. Otherwise, try the same with (`python3 --version`) and (`pip --version`).
+* Clone the repo
+	```sh
+	cd /home/pi/
+	git clone https://github.com/leouhre/Rb_Controller.git
+	```
+* Update pip and install requirements.txt
+	```sh
+	python -m pip install --upgrade pip
+	cd ~/Rb_Controller
+	pip install -r requirements.txt
+* I had to fix pip by going into ~/Python3.10.4/ and run './configure' then 'make' and then 'sudo make install' 
   and then re-run pip install requirements (this step takes ~1hr)
 - Move 99-ea-psu.rules (git folder /installation) to /etc/udev/rules.d/
 - Move 99-lucidIo.rules (git folder /installation) to /etc/udev/rules.d/ and restart udev with sudo service udev restart
