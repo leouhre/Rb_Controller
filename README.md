@@ -8,7 +8,9 @@ This project was developed on a Raspberry Pi model 2B running Raspberry Pi OS (V
 * Rotate display in settings
 * Connect via Ethernet to internet
 * For convenience, install virtual keyboard 
-```sudo apt install matchbox-keyboard```
+	```sh
+	sudo apt install matchbox-keyboard
+	```
 - setup virtual ip address (https://raspberrypi-guide.github.io/networking/set-up-static-ip-address)
   (virtual IP: 192.168.137.132)
 - install python 3.10.4 (https://allurcode.com/install-latest-version-of-python-on-raspberry-pi/) DO NOT MAKE THE NEW VERSION DEFAULT
