@@ -9,7 +9,7 @@ from collections import deque
 
 
 #our scripts
-from classes.pid2 import PID2
+from classes.pid import PID
 import filehandler
 
 
@@ -84,7 +84,7 @@ psu.output_on()
 #T_target = float(sys.argv[1])
 psu.set_voltage(float(sys.argv[1]))
 #initialize PID
-PI = PID2() 
+PI = PID() 
 
 
 
