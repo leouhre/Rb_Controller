@@ -10,7 +10,7 @@ from lucidIo.Values import ValueTMS4
 import ea_psu_controller as ea
 
 # Our scripts
-from classes.pid2 import PID2
+from classes.pid import PID
 import globals
 
 class loop(threading.Thread):
@@ -25,7 +25,7 @@ class loop(threading.Thread):
         self.safemsg_matlab("CONNECTED")
 
         # Initialize PID
-        self.pid = PID2()
+        self.pid = PID()
 
         atexit.register(self.safeexit)
 
