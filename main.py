@@ -272,7 +272,7 @@ controller_window = Window(app,title='Rb-cell Temperature Controller',layout='gr
 #row 0
 Text(controller_window,text=' ',grid=[1,0],width=16)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
-settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
+settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,pady=1)
 settings_button.text_size = 18
 brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
 brightness_button.text_size = 16
