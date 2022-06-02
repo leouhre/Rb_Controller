@@ -1,5 +1,4 @@
 # Python packages
-from shutil import ExecError
 import time, threading, socket, atexit,serial
 
 # Import RTD measurement device
@@ -10,7 +9,7 @@ from lucidIo.Values import ValueTMS4
 import ea_psu_controller as ea
 
 # Our scripts
-from classes.pid2 import PID2
+from classes.pid import PID
 import globals
 
 class loop(threading.Thread):
@@ -66,7 +65,7 @@ class loop(threading.Thread):
         self.psu.output_on()
 
         # Initialize PID
-        self.pid = PID2()
+        self.pid = PID()
 
         atexit.register(self.safeexit)
 

@@ -5,6 +5,7 @@ import sys
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
+import shelve
 from guizero import App, Text, Box, PushButton, Window, TextBox, CheckBox, Slider, Combo
 from matplotlib import animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -16,7 +17,7 @@ import globals
 
 #names
 globals.initialize_variables()
-#backlight = Backlight()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -32,53 +33,59 @@ def set_temperature():
         globals.SET = True
         globals.TARGET_TEMP_CHANGED.BY_UI = True 
 
+def load_settings():
+    with shelve.open('config') as config:
+        for textbox, val in zip(textboxes,config.values()):
+            textbox.value = val
+        globals.MAX_TEMP = config['temperature_limit']
+
+def save_settings():
+    if not settings_changed:
+        return
+
+    with shelve.open('config') as config:
+        for textbox, key in zip(textboxes,config.keys()):
+            config[key] = float(textbox.value)
+
+    globals.SETTINGS_CHANGED = True
+
+def settings_changed():
+    with shelve.open('config') as config:
+        for textbox, val in zip(textboxes,config.values()):
+            try:
+                settings_changed = float(textbox.value) != float(val)
+            except ValueError:
+                settings_window.error(title='Error in parameters',text='value entered is not a number \n settings discarded')
+                load_settings()
+                return False
+            else:
+                if settings_changed:
+                    return True
+
+    
 #GUI related methods 
+def when_settings_closed():
+    global selected_widget
+    if settings_changed():
+        answer = settings_window.yesno(title="Settings have been changed", text='Do you want to apply the settings?')
+    else:
+        answer = False            
+    if answer:
+        save_settings()
+    else:
+        load_settings()
+    settings_window.visible = False
+    selected_widget = settemp
+
 def close_popup_message():
     popup_msg.value = ""
     popup_window.visible = False
 
-def swap_windows(to):
+def swap_windows():
     global selected_widget
-    if to == 'controller':
-        save_changes_window.visible = True
-        center_window(save_changes_window.width,save_changes_window.height,save_changes_window)
-
-    if to == 'settings':
-        selected_widget = proportional_gain_textbox
-        settings_window.visible = True
-        center_window(settings_window.width,settings_window.height,settings_window)
-        settings_window.focus()
-
-def apply_settings(answer):
-    global selected_widget
-
-    for textbox in textboxes:
-            try:
-                float(textbox.value)
-            except ValueError:
-                globals.error_msg = "NaN"
-                answer = 'no'
-    
-    if answer == 'no':
-        with open(config_path,'r') as config:
-            for textbox in textboxes:
-                textbox.value = float(config.readline())
-    
-    if answer == 'yes':
-        with open(config_path,'w') as config:
-            for textbox in textboxes:
-                config.write(textbox.value + "\n")
-            config.write(str(alpha) + "\n")
-            config.write(str(freq) + "\n")  
-            
-        globals.MAX_TEMP = float(temperature_limit_textbox.value)
-        globals.SETTINGS_CHANGED = True
-
-    save_changes_window.visible = False
-    settings_window.visible = False
-    selected_widget = settemp
-    controller_window.visible = True
-    controller_window.focus()
+    selected_widget = proportional_gain_textbox
+    settings_window.visible = True
+    center_window(settings_window.width,settings_window.height,settings_window)
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
@@ -126,12 +133,12 @@ def stop_connecting_to_matlab():
     controller_window.enable()
 
 def close_program():
-    # controller_window.cancel(updates_controller)
-    # settings_window.cancel(updates_settings)
-    # popup_window.cancel(updates_popup)
-    # connecting_window.cancel(0, updates_connecting)
-    # temp.cancel(update_temperature)
-    globals.STOP_RUNNING = True
+    controller_window.cancel(updates_controller)
+    settings_window.cancel(updates_settings)
+    popup_window.cancel(updates_popup)
+    connecting_window.cancel(updates_connecting)
+    temp.cancel(update_temperature)
+    plt.close(f)
     app.destroy()
 
 def numpad(btn):
@@ -162,7 +169,7 @@ def updates_controller():
         return
 
     if globals.STOP_RUNNING:
-        app.destroy()
+        close_program()
 
     if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
         settemp.value = globals.temperature_target
@@ -211,8 +218,6 @@ def updates_settings():
     globals.TIMED = time_checkbox.value
 
 def updates_popup():
-    if not popup_window.visible:
-        return
     if globals.error_msg:
         msg = globals.error_msg
         globals.error_msg = ""
@@ -241,7 +246,7 @@ def center_window(width, height, window):
     window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 #GUI
-app = App()
+app = App(visible=False)
 app.text_color = 'white'
 
 connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
@@ -262,13 +267,6 @@ brightness_window = Window(app,title="Brightness settings",visible=False,height=
 brightness_window.text_size = 40
 brightness_slider = Slider(brightness_window,start=10,end=100,command=adjust_brightnes,width=280,height=70)
 brightness_slider.value = 100
-
-save_changes_window = Window(app,title="Brightness settings",visible=False,height=140,width=260)
-Text(save_changes_window,text='Save Changes?',align='top')
-PushButton(save_changes_window,text='YES',align='left',width='fill',command=apply_settings,args=['yes'])
-PushButton(save_changes_window,text='NO',align='right',width='fill',command=apply_settings,args=['no'])
-save_changes_window.bg = background_color
-save_changes_window.text_size = 24
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
 #row 0
@@ -322,7 +320,7 @@ terminate_button = PushButton(settings_window, text="Terminate",grid=[0,0],comma
 terminate_button.bg = 'red'
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[1,0,3,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
-controller_button = PushButton(settings_window, text="controller",align='right',grid=[4,0],command=swap_windows,args=['controller'])
+controller_button = PushButton(settings_window, text="Save settings",align='right',grid=[4,0],command=save_settings)
 controller_button.text_size = 16
 #PID row 2
 Text(settings_window,text='Proportional:',grid=[1,2])
@@ -396,6 +394,10 @@ connecting_window.repeat(1000, updates_connecting)
 temp.repeat(100, update_temperature)
 
 #events
+controller_window.when_closed = close_program
+connecting_window.when_closed = stop_connecting_to_matlab
+settings_window.when_closed = when_settings_closed
+
 def clicked(event_data):
     global selected_widget
     selected_widget = event_data.widget
@@ -421,22 +423,13 @@ for textbox in textboxes:
 selected_widget = settemp
 center_window(controller_window.width,controller_window.height,controller_window)
 contant_error_checkbox.value = 1
-slope_checkbox = 0
-time_checkbox = 1
+slope_checkbox.value = 0
+time_checkbox.value = 1
+load_settings()
 
-alpha = 0
-freq = 0
-
-with open(config_path, 'r') as config:
-    for textbox in textboxes:
-        textbox.value = float(config.readline())
-    alpha = float(config.readline())
-    freq = float(config.readline())
-    globals.MAX_TEMP = float(temperature_limit_textbox.value)
-
-# main_loop_thread = loop.loop()
-# main_loop_thread.start()
+main_loop_thread = loop.loop()
+main_loop_thread.start()
 app.display() # infinite loop
 
 globals.STOP_RUNNING = True
-# main_loop_thread.join
+main_loop_thread.join
