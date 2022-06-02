@@ -107,14 +107,16 @@ class loop(threading.Thread):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
-            globals.error_msg = "Connection to matlab lost"
-            globals.CONNECTED_TO_MATLAB = False
-        return msg
+            return ''
+        else:
+            return msg
 
     def listen_to_matlab(self):
+        if globals.CONNECTED_TO_MATLAB:
+            return
         while globals.ATTEMPT_TO_CONNECT:
             try:
-                self.tcp_socket = socket.create_connection(('192.168.137.1', 4000),timeout=2)
+                self.tcp_socket = socket.create_connection(('169.254.195.94', 4000),timeout=2)
             except Exception as ex:
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
@@ -123,6 +125,8 @@ class loop(threading.Thread):
             else:
                 self.tcp_socket.setblocking(0)
                 globals.CONNECTED_TO_MATLAB = True
+                self.safemsg_matlab("CONNECTED")
+                globals.ATTEMPT_TO_CONNECT = False
                 break
     
     def decodemsg(self,msg):
@@ -135,27 +139,27 @@ class loop(threading.Thread):
                     globals.OUTPUT_PAUSE = False
                     
                 case "o": #output off
-                    globals.OUTPUT_OFF = True
+                    globals.OUTPUT_OFF = not globals.OUTPUT_OFF
                     self.psu.output_off()
                 
-                case "p": #outputpause
-                    globals.OUTPUT_PAUSE = True
+                case "p": #output pause
+                    globals.OUTPUT_PAUSE = not globals.OUTPUT_PAUSE
 
                 case "s": #stop program
                     globals.STOP_RUNNING = True
 
                 case "b": #Bypass mode
-                    globals.BYPASS_MODE = True
+                    globals.BYPASS_MODE = not globals.BYPASS_MODE
     
     def get_average_temp(self,n):
 
         try:
-            ret = self.rt8.getIoGroup(self.channels, self.values)
+            self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
-            print(ret)
+
         t = 0
         for value in self.values:
             sensor_temp = value.getTemperature()
@@ -201,19 +205,22 @@ class loop(threading.Thread):
         if not self.psu.get_status()['remote on']:
                 self.psu.remote_on()
 
-        if not (globals.OUTPUT_PAUSE and globals.OUTPUT_OFF):
+        if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
             pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
             self.psu.set_voltage(pidout)          
 
+
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
 
+        
         if self.pid.settle_check():
-            globals.READY = True
-            self.safemsg_matlab("READY")
+            if not globals.READY:
+                globals.READY = True
+                self.safemsg_matlab("READY")
         else:
             if globals.READY:
                 self.safemsg_matlab("NOT_READY")
-            globals.READY = False
+                globals.READY = False
                         
         if globals.TARGET_TEMP_CHANGED.BY_UI:
             self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
@@ -224,12 +231,7 @@ class loop(threading.Thread):
             globals.SETTINGS_CHANGED = False
 
     def run(self):
-        # Loop
-        print(globals.STOP_RUNNING)
         while not globals.STOP_RUNNING:
             self.listen_to_matlab()
             self._loop()
             time.sleep(self.pid.Ts)
-
-        self.safeexit()
-        exit()
