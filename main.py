@@ -17,7 +17,7 @@ import globals
 
 #names
 globals.initialize_variables()
-#backlight = Backlight()
+backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -81,16 +81,11 @@ def close_popup_message():
     popup_msg.value = ""
     popup_window.visible = False
 
-def swap_windows(to):
+def swap_windows():
     global selected_widget
-    if to == 'controller':
-        save_changes_window.visible = True
-        center_window(save_changes_window.width,save_changes_window.height,save_changes_window)
-
-    if to == 'settings':
-        selected_widget = proportional_gain_textbox
-        settings_window.visible = True
-        center_window(settings_window.width,settings_window.height,settings_window)
+    selected_widget = proportional_gain_textbox
+    settings_window.visible = True
+    center_window(settings_window.width,settings_window.height,settings_window)
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
@@ -138,8 +133,12 @@ def stop_connecting_to_matlab():
     controller_window.enable()
 
 def close_program():
-    globals.STOP_RUNNING = True
-    
+    controller_window.cancel(updates_controller)
+    settings_window.cancel(updates_settings)
+    popup_window.cancel(updates_popup)
+    connecting_window.cancel(updates_connecting)
+    temp.cancel(update_temperature)
+    plt.close(f)
     app.destroy()
 
 def numpad(btn):
@@ -170,7 +169,7 @@ def updates_controller():
         return
 
     if globals.STOP_RUNNING:
-        app.destroy()
+        close_program()
 
     if globals.TARGET_TEMP_CHANGED.BY_MATLAB:
         settemp.value = globals.temperature_target
@@ -430,9 +429,9 @@ slope_checkbox.value = 0
 time_checkbox.value = 1
 load_settings()
 
-# main_loop_thread = loop.loop()
-# main_loop_thread.start()
+main_loop_thread = loop.loop()
+main_loop_thread.start()
 app.display() # infinite loop
 
 globals.STOP_RUNNING = True
-# main_loop_thread.join
+main_loop_thread.join
