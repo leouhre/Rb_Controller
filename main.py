@@ -21,13 +21,12 @@ backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
-config_path = 'config.txt'
 
 def set_temperature():
     try:
         settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
     except ValueError:
-        globals.error_msg = "NaN"
+        controller_window.error(title='Error in Set Temperature',text='value entered is not a number')
     else:
         globals.temperature_target = float(settemp.value)
         globals.SET = True
@@ -61,7 +60,6 @@ def settings_changed():
             else:
                 if settings_changed:
                     return True
-
     
 #GUI related methods 
 def when_settings_closed():
@@ -154,13 +152,20 @@ def spawn_numpad(master,size):
         btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=2)
         btn.text_size = size
 
+def center_window(width, height, window):
+    # get screen width and height
+    screen_width = window.tk.winfo_screenwidth()
+    screen_height = window.tk.winfo_screenheight()
+
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
 def updates_controller():
-    if not controller_window.visible:
-        return
-
     if globals.STOP_RUNNING:
         close_program()
 
@@ -191,10 +196,8 @@ def updates_controller():
         set_temp_button.enable()
 
     if globals.CONNECTED_TO_MATLAB:
-        connect_to_matlab_button.text_color = 'green'
         connect_to_matlab_button.disable()
     else:
-        connect_to_matlab_button.text_color = 'red'
         connect_to_matlab_button.enable()
 
 def updates_settings():
@@ -228,16 +231,6 @@ def updates_connecting():
         else:
             connecting_text.append('.')
 
-def center_window(width, height, window):
-    # get screen width and height
-    screen_width = window.tk.winfo_screenwidth()
-    screen_height = window.tk.winfo_screenheight()
-
-    # calculate position x and y coordinates
-    x = (screen_width/2) - (width/2)
-    y = (screen_height/2) - (height/2)
-    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
-
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
@@ -258,6 +251,7 @@ brightness_slider.value = 100
 brightness_window.visible = False
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
+center_window(controller_window.width,controller_window.height,controller_window)
 #row 0
 Text(controller_window,text=' ',grid=[1,0],width=16)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
@@ -412,7 +406,6 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
-center_window(controller_window.width,controller_window.height,controller_window)
 contant_error_checkbox.value = 1
 slope_checkbox.value = 0
 time_checkbox.value = 1

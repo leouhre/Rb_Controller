@@ -74,9 +74,10 @@ class loop(threading.Thread):
             self.psu.output_off()
             self.psu.remote_off()
             self.psu.close()
-        except:
-            globals.error_msg = "Connection to PSU lost. Turn off output manually"
-            self.safemsg_matlab("Connection to PSU lost. Turn off output manually")
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print (message)
         try:
             self.rt8.close()
         except TimeoutError as ex:
@@ -151,10 +152,10 @@ class loop(threading.Thread):
                     globals.BYPASS_MODE = not globals.BYPASS_MODE
     
     def get_average_temp(self,n):
-
         try:
             self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
+
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
@@ -163,11 +164,11 @@ class loop(threading.Thread):
         for value in self.values:
             sensor_temp = value.getTemperature()
             if -1000 > sensor_temp: 
-                print(f"sensor{self.values.index(value)+1} is shortcircuited")
-                return 0
+                globals.error_msg = f"sensor{self.values.index(value)+1} is shortcircuited"
+                self.safemsg_matlab(f"sensor{self.values.index(value)+1} is shortcircuited")
             elif sensor_temp > 1000:
-                print(f"sensor{self.values.index(value)+1} is disconected")
-                return 0
+                globals.error_msg= f"sensor{self.values.index(value)+1} is disconected"
+                self.safemsg_matlab(f"sensor{self.values.index(value)+1} is disconected")
             else:
                 t += sensor_temp
         return t/n
@@ -180,29 +181,22 @@ class loop(threading.Thread):
         if globals.temperature_average > globals.MAX_TEMP:
             globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
             globals.OUTPUT_OFF = True
-            self.psu.output_off()
 
         message = self.saferecv_matlab()
         self.decodemsg(message)
 
-        #TODO: Check if if statement can be removed with no exceptions then more readable
         if globals.BYPASS_MODE:
-            if self.psu.get_status()['output on']:
-                self.psu.output_off()
-            if self.psu.get_status()['remote on']:
-                self.psu.remote_off()
+            self.psu.output_off()
+            self.psu.remote_off()
             time.sleep(1)
             return
 
         if globals.OUTPUT_OFF:
-            if self.psu.get_status()['output on']:
-                self.psu.output_off()
+            self.psu.output_off()
         else:
-            if not self.psu.get_status()['output on']:
-                self.psu.output_on()
+            self.psu.output_on()
 
-        if not self.psu.get_status()['remote on']:
-                self.psu.remote_on()
+        self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
             pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
