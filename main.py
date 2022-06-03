@@ -21,13 +21,12 @@ backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
-config_path = 'config.txt'
 
 def set_temperature():
     try:
         settemp.value = "{:3.2f}".format(max(min(float(settemp.value),globals.MAX_TEMP),MIN_TEMP))
     except ValueError:
-        globals.error_msg = "NaN"
+        controller_window.error(title='Error in Set Temperature',text='value entered is not a number')
     else:
         globals.temperature_target = float(settemp.value)
         globals.SET = True
@@ -61,7 +60,6 @@ def settings_changed():
             else:
                 if settings_changed:
                     return True
-
     
 #GUI related methods 
 def when_settings_closed():
@@ -77,19 +75,13 @@ def when_settings_closed():
     settings_window.visible = False
     selected_widget = settemp
 
-def close_popup_message():
-    popup_msg.value = ""
-    popup_window.visible = False
-
 def swap_windows():
     global selected_widget
     selected_widget = proportional_gain_textbox
     settings_window.visible = True
-    center_window(settings_window.width,settings_window.height,settings_window)
 
 def show_brightness_window():
     brightness_window.visible = not brightness_window.visible
-    center_window(brightness_window.width,brightness_window.height,brightness_window)
 
 def adjust_brightnes(slider_value):
     backlight.brightness = int(slider_value)
@@ -125,7 +117,6 @@ def connect_to_matlab():
     globals.ATTEMPT_TO_CONNECT = True
     controller_window.disable()
     connecting_window.visible = True
-    center_window(connecting_window.width,connecting_window.height,connecting_window)
 
 def stop_connecting_to_matlab():
     globals.ATTEMPT_TO_CONNECT = False
@@ -135,7 +126,7 @@ def stop_connecting_to_matlab():
 def close_program():
     controller_window.cancel(updates_controller)
     settings_window.cancel(updates_settings)
-    popup_window.cancel(updates_popup)
+    app.cancel(updates_popup)
     connecting_window.cancel(updates_connecting)
     temp.cancel(update_temperature)
     plt.close(f)
@@ -161,13 +152,20 @@ def spawn_numpad(master,size):
         btn = PushButton(numpad_box, text=x, grid=[i,3],command=numpad,args=[x],width=2)
         btn.text_size = size
 
+def center_window(width, height, window):
+    # get screen width and height
+    screen_width = window.tk.winfo_screenwidth()
+    screen_height = window.tk.winfo_screenheight()
+
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
 def update_temperature():
     temp.value = "{:4.1f}".format(globals.temperature_average)
 
 def updates_controller():
-    if not controller_window.visible:
-        return
-
     if globals.STOP_RUNNING:
         close_program()
 
@@ -198,10 +196,8 @@ def updates_controller():
         set_temp_button.enable()
 
     if globals.CONNECTED_TO_MATLAB:
-        connect_to_matlab_button.text_color = 'green'
         connect_to_matlab_button.disable()
     else:
-        connect_to_matlab_button.text_color = 'red'
         connect_to_matlab_button.enable()
 
 def updates_settings():
@@ -221,7 +217,7 @@ def updates_popup():
     if globals.error_msg:
         msg = globals.error_msg
         globals.error_msg = ""
-        popup_window.warn(title='error',text=msg)
+        app.warn(title='error',text=msg)
         
 def updates_connecting():
     if not connecting_window.visible:
@@ -235,44 +231,31 @@ def updates_connecting():
         else:
             connecting_text.append('.')
 
-def center_window(width, height, window):
-    # get screen width and height
-    screen_width = window.tk.winfo_screenwidth()
-    screen_height = window.tk.winfo_screenheight()
-
-    # calculate position x and y coordinates
-    x = (screen_width/2) - (width/2)
-    y = (screen_height/2) - (height/2)
-    window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
-
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
 
-connecting_window = Window(app,title="connecting",visible=False,width=300,height=120)
+connecting_window = Window(app,title="connecting",width=300,height=120)
+center_window(connecting_window.width,connecting_window.height,connecting_window)
 connecting_window.text_size = 18
 connecting_window.bg = background_color
 connecting_text = Text(connecting_window,text="Connecting to matlab")
 cancel_pushbutton = PushButton(connecting_window,text="Cancel",width=10,command=stop_connecting_to_matlab)
+connecting_window.visible = False
 
-popup_window = Window(app,title="WARNING",visible=False,width=300,height=300)
-popup_window.text_size = 28
-popup_window.bg = background_color
-Text(popup_window,text="",size=10)
-popup_msg = Text(popup_window,text="",color='red')
-Text(popup_window,text="",size=10)
-PushButton(popup_window,text="Close",command=close_popup_message,width=10)
-
-brightness_window = Window(app,title="Brightness settings",visible=False,height=200,width=400)
+brightness_window = Window(app,title="Brightness settings",height=200,width=400)
+center_window(brightness_window.width,brightness_window.height,brightness_window)
 brightness_window.text_size = 40
 brightness_slider = Slider(brightness_window,start=10,end=100,command=adjust_brightnes,width=280,height=70)
 brightness_slider.value = 100
+brightness_window.visible = False
 
 controller_window = Window(app,title='Rb-cell Temperature Controller',layout='grid',bg=background_color,height=480,width=800)
+center_window(controller_window.width,controller_window.height,controller_window)
 #row 0
 Text(controller_window,text=' ',grid=[1,0],width=16)
 connect_to_matlab_button = PushButton(controller_window,text='Connect to matlab',align='left',grid=[0,0],command=connect_to_matlab) 
-settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,args=['settings'],pady=1)
+settings_button = PushButton(controller_window, text="Settings",align='right',grid=[4,0],command=swap_windows,pady=1)
 settings_button.text_size = 18
 brightness_button = PushButton(controller_window, text="¤",grid=[3,0,2,1],padx=14,pady=1,command=show_brightness_window)
 brightness_button.text_size = 16
@@ -313,8 +296,10 @@ decreasetemp_button = PushButton(crement_box,text="-",command=increment,args=[-1
 decreasetemp_button.text_size = 20
 
 #Settings window
-settings_window = Window(app,title='Rb-controller Settings',width=800,height=480,bg=background_color,visible=False,layout='grid')
+settings_window = Window(app,title='Rb-controller Settings',width=800,height=480,bg=background_color,layout='grid')
+center_window(settings_window.width,settings_window.height,settings_window)
 settings_window.text_size = 13 
+settings_window.visible = False
 #Title row 0
 terminate_button = PushButton(settings_window, text="Terminate",grid=[0,0],command=close_program)
 terminate_button.bg = 'red'
@@ -389,7 +374,7 @@ canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 #schduled updates
 controller_window.repeat(100, updates_controller)
 settings_window.repeat(100, updates_settings)
-popup_window.repeat(100, updates_popup)
+app.repeat(100, updates_popup)
 connecting_window.repeat(1000, updates_connecting)
 temp.repeat(100, update_temperature)
 
@@ -421,7 +406,6 @@ for textbox in textboxes:
 
 #initializations
 selected_widget = settemp
-center_window(controller_window.width,controller_window.height,controller_window)
 contant_error_checkbox.value = 1
 slope_checkbox.value = 0
 time_checkbox.value = 1
