@@ -47,6 +47,8 @@ class PID():
         #pidout *= self.cfg['kp']
         if self.lower_lim < pidout < self.upper_lim:
             self.integral_error += error
+        else:
+            self.integral_error = 0
         return max(min(pidout,self.upper_lim),self.lower_lim)
 
     # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up

@@ -1,4 +1,4 @@
-#!Manually change RB-controller parameters here. Run to save
+#!Manually change RB-controller parameters here. RUN TO SAVE
 import shelve
 
 def write_config():
