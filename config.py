@@ -3,9 +3,9 @@ import shelve
 
 def write_config():
     with shelve.open('config') as config:
-        config['kp'] = 10.0
-        config['ki'] = 0.05
-        config['kd'] = 0.0
+        config['kp'] = 13.45
+        config['ki'] = 0.4315
+        config['kd'] = 98
         config['temperature_limit'] = 210.0
         config['temperature_offset'] = 0.0
         config['max_fluctuations'] = 1

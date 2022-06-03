@@ -99,14 +99,17 @@ try:
 		print(f"time:{t_temp:5.1f}") 
 
 		for x in range(num_of_sensors):
-			temp_average += values[x].getTemperature()/num_of_sensors
+			if x < 2:
+				temp_average += values[x].getTemperature()/2
 			data[x].append(values[x].getTemperature())
 			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
+
+
 		
-		pidout = PI.update(temp_average,T_target)
+		pidout = PI.update3(temp_average,T_target)
 		psu.set_voltage(pidout) 
 		v.append(pidout)
 
