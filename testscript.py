@@ -104,21 +104,22 @@ try:
 			if x < 2:
 				temp_average += values[x].getTemperature()/2
 			data[x].append(values[x].getTemperature())
-			if values[x].getTemperature() > 215:
-				if values[x].getTemperature() > max:
-					max = values[x].getTemperature()
-				globals.MAX_TEMP_REACHED = True
+			#if values[x].getTemperature() > 215:
+				#if values[x].getTemperature() > max:
+				#	max = values[x].getTemperature()
+				#globals.MAX_TEMP_REACHED = True
 			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
 
 
-		if not globals.MAX_TEMP_REACHED:
-			pidout = PI.update(temp_average,T_target)
-		else:
-			pidout = PI.update2(max,220)
-			globals.MAX_TEMP_REACHED = False
+		pidout = PI.update(temp_average,T_target)
+		#if not globals.MAX_TEMP_REACHED:
+		#	pidout = PI.update(temp_average,T_target)
+		#else:
+			#pidout = PI.update2(max,220)
+			#globals.MAX_TEMP_REACHED = False
 		psu.set_voltage(pidout) 
 		v.append(pidout)
 
