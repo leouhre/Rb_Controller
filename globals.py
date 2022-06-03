@@ -16,6 +16,7 @@ def initialize_variables():
     global SETTINGS_CHANGED
     global error_msg
     global MAX_TEMP
+    global MAX_TEMP_REACHED
     global MAX_TEMP_FLUCTUATION
     global SETTLE_WAIT_TIME
     global ATTEMPT_TO_CONNECT
@@ -38,6 +39,7 @@ def initialize_variables():
         BY_MATLAB = False
     error_msg = ""
     MAX_TEMP = 209
+    MAX_TEMP_REACHED = False
     MAX_TEMP_FLUCTUATION = 1
     SETTLE_WAIT_TIME = 10
     CONNECTED_TO_MATLAB = False

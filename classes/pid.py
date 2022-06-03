@@ -11,11 +11,12 @@ class PID():
         # Avoid division with zero if integral gain is 0 (disabled)
         if self.cfg['ki']:
             self.taui = self.cfg['kp']/self.cfg['ki']
-        if self.cfg['kd']:
-            self.taud = self.cfg['kd']/self.cfg['kp']
+        self.taud = self.cfg['kd']/self.cfg['kp']
         
     integral_error = 0
+    integral_error2 = 0
     prev_t = 0
+    prev_t2 = 0
 
     upper_lim = 28
     lower_lim = 0
@@ -49,19 +50,42 @@ class PID():
             self.integral_error += error
         else:
             self.integral_error = 0
+        print(self.integral_error)
+        print(pidout)
+        return max(min(pidout,self.upper_lim),self.lower_lim)
+
+    def update2(self, t, t_target):
+        print("PID2")
+        error = t_target - t
+        p = self.cfg['kp2'] * error
+        i = self.cfg['ki2'] * self.integral_error2 * self.Ts
+        derivative = t - self.prev_t2
+        d = self.cfg['kd2'] * derivative / self.Ts
+        self.prev_t2 = t
+        pidout = p + i + d
+        #pidout *= self.cfg['kp']
+        if self.lower_lim < pidout < self.upper_lim:
+            self.integral_error2 += error
+        else:
+            self.integral_error2 = 0
+        print(self.integral_error2)
+        print(pidout)
         return max(min(pidout,self.upper_lim),self.lower_lim)
 
     # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up
     def update3(self, y_current, r_current):
+        print(self.cfg['kp'],self.cfg['ki'],self.cfg['kd'])
         if not self.cfg['ki']:
             print("update3() requires an PI or PI-Lead controller")
             return 0
         uD_current = ((self.cfg['alpha']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * self.uD_past  + \
             ((self.cfg['kp']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * (y_current - self.y_past)
+        print(uD_current)
         u_current = self.u_past + self.cfg['kp']*(self.y_past - y_current) + ((self.cfg['kp']*self.Ts) / self.taui) * \
             (r_current - y_current) - uD_current + self.uD_past
         u_current = max(min(u_current,self.upper_lim),self.lower_lim)
         self.uD_past = uD_current
         self.u_past = u_current
         self.y_past = y_current
+        print(u_current)
         return u_current

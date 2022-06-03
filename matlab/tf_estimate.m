@@ -1,7 +1,7 @@
 close all
 clear all
 
-step_amplitude = 16.5; %V
+step_amplitude = 2.5; %V
 fs = 2; %Hz
 Ts = 1/fs; %s
 
@@ -41,7 +41,7 @@ hold off
 % Set sample period Ts for iddata()
 data = iddata(y,u,Ts);
 np = 3;
-nz = 2;
+nz = 1;
 s = tf('s');
 sys = tfest(data,np,nz);
 %sys2 = (-1/db2mag(60.1-16.5))*((s-0.1228)*(s+0.0011))/((s+0.006)*(s+0.0372)*(s+0.0006))
@@ -69,12 +69,12 @@ G = tf(num,den);
 
 % These are the parameters to play with in order to obtain the optimal
 % controller
-Ni = 6; 
-pm = 55;
+Ni = 5; 
+pm = 65;
 alpha = 0.8;
 
-%D_active = 1; % PI-Lead controller
-D_active = 0; % PI controller
+D_active = 1; % PI-Lead controller
+%D_active = 0; % PI controller
 I_active = 1; % PI controller
 %I_active = 0; % P controller
 
@@ -98,7 +98,7 @@ rho_G = pm - rho_i - rho_m - 180;
 %wc = 3; % PI-Lead and PI controller
 %wc = 9; % P controller
 [mag0,phase0,wout0] = bode(sys);
-k0 = find(phase0(:) - 360 > rho_G, 1, 'last');
+k0 = find(phase0(:) > rho_G, 1, 'last');
 wc = wout0(k0);
 
 % Find the time constants of the controllers and define the transfer
@@ -140,7 +140,7 @@ G_cl = G_ol/(1 + G_ol);
 %% Assessment
 
 % For the simulation step input
-set_temp = 200 - temp(1);
+set_temp = 150;
 model='system_model_2';
 
 figure(3)

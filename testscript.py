@@ -11,6 +11,7 @@ from collections import deque
 #our scripts
 from classes.pid import PID
 import filehandler
+import globals
 
 
 # Import functionality of RTD measurement device
@@ -92,6 +93,7 @@ PI = PID()
 try:
 	while True:
 		#os.system('clear')
+		max = 0
 		ret = rt8.getIoGroup(channels, values)
 
 		temp_average = 0
@@ -102,14 +104,21 @@ try:
 			if x < 2:
 				temp_average += values[x].getTemperature()/2
 			data[x].append(values[x].getTemperature())
+			if values[x].getTemperature() > 215:
+				if values[x].getTemperature() > max:
+					max = values[x].getTemperature()
+				globals.MAX_TEMP_REACHED = True
 			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
 		print(f"Average = {temp_average:3.1f}")
 		print("____________")
 
 
-		
-		pidout = PI.update3(temp_average,T_target)
+		if not globals.MAX_TEMP_REACHED:
+			pidout = PI.update(temp_average,T_target)
+		else:
+			pidout = PI.update2(max,220)
+			globals.MAX_TEMP_REACHED = False
 		psu.set_voltage(pidout) 
 		v.append(pidout)
 
