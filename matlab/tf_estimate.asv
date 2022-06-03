@@ -1,16 +1,31 @@
 close all
 clear all
 
+step_amplitude = 16.5; %V
+fs = 2; %Hz
+Ts = 1/fs; %s
+temp[]
+
 % Get step response from data file and save in variable 'temp'
 fileID = fopen('step_response/new_setup2_avg.txt', 'r');
 formatSpec = '%f';
 sizeA = [1,Inf];
-temp = fscanf(fileID,formatSpec,sizeA);
+temp_at_heater = fscanf(fileID,formatSpec,sizeA);
 fclose(fileID);
+
+% Get step response from data file and save in variable 'temp'
+fileID = fopen('step_response/new_setup2_avg.txt', 'r');
+formatSpec = '%f';
+sizeA = [1,Inf];
+temp_solo = fscanf(fileID,formatSpec,sizeA);
+fclose(fileID);
+
+for i = 1:min(length(temp_at_heater),length(temp_solo))
+    
 
 % Create input/output vectors for the tfest() function
 % Remember to subtract room temperature (min(temp))
-u = transpose([zeros(1,length(temp)),16.5*ones(1,length(temp))]);
+u = transpose([zeros(1,length(temp)),step_amplitude*ones(1,length(temp))]);
 y = transpose([zeros(1,length(temp)),temp - min(temp)]);
 
 % Uncomment following to see input/output data
@@ -24,7 +39,7 @@ y = transpose([zeros(1,length(temp)),temp - min(temp)]);
 
 % Estimate the transfer function for the system
 % Set sample period Ts for iddata()
-data = iddata(y,u,0.5);
+data = iddata(y,u,Ts);
 np = 3;
 nz = 1;
 sys = tfest(data,np,nz);
@@ -33,12 +48,12 @@ sys = tfest(data,np,nz);
 
 % To validate the system transfer function, try simulating a 15V response
 figure(2)
-opt = stepDataOptions('StepAmplitude',16.5);
+opt = stepDataOptions('StepAmplitude',step_amplitude);
 step(sys,opt)
 hold on
 %step(sys2,opt)
 %step(sys3,opt)
-plot(downsample(y(length(temp):length(y)),2))
+plot(downsample(y(length(temp):length(y)),fs))
 xlim([0 length(temp)/2 + 100])
 legend('Estimated system', 'Measured data')
 %legend('2 poles, 1 zero', '3 poles, 1 zeros', '3 poles, 2 zeros', 'Measured data')
@@ -52,11 +67,9 @@ G = tf(num,den);
 
 % These are the parameters to play with in order to obtain the optimal
 % controller
-Ni = 4; 
-pm = 50;
-alpha = 0.2;
-fs = 2;
-Ts = 1/fs;
+Ni = 5; 
+pm = 60;
+alpha = 0.8;
 
 D_active = 1; % PI-Lead controller
 %D_active = 0; % PI controller
@@ -88,7 +101,7 @@ wc = wout0(k0);
 
 % Find the time constants of the controllers and define the transfer
 % functions of the controller parts
-s = tf('s');
+%s = tf('s');
 ti = Ni*1/wc;
 td = 1/(wc*sqrt(alpha));
 
@@ -111,31 +124,35 @@ kp = 1/mag(k);
 if D_active == 1
     G_ol = kp*G*CD; % PI-Lead controller
     %G_cl = kp*G*CD*CI/(1+kp*G*CD*CI); % PI-Lead controller
+else
+    G_ol = kp*G;
 end
-if I_active
-    G_ol = kp*G*CI; % PI-controller
-    G_cl = kp*G*CI/(1+kp*G*CI); % PI controller
+if I_active == 1
+    G_ol = G_ol*CI; % PI-controller
+    %G_cl = kp*G*CI/(1+kp*G*CI); % PI controller
 end
+G_cl = G_ol/(1 + G_ol);
 
-% Assessment
+
+%% Assessment
 
 % For the simulation step input
-set_temp = 200 - temp(1);
-model='system_model_2';
+%set_temp = 200 - temp(1);
+%model='system_model_2';
 
-figure()
+figure(3)
 step(G_cl)
-figure()
-bode(G,CI,CD,{0.01,10})
+figure(4)
+bode(G,CI,CD,{0.001,10})
 hold on
-margin(G_ol,{0.01,10})
+margin(G_ol,{0.001,10})
 legend()
 title("Bode plot of PI controller");
 grid on
 hold off
 
-h = sim(model,3000);
-plot(h)
+%h = sim(model,3000);
+%plot(h)
 
 %load_system(model);
 %open_system(model);
