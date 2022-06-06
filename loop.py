@@ -21,7 +21,7 @@ class loop(threading.Thread):
             try:
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
-            except Exception as ex:
+            except serial.SerialException as ex:
                 template = "rt8:An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
@@ -74,7 +74,7 @@ class loop(threading.Thread):
             self.psu.output_off()
             self.psu.remote_off()
             self.psu.close()
-        except Exception as ex:
+        except serial.SerialException as ex:
             template = "exit psu:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
@@ -90,7 +90,7 @@ class loop(threading.Thread):
             return
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
-        except Exception as ex:
+        except ConnectionResetError as ex:
             template = "msg:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
@@ -102,7 +102,7 @@ class loop(threading.Thread):
             return ''
         try:
             msg = self.tcp_socket.recv(1024).decode("utf_8")
-        except Exception as ex:
+        except BlockingIOError as ex:
             template = "recv:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
@@ -116,7 +116,7 @@ class loop(threading.Thread):
         while globals.ATTEMPT_TO_CONNECT:
             try:
                 self.tcp_socket = socket.create_connection(('10.209.193.44', 4000),timeout=2)
-            except Exception as ex:
+            except TimeoutError as ex:
                 template = "listen:An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
@@ -154,8 +154,9 @@ class loop(threading.Thread):
         try:
             self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
-
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            self.safemsg_matlab("RT8 lost. Restart required")
+            globals.error_msg = "RT8 lost. Restart required"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
 
@@ -196,6 +197,7 @@ class loop(threading.Thread):
         # SAFETY
         if globals.temperature_average > globals.MAX_TEMP:
             globals.error_msg = f"Temperature exceeded limit of {globals.MAX_TEMP}"
+            self.safemsg_matlab(f"Temperature exceeded limit of {globals.MAX_TEMP}")
             globals.OUTPUT_OFF = True
 
         message = self.saferecv_matlab()
@@ -211,8 +213,12 @@ class loop(threading.Thread):
             self.psu.output_off()
         else:
             self.psu.output_on()
-
-        self.psu.remote_on()
+        
+        try:
+            self.psu.remote_on()
+        except serial.SerialException:
+            globals.error_msg = "PSU lost. Restart required"
+            self.safemsg_matlab("PSU lost. Restart required")
 
         if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
             self.regulate(sensor_max)          
