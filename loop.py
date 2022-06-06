@@ -1,6 +1,5 @@
 # Python packages
 import time, threading, socket, atexit,serial
-from matplotlib.cbook import maxdict
 
 # Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -21,7 +20,7 @@ class loop(threading.Thread):
             try:
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
-            except serial.SerialException as ex:
+            except serial.SerialException:
                 globals.error_msg = "Error when connecting to LucidControl RI8"
                 self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
