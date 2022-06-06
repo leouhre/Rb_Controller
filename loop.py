@@ -204,11 +204,13 @@ class loop(threading.Thread):
         self.decodemsg(message)
 
         try:
-            self.psu.get_status()
+            d = self.psu.get_status()
         except serial.SerialException:
             globals.error_msg = "PSU lost. Restart required"
             self.safemsg_matlab("PSU lost. Restart required")
             self.safeexit()
+        
+        print(d)
 
         if globals.BYPASS_MODE:
             self.psu.output_off()
