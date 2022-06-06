@@ -23,6 +23,9 @@ def initialize_variables():
     global CONSTANT_ERROR
     global SLOPE
     global TIMED
+    global MAX_OP
+    global SENSORS_ON_GLASS
+    
 
     temperature_target = 0
     temperature_average = 0
@@ -44,8 +47,11 @@ def initialize_variables():
     SETTLE_WAIT_TIME = 10
     CONNECTED_TO_MATLAB = False
     ATTEMPT_TO_CONNECT= False
-    NUMBER_OF_SENSORS = 4
-
     CONSTANT_ERROR = True
     SLOPE = False
     TIMED = True
+
+    NUMBER_OF_SENSORS = 4
+    SENSORS_ON_GLASS = 2
+
+    MAX_OP = 232

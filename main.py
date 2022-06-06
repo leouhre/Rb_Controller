@@ -1,4 +1,5 @@
-#! Creates UI and initializes loop for regulating temperature.
+#!/home/pi/.venv/RbController/bin/python
+#Creates UI and initializes loop for regulating temperature.
 #Python packages 
 import time
 import sys
@@ -403,7 +404,6 @@ textboxes = (
 for textbox in textboxes:
     textbox.when_clicked = clicked 
 
-
 #initializations
 selected_widget = settemp
 contant_error_checkbox.value = 1
@@ -413,7 +413,7 @@ load_settings()
 
 main_loop_thread = loop.loop()
 main_loop_thread.start()
-app.display() # infinite loop
+app.display() # infinite loop 
 
 globals.STOP_RUNNING = True
 main_loop_thread.join
