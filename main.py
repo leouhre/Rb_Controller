@@ -360,10 +360,11 @@ def animate(i):
     current_time = time.perf_counter() - start_time
     time_data.append(current_time)
     temperature_data.append(globals.temperature_average)
-    tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
+    tmin = current_time-get_min_xlim()
+    tempmin_index = np.argmax(np.isclose(tmin,time_data,atol=1))
     line.set_data(time_data, temperature_data)
-    axis.set_xlim(xmin=current_time-get_min_xlim(),xmax=time_data[-1])
-    axis.set_ylim(ymin=max(min(temperature_data[tmin_index:])-10,0),ymax=max(temperature_data[tmin_index:])+10)
+    axis.set_xlim(xmin=tmin,xmax=time_data[-1])
+    axis.set_ylim(ymin=max(min(temperature_data[tempmin_index:])-10,0),ymax=max(temperature_data[tempmin_index:])+10)
     canvas.draw()
 
 anim = animation.FuncAnimation(f, animate, interval = 1000)
