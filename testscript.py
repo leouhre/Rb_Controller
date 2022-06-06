@@ -24,6 +24,7 @@ from lucidIo import IoReturn
 # Import functionality of power supply unit
 import ea_psu_controller as ea
 
+globals.initialize_variables()
 
 # Initialize the LucidControl RTD measurement device
 #rt8 = LucidControlRT8('/dev/lucidRI8')
@@ -93,7 +94,7 @@ PI = PID()
 try:
 	while True:
 		#os.system('clear')
-		max = 0
+		maxt = 0
 		ret = rt8.getIoGroup(channels, values)
 
 		temp_average = 0
@@ -104,9 +105,9 @@ try:
 			if x < 2:
 				temp_average += values[x].getTemperature()/2
 			data[x].append(values[x].getTemperature())
-			if values[x].getTemperature() > 215:
-				if values[x].getTemperature() > max:
-					max = values[x].getTemperature()
+			maxt = max(values[x].getTemperature(),maxt)
+
+			if maxt > 225:
 				globals.MAX_TEMP_REACHED = True
 			print(values[x].getTemperature())
 		data[num_of_sensors].append(temp_average)
@@ -115,11 +116,14 @@ try:
 
 
 		#pidout = PI.update(temp_average,T_target)
-		if not globals.MAX_TEMP_REACHED or abs(temp_average - T_target) < 0.1*T_target:
+		if not globals.MAX_TEMP_REACHED or temp_average > T_target:
 			pidout = PI.update(temp_average,T_target)
-		else:
-			pidout = PI.update2(max,220)
 			globals.MAX_TEMP_REACHED = False
+		else:
+			pidout = PI.update2(maxt,230)
+			if maxt < 223:
+				globals.MAX_TEMP_REACHED = False
+			
 		psu.set_voltage(pidout) 
 		v.append(pidout)
 
@@ -140,6 +144,10 @@ if len(t) > l:
 	t.pop()
 if len(t) < l:
 	t.append(t_temp)
+if len(v) > l:
+	v.pop()
+if len(v) < l:
+	v.append(pidout)
 
 # Write temperature data to files /data/sensorX.txt
 answer = ''
@@ -147,7 +155,7 @@ while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
 	
-	filehandler.deques_to_txtfile(time=t,clock=c)
+	filehandler.deques_to_txtfile(time=t,clock=c,voltage=t)
 	filehandler.sensors_to_txtfile(data)
 	filehandler.all_textfile(data,t,c)
 
