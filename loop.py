@@ -190,7 +190,7 @@ class loop(threading.Thread):
         self.psu.set_voltage(pidout)
     
     def _loop(self):
-        globals.temperature_average,sensor_max = self.get_average_temp()
+        globals.temperature_average, sensor_max = self.get_average_temp()
         self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
         # SAFETY
