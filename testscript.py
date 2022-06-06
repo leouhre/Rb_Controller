@@ -115,7 +115,7 @@ try:
 
 
 		#pidout = PI.update(temp_average,T_target)
-		if not globals.MAX_TEMP_REACHED or abs(temp_average - T_target) < 1:
+		if not globals.MAX_TEMP_REACHED or abs(temp_average - T_target) < 0.1*T_target:
 			pidout = PI.update(temp_average,T_target)
 		else:
 			pidout = PI.update2(max,220)
