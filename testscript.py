@@ -27,8 +27,8 @@ import ea_psu_controller as ea
 globals.initialize_variables()
 
 # Initialize the LucidControl RTD measurement device
-#rt8 = LucidControlRT8('/dev/lucidRI8')
-rt8 = LucidControlRT8('COM3')
+rt8 = LucidControlRT8('/dev/lucidRI8')
+#rt8 = LucidControlRT8('COM3')
 rt8.open()
 
 
@@ -45,8 +45,8 @@ channels = (True,)*(num_of_sensors) + (False,)*(8-num_of_sensors)
 # Make sure that 99-ea-psu.rules is in /etc/udev/rules.d/ as recommended at https://pypi.org/project/ea-psu-controller/
 print("Connecting to the EA power supply...")
 try:
-	#psu = ea.PsuEA()
-	psu = ea.PsuEA('COM4')
+	psu = ea.PsuEA()
+	#psu = ea.PsuEA('COM4')
 except: 
 	print('ERROR: No PSU found. Try re-connecting the USB cable')
 	exit()
