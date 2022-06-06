@@ -22,9 +22,6 @@ class loop(threading.Thread):
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
             except serial.SerialException as ex:
-                template = "rt8:An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(ex).__name__, ex.args)
-                print (message)
                 globals.error_msg = "Error when connecting to LucidControl RI8"
                 self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
