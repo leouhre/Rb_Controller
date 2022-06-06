@@ -63,17 +63,13 @@ class PID():
         d = self.cfg['kd'] * derivative / self.Ts
         self.prev_t = t
         pidout = p + i + d
-        #pidout *= self.cfg['kp']
         if self.lower_lim < pidout < self.upper_lim:
             self.integral_error += error
         else:
             self.integral_error = 0
-        print(self.integral_error)
-        print(pidout)
         return max(min(pidout,self.upper_lim),self.lower_lim)
 
     def update2(self, t, t_target):
-        print("PID2")
         error = t_target - t
         p = self.cfg['kp2'] * error
         i = self.cfg['ki2'] * self.integral_error2 * self.Ts
@@ -81,13 +77,10 @@ class PID():
         d = self.cfg['kd2'] * derivative / self.Ts
         self.prev_t2 = t
         pidout = p + i + d
-        #pidout *= self.cfg['kp']
         if self.lower_lim < pidout < self.upper_lim:
             self.integral_error2 += error
         else:
             self.integral_error2 = 0
-        print(self.integral_error2)
-        print(pidout)
         return max(min(pidout,self.upper_lim),self.lower_lim)
 
     # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up
