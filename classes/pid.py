@@ -34,7 +34,7 @@ class PID():
             within_error = True
 
         if slope:
-            within_slope = self.cfg['settle_slope'] <= abs(t - self.prev_t) / self.Ts
+            within_slope = self.cfg['settle_slope'] >= abs(t - self.prev_t) / self.Ts
         else:
             within_slope = True
 
@@ -45,11 +45,12 @@ class PID():
 
     def settle_check(self,slope,wait):
         if slope and wait:
-            res = self.settlecount > self.cfg['settle_wait_time']/self.cfg['freq'] or self.settlecount > self.cfg['slope_length']/self.cfg['freq']
+            res = self.settlecount > self.cfg['settle_wait_time']*self.cfg['freq'] or \
+                self.settlecount > self.cfg['slope_length']*self.cfg['freq']
         elif slope:
-            res = self.settlecount > self.cfg['slope_length']/self.cfg['freq']
+            res = self.settlecount > self.cfg['slope_length']*self.cfg['freq']
         elif wait:
-            res = self.settlecount > self.cfg['settle_wait_time']/self.cfg['freq']
+            res = self.settlecount > self.cfg['settle_wait_time']*self.cfg['freq']
         else:
             res = False
         return res 
