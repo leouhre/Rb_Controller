@@ -6,9 +6,7 @@ class PID():
     def __init__(self):
         with shelve.open('config') as config:
             self.cfg = dict(config)
-
         self.Ts = 1/self.cfg['freq']
-        # Avoid division with zero if integral gain is 0 (disabled)
         if self.cfg['ki']:
             self.taui = self.cfg['kp']/self.cfg['ki']
         self.taud = self.cfg['kd']/self.cfg['kp']
@@ -79,18 +77,15 @@ class PID():
 
     # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up
     def update3(self, y_current, r_current):
-        print(self.cfg['kp'],self.cfg['ki'],self.cfg['kd'])
         if not self.cfg['ki']:
             print("update3() requires an PI or PI-Lead controller")
             return 0
         uD_current = ((self.cfg['alpha']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * self.uD_past  + \
             ((self.cfg['kp']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * (y_current - self.y_past)
-        print(uD_current)
         u_current = self.u_past + self.cfg['kp']*(self.y_past - y_current) + ((self.cfg['kp']*self.Ts) / self.taui) * \
             (r_current - y_current) - uD_current + self.uD_past
         u_current = max(min(u_current,self.upper_lim),self.lower_lim)
         self.uD_past = uD_current
         self.u_past = u_current
         self.y_past = y_current
-        print(u_current)
         return u_current
