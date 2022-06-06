@@ -42,7 +42,7 @@ class PID():
 
         print(f"withn error:{within_error} within slope{within_slope}")
 
-        if within_error and within_slope:
+        if within_error or within_slope:
             self.settlecount += 1
         else:
             self.settlecount = 0
