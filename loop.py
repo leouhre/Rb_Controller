@@ -170,7 +170,7 @@ class loop(threading.Thread):
                 globals.error_msg= f"sensor{self.values.index(value)+1} is disconected"
                 self.safemsg_matlab(f"sensor{self.values.index(value)+1} is disconected")
             else:
-                if self.values.index(value) > globals.SENSORS_ON_GLASS:
+                if self.values.index(value) < globals.SENSORS_ON_GLASS:
                     t += sensor_temp
                 max_temperature = max(sensor_temp,max_temperature)
         return [t/n,max_temperature]
