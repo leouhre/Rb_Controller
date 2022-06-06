@@ -22,7 +22,7 @@ class loop(threading.Thread):
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
             except Exception as ex:
-                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                template = "rt8:An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
                 globals.error_msg = "Error when connecting to LucidControl RI8"
@@ -75,13 +75,13 @@ class loop(threading.Thread):
             self.psu.remote_off()
             self.psu.close()
         except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            template = "exit psu:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
         try:
             self.rt8.close()
         except TimeoutError as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            template = "exit rt8:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
 
@@ -117,7 +117,7 @@ class loop(threading.Thread):
             try:
                 self.tcp_socket = socket.create_connection(('10.209.193.44', 4000),timeout=2)
             except Exception as ex:
-                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                template = "listen:An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
                 print (message)
                 time.sleep(1)
