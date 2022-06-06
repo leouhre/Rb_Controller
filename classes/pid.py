@@ -27,14 +27,32 @@ class PID():
 
     settlecount = 0
 
-    def settle_update(self, t, t_target):
-        if abs(t_target - t) < self.cfg['max_fluctuations']:
+    def settle_update(self, t, t_target,error,slope):
+        if error:
+            within_error = abs(t_target - t) < self.cfg['max_fluctuations']
+        else: 
+            within_error = True
+
+        if slope:
+            within_slope = self.cfg['settle_slope'](t - self.prev_t) / self.Ts
+        else:
+            within_slope = True
+
+        if within_error and within_slope:
             self.settlecount += 1
         else:
             self.settlecount = 0
 
-    def settle_check(self):
-        return self.settlecount > self.cfg['settle_wait_time']/self.cfg['freq']
+    def settle_check(self,slope,wait):
+        if slope and wait:
+            res = self.settlecount > self.cfg['settle_wait_time']/self.cfg['freq'] or self.settlecount > self.cfg['slope_length']/self.cfg['freq']
+        elif slope:
+            res = self.settlecount > self.cfg['slope_length']/self.cfg['freq']
+        elif wait:
+            res = self.settlecount > self.cfg['settle_wait_time']/self.cfg['freq']
+        else:
+            res = False
+        return res 
 
     # Simple PID controller. Explicitly dealing with wind-up
     def update(self, t, t_target):

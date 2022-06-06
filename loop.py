@@ -217,8 +217,8 @@ class loop(threading.Thread):
         if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
             self.regulate(sensor_max)          
 
-        self.pid.settle_update(globals.temperature_average,globals.temperature_target)
-        if self.pid.settle_check():
+        self.pid.settle_update(globals.temperature_average,globals.temperature_target,globals.CONSTANT_ERROR,globals.SLOPE)
+        if self.pid.settle_check(globals.SLOPE,globals.TIMED):
             if not globals.READY:
                 globals.READY = True
                 self.safemsg_matlab("READY")
