@@ -29,7 +29,6 @@ class loop(threading.Thread):
                 self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
             else:
-                globals.error_msg = "Connected to LucidControl RI8"
                 break
 
         # Initialize tuple of 8 temperature objects (high resolution - otherwise use ValueTMS2)
