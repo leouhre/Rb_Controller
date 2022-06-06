@@ -403,7 +403,6 @@ textboxes = (
 for textbox in textboxes:
     textbox.when_clicked = clicked 
 
-
 #initializations
 selected_widget = settemp
 contant_error_checkbox.value = 1
