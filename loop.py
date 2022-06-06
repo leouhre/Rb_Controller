@@ -91,7 +91,7 @@ class loop(threading.Thread):
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
         except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            template = "msg:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
             globals.error_msg = "Connection to matlab lost"
@@ -103,7 +103,7 @@ class loop(threading.Thread):
         try:
             msg = self.tcp_socket.recv(1024).decode("utf_8")
         except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            template = "recv:An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
             print (message)
             return ''
