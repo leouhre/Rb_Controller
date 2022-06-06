@@ -185,7 +185,7 @@ class loop(threading.Thread):
             globals.MAX_TEMP_REACHED = False
         else:
             pidout = self.pid.update2(sensor_max, globals.MAX_OP - 2)
-            if sensor_max < globals.MAX_OP - 10:
+            if sensor_max < globals.MAX_OP - 12:
                 globals.MAX_TEMP_REACHED = False
         self.psu.set_voltage(pidout)
     
