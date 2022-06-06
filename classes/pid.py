@@ -28,21 +28,14 @@ class PID():
     settlecount = 0
 
     def settle_update(self, t, t_target,error,slope):
-        if error:
-            within_error = abs(t_target - t) < self.cfg['max_fluctuations']
-        else: 
-            within_error = True
-
-        if slope:
-            within_slope = self.cfg['settle_slope'] >= abs(t - self.prev_t) / self.Ts
-        else:
-            within_slope = True
+        within_error = error and self.cfg['max_fluctuations'] > abs(t_target - t)
+        within_slope = slope and self.cfg['settle_slope'] >= abs(t - self.prev_t) / self.Ts
 
         if within_error or within_slope:
             self.settlecount += 1
         else:
             self.settlecount = 0
-            
+
     def settle_check(self,slope,wait):
         if slope and wait:
             res = self.settlecount > self.cfg['settle_wait_time']*self.cfg['freq'] or \
