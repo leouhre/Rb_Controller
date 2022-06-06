@@ -21,8 +21,6 @@ class loop(threading.Thread):
                 self.rt8 = LucidControlRT8('/dev/lucidRI8')
                 self.rt8.open()
             except serial.SerialException:
-                globals.error_msg = "Error when connecting to LucidControl RI8"
-                self.safemsg_matlab("Error when connecting to LucidControl RI8")
                 time.sleep(5)
             else:
                 break
@@ -41,14 +39,11 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except ea.psu_ea.ExceptionPSU as ex:
-                globals.error_msg = "Error when connecting to EA PSU"
-                self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
             else:
                 break
 
         globals.CONNECTED_TO_INSTRUMENTS = True
-        self.safemsg_matlab("CONNECTED")
 
         # Initiate measurements at constant voltage
         self.psu.set_current(4)
@@ -104,7 +99,6 @@ class loop(threading.Thread):
                 globals.CONNECTED_TO_MATLAB = True
                 self.safemsg_matlab("CONNECTED")
                 globals.ATTEMPT_TO_CONNECT = False
-                break
     
     def decodemsg(self,msg):
         if msg:
