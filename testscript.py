@@ -155,7 +155,7 @@ while (answer != "Y" and answer != "N"):
 	answer = input('\nDo you want to write data to files? (Y/N): ')
 if answer == "Y":
 	
-	filehandler.deques_to_txtfile(time=t,clock=c,voltage=t)
+	filehandler.deques_to_txtfile(time=t,clock=c,voltage=v)
 	filehandler.sensors_to_txtfile(data)
 
 psu.output_off()

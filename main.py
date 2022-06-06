@@ -18,7 +18,7 @@ import globals
 
 #names
 globals.initialize_variables()
-backlight = Backlight()
+# backlight = Backlight()
 MIN_TEMP = 0
 background_color = "#5B5A51"
 text_color = 'white'
@@ -363,6 +363,7 @@ def animate(i):
     tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
     line.set_data(time_data, temperature_data)
     axis.set_xlim(xmin=tmin_index,xmax=time_data[-1])
+    axis.set_ylim(ymin=max(min(temperature_data[tmin_index:])-10,0),ymax=max(temperature_data[tmin_index:])+10)
     canvas.draw()
 
 anim = animation.FuncAnimation(f, animate, interval = 1000)
@@ -411,9 +412,9 @@ slope_checkbox.value = 0
 time_checkbox.value = 1
 load_settings()
 
-main_loop_thread = loop.loop()
-main_loop_thread.start()
+# main_loop_thread = loop.loop()
+# main_loop_thread.start()
 app.display() # infinite loop 
 
 globals.STOP_RUNNING = True
-main_loop_thread.join
+# main_loop_thread.join
