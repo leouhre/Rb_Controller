@@ -1,5 +1,6 @@
 # Python packages
 import time, threading, socket, atexit,serial
+from matplotlib.cbook import maxdict
 
 # Import RTD measurement device
 from lucidIo.LucidControlRT8 import LucidControlRT8
@@ -87,7 +88,7 @@ class loop(threading.Thread):
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
-            return False
+            return
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
         except Exception as ex:
@@ -96,7 +97,6 @@ class loop(threading.Thread):
             print (message)
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
-        return True
 
     def saferecv_matlab(self):
         if not globals.CONNECTED_TO_MATLAB:
@@ -161,6 +161,7 @@ class loop(threading.Thread):
             print (message)
 
         t = 0
+        max_temperature = 0
         for value in self.values:
             sensor_temp = value.getTemperature()
             if -1000 > sensor_temp: 
@@ -170,11 +171,26 @@ class loop(threading.Thread):
                 globals.error_msg= f"sensor{self.values.index(value)+1} is disconected"
                 self.safemsg_matlab(f"sensor{self.values.index(value)+1} is disconected")
             else:
-                t += sensor_temp
-        return t/n
+                if self.values.index(value) > globals.SENSORS_ON_GLASS:
+                    t += sensor_temp
+                max_temperature = max(sensor_temp,max_temperature)
+        return [t/n,max_temperature]
+
+    def regulate(self,sensor_max):
+        if sensor_max > globals.MAX_OP - 7:
+            globals.MAX_TEMP_REACHED = True
+
+        if not globals.MAX_TEMP_REACHED or globals.temperature_average > globals.temperature_target:
+            pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
+            globals.MAX_TEMP_REACHED = False
+        else:
+            pidout = self.pid.update2(sensor_max, globals.MAX_OP - 2)
+            if sensor_max < globals.MAX_OP - 10:
+                globals.MAX_TEMP_REACHED = False
+        self.psu.set_voltage(pidout)
     
     def _loop(self):
-        globals.temperature_average = self.get_average_temp(globals.NUMBER_OF_SENSORS)
+        globals.temperature_average,sensor_max = self.get_average_temp(globals.NUMBER_OF_SENSORS)
         self.safemsg_matlab("AVG_TEMP\n{:.1f}".format(globals.temperature_average))
 
         # SAFETY
@@ -199,12 +215,9 @@ class loop(threading.Thread):
         self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
-            pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
-            self.psu.set_voltage(pidout)          
-
+            self.regulate(sensor_max)          
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
-
         
         if self.pid.settle_check():
             if not globals.READY:
