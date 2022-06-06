@@ -45,11 +45,6 @@ class loop(threading.Thread):
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
             except ea.psu_ea.ExceptionPSU as ex:
-
-                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(ex).__name__, ex.args)
-                print (message)
-
                 globals.error_msg = "Error when connecting to EA PSU"
                 self.safemsg_matlab("Error when connecting to EA PSU")
                 time.sleep(5)                
@@ -74,26 +69,19 @@ class loop(threading.Thread):
             self.psu.output_off()
             self.psu.remote_off()
             self.psu.close()
-        except serial.SerialException as ex:
-            template = "exit psu:An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)
+        except serial.SerialException:
+            pass
         try:
             self.rt8.close()
-        except TimeoutError as ex:
-            template = "exit rt8:An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)
+        except TimeoutError:
+            pass
 
     def safemsg_matlab(self,msg):
         if not globals.CONNECTED_TO_MATLAB:
             return
         try:
             self.tcp_socket.sendall(f"{msg}\n".encode())
-        except ConnectionResetError as ex:
-            template = "msg:An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)
+        except ConnectionResetError:
             globals.error_msg = "Connection to matlab lost"
             globals.CONNECTED_TO_MATLAB = False
 
@@ -102,10 +90,7 @@ class loop(threading.Thread):
             return ''
         try:
             msg = self.tcp_socket.recv(1024).decode("utf_8")
-        except BlockingIOError as ex:
-            template = "recv:An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)
+        except BlockingIOError:
             return ''
         else:
             return msg
@@ -116,10 +101,7 @@ class loop(threading.Thread):
         while globals.ATTEMPT_TO_CONNECT:
             try:
                 self.tcp_socket = socket.create_connection(('10.209.193.44', 4000),timeout=2)
-            except TimeoutError as ex:
-                template = "listen:An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(ex).__name__, ex.args)
-                print (message)
+            except TimeoutError:
                 time.sleep(1)
             else:
                 self.tcp_socket.setblocking(0)
@@ -153,13 +135,10 @@ class loop(threading.Thread):
     def get_average_temp(self):
         try:
             self.rt8.getIoGroup(self.channels, self.values)
-        except serial.SerialException as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        except serial.SerialException:
             self.safemsg_matlab("RT8 lost. Restart required")
             globals.error_msg = "RT8 lost. Restart required"
-            message = template.format(type(ex).__name__, ex.args)
-            print (message)
-
+            self.safeexit()
         t = 0
         max_temperature = 0
         for value in self.values:
