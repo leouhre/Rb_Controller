@@ -1,4 +1,4 @@
-#! Creates UI and initializes loop for regulating temperature.
+#Creates UI and initializes loop for regulating temperature.
 #Python packages 
 import time
 import sys
