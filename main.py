@@ -1,3 +1,4 @@
+#!/home/pi/.venv/RbController/bin/python
 #Creates UI and initializes loop for regulating temperature.
 #Python packages 
 import time
