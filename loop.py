@@ -150,7 +150,7 @@ class loop(threading.Thread):
                 case "b": #Bypass mode
                     globals.BYPASS_MODE = not globals.BYPASS_MODE
     
-    def get_average_temp(self,n):
+    def get_average_temp(self):
         try:
             self.rt8.getIoGroup(self.channels, self.values)
         except serial.SerialException as ex:
@@ -173,7 +173,8 @@ class loop(threading.Thread):
                 if self.values.index(value) < globals.SENSORS_ON_GLASS:
                     t += sensor_temp
                 max_temperature = max(sensor_temp,max_temperature)
-        return [t/n,max_temperature]
+        t = t/(globals.NUMBER_OF_SENSORS - globals.SENSORS_ON_GLASS)
+        return [t,max_temperature]
 
     def regulate(self,sensor_max):
         if sensor_max > globals.MAX_OP - 7:
@@ -217,7 +218,6 @@ class loop(threading.Thread):
             self.regulate(sensor_max)          
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target)
-        
         if self.pid.settle_check():
             if not globals.READY:
                 globals.READY = True
