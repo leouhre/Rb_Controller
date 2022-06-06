@@ -34,7 +34,7 @@ class PID():
             within_error = True
 
         if slope:
-            within_slope = self.cfg['settle_slope'](t - self.prev_t) / self.Ts
+            within_slope = self.cfg['settle_slope'] <= abs(t - self.prev_t) / self.Ts
         else:
             within_slope = True
 
