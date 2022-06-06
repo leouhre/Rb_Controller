@@ -412,7 +412,7 @@ load_settings()
 
 main_loop_thread = loop.loop()
 main_loop_thread.start()
-app.display() # infinite loop
+app.display() # infinite loop 
 
 globals.STOP_RUNNING = True
 main_loop_thread.join
