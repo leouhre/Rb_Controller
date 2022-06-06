@@ -124,6 +124,8 @@ k = find(wout < wc, 1, 'last');
 kp = 1/mag(k)
 ki = kp/ti
 kd = kp*td
+
+%%
 if D_active == 1
     G_ol = kp*G*CD; % PI-Lead controller
     %G_cl = kp*G*CD*CI/(1+kp*G*CD*CI); % PI-Lead controller
@@ -146,9 +148,9 @@ model='system_model_2';
 figure(3)
 step(G_cl)
 figure(4)
-bode(G,CI,CD,{0.001,10})
+bode(G,CI,CD,{0.001,1})
 hold on
-margin(G_ol,{0.001,10})
+margin(G_ol,{0.001,1})
 legend()
 title("Bode plot of PI controller");
 grid on
@@ -167,15 +169,3 @@ plot(h)
 %sys2 = linearize(model,ios,op);
 %[num2,den2] = ss2tf(sys2.A,sys2.B,sys2.C,sys2.D);
 %Gtotal = minreal(tf(num2, den2));
-
-% Find the index at which the phase shift is equal to rho_G. For a 2 pole/1
-% zero system the phase change will never be > 90 degrees. Thus, it is a
-% stable system no matter the gain
-%k = find(abs(phase(1,1,:) - rho_G) < 5, 1, 'first');
-%if ~isempty(k)    
-    % Proportional gain is the inverse of the system gain at index k
-%    kp = 1/mag(1,1,min(k));
-%else
-%    kp = db2mag(20);
-%end
-%kp = db2mag(-24);
