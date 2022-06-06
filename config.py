@@ -6,7 +6,7 @@ def write_config():
         config['kp'] = 0.9
         config['ki'] = 0.01
         config['kd'] = 0
-        config['temperature_limit'] = 200.0
+        config['temperature_limit'] = 205
         config['temperature_offset'] = 0.0
         config['max_fluctuations'] = 1
         config['settle_slope'] = 0.1

@@ -362,7 +362,7 @@ def animate(i):
     temperature_data.append(globals.temperature_average)
     tmin_index = np.argmax(np.isclose(current_time-get_min_xlim(),time_data,atol=1))
     line.set_data(time_data, temperature_data)
-    axis.set_xlim(xmin=tmin_index,xmax=time_data[-1])
+    axis.set_xlim(xmin=time_data[tmin_index],xmax=time_data[-1])
     axis.set_ylim(ymin=max(min(temperature_data[tmin_index:])-10,0),ymax=max(temperature_data[tmin_index:])+10)
     canvas.draw()
 
