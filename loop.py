@@ -91,7 +91,7 @@ class loop(threading.Thread):
             return
         while globals.ATTEMPT_TO_CONNECT:
             try:
-                self.tcp_socket = socket.create_connection(('10.209.193.44', 4000),timeout=2)
+                self.tcp_socket = socket.create_connection(('169.254.145.229', 4000),timeout=2)
             except TimeoutError:
                 time.sleep(1)
             else:
