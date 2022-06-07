@@ -18,12 +18,9 @@ class PID():
 
     upper_lim = 28
     lower_lim = 0
-    
-    u_past = 0
-    y_past = 0
-    uD_past = 0
 
     settlecount = 0
+    active_controller = 1
 
     def settle_update(self, t, t_target,error,slope):
         within_error = error and self.cfg['max_fluctuations'] > abs(t_target - t)
@@ -34,17 +31,26 @@ class PID():
         else:
             self.settlecount = 0
 
-    def settle_check(self,slope,wait):
-        if slope and wait:
+    def settle_check(self,slope,timed):
+        if slope and timed:
             res = self.settlecount > self.cfg['settle_wait_time']*self.cfg['freq'] or \
                 self.settlecount > self.cfg['slope_length']*self.cfg['freq']
         elif slope:
             res = self.settlecount > self.cfg['slope_length']*self.cfg['freq']
-        elif wait:
+        elif timed:
             res = self.settlecount > self.cfg['settle_wait_time']*self.cfg['freq']
         else:
             res = False
         return res 
+
+    def swap_controller(self,to):
+        if to == self.active_controller:
+            return
+        if to == 1:
+            self.integral_error = self.integral_error2*self.cfg['ki2']/self.cfg['ki']
+        if to == 2:
+            self.integral_error2 = self.integral_error*self.cfg['ki']/self.cfg['ki2']
+
 
     # Simple PID controller. Explicitly dealing with wind-up
     def update(self, t, t_target):
@@ -74,18 +80,3 @@ class PID():
         else:
             self.integral_error2 = 0
         return max(min(pidout,self.upper_lim),self.lower_lim)
-
-    # PI-Lead controller implemented using [Wang 4.4.2]. Implicitly dealing with wind-up
-    def update3(self, y_current, r_current):
-        if not self.cfg['ki']:
-            print("update3() requires an PI or PI-Lead controller")
-            return 0
-        uD_current = ((self.cfg['alpha']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * self.uD_past  + \
-            ((self.cfg['kp']*self.taud) / (self.cfg['alpha']*self.taud + self.Ts)) * (y_current - self.y_past)
-        u_current = self.u_past + self.cfg['kp']*(self.y_past - y_current) + ((self.cfg['kp']*self.Ts) / self.taui) * \
-            (r_current - y_current) - uD_current + self.uD_past
-        u_current = max(min(u_current,self.upper_lim),self.lower_lim)
-        self.uD_past = uD_current
-        self.u_past = u_current
-        self.y_past = y_current
-        return u_current
