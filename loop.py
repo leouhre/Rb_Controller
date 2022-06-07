@@ -205,6 +205,7 @@ class loop(threading.Thread):
 
         if globals.BYPASS_MODE:
             self.bypass_mode()
+            print(globals.BYPASS_MODE)
             return
         
         if globals.OUTPUT_OFF:
