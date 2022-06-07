@@ -209,6 +209,7 @@ class loop(threading.Thread):
             self.safeoutput_off(sensor_max)
             return
         
+        
         if globals.SETTINGS_CHANGED:
             self.pid.__init__() 
             globals.SETTINGS_CHANGED = False
