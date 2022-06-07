@@ -109,7 +109,7 @@ def set_output_pause():
 def set_output_off():
     globals.OUTPUT_OFF = not globals.OUTPUT_OFF
 
-def get_min_xlim():
+def get_graphl():
     if 'all' in time_scale_combo.value:
         return sys.maxsize
     return int(time_scale_combo.value[10:-1])
@@ -132,6 +132,11 @@ def close_program():
     temp.cancel(update_temperature)
     plt.close(f)
     app.destroy()
+
+def reset_plot():
+    global start_time, time_data, temperature_data
+    start_time = time.perf_counter()
+    time_data,temperature_data = [],[]
 
 def numpad(btn):
     match btn:
@@ -302,8 +307,8 @@ center_window(settings_window.width,settings_window.height,settings_window)
 settings_window.text_size = 13 
 settings_window.visible = False
 #Title row 0
-terminate_button = PushButton(settings_window, text="Terminate",grid=[0,0],command=close_program)
-terminate_button.bg = 'red'
+reset_button = PushButton(settings_window, text="Reset plot",grid=[0,0],command=reset_plot)
+reset_button.bg = 'red'
 use_power_supply_button = PushButton(settings_window,text='Use power supply',grid=[1,0,3,1],command=set_bypass_mode)
 use_power_supply_button.text_size = 16
 controller_button = PushButton(settings_window, text="Save settings",align='right',grid=[4,0],command=save_settings)
@@ -360,7 +365,7 @@ def animate(i):
     current_time = time.perf_counter() - start_time
     time_data.append(current_time)
     temperature_data.append(globals.temperature_average)
-    tmin = current_time-get_min_xlim()
+    tmin = current_time-get_graphl()
     tempmin_index = np.argmax(np.isclose(tmin,time_data,atol=1))
     line.set_data(time_data, temperature_data)
     axis.set_xlim(xmin=max(tmin,0),xmax=time_data[-1])
