@@ -54,6 +54,8 @@ class PID():
             self.integral_error2 = self.integral_error*self.cfg['ki']/self.cfg['ki2']
             print(f"PID{to}")
             print(self.integral_error2)
+            
+        self.active_controller = to
 
 
     # Simple PID controller. Explicitly dealing with wind-up
