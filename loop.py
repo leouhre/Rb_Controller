@@ -175,9 +175,10 @@ class loop(threading.Thread):
     def bypass_mode(self):
         self.psu.output_off()
         self.psu.remote_off()
-        for i, value in enumerate(self.values):
-            print(i)
-            globals.sensors_val[i] = value.getTemperature()
+        globals.sensors_val = []
+        for value in self.values:
+            globals.sensors_val.append = value.getTemperature()
+        print(globals.sensors_val)
         time.sleep(1)
     
     def _loop(self):
