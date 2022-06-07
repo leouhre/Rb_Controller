@@ -175,10 +175,8 @@ class loop(threading.Thread):
     def bypass_mode(self):
         self.psu.output_off()
         self.psu.remote_off()
-        globals.sensors_val = []
-        for value in self.values:
-            globals.sensors_val.append = value.getTemperature()
-        print(globals.sensors_val)
+        for index, value in zip(range(globals.NUMBER_OF_SENSORS),self.values):
+            globals.sensors_val[index] = value.getTemperature()
         time.sleep(1)
     
     def _loop(self):
@@ -207,7 +205,6 @@ class loop(threading.Thread):
 
         if globals.BYPASS_MODE:
             self.bypass_mode()
-            print(globals.BYPASS_MODE)
             return
         
         if globals.OUTPUT_OFF:
