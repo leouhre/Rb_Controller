@@ -158,6 +158,22 @@ class loop(threading.Thread):
             if sensor_max < globals.MAX_OP - 12:
                 globals.MAX_TEMP_REACHED = False
         self.psu.set_voltage(pidout)
+
+    def safeoutput_off(self,sensor_max):
+        if sensor_max > globals.MAX_OP - 7:
+            self.psu.output_on()
+            self.regulate(sensor_max)
+            globals.error_msg = f"Maximum operating temperature of heater exceeded limit of {globals.MAX_OP}\n Safety regulation initialized"
+            self.safemsg_matlab(f"Maximum operating temperature of heater exceeded limit of {globals.MAX_OP}\n Safety regulation initialized")
+        else:
+            self.psu.output_off()
+
+    def bypass_mode(self):
+        self.psu.output_off()
+        self.psu.remote_off()
+        for i, value in enumerate(self.values):
+            globals.sensors_val[i] = value
+        time.sleep(1)
     
     def _loop(self):
         globals.temperature_average, sensor_max = self.get_average_temp()
@@ -180,17 +196,14 @@ class loop(threading.Thread):
             self.safeexit()
 
         if globals.BYPASS_MODE:
-            self.psu.output_off()
-            self.psu.remote_off()
-            time.sleep(1)
+            self.bypass_mode()
             return
 
         if globals.OUTPUT_OFF:
-            self.psu.output_off()
-        else:
-            self.psu.output_on()
-        
-        
+            self.safeoutput_off(sensor_max)
+            return
+            
+        self.psu.output_on()
         self.psu.remote_on()
 
         if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):

@@ -102,6 +102,10 @@ def scale():
 
 def set_bypass_mode():
     globals.BYPASS_MODE = not globals.BYPASS_MODE
+    if globals.BYPASS_MODE:
+        bypass_window.visible = True
+    else:
+        bypass_window.visible = False
 
 def set_output_pause():
     globals.OUTPUT_PAUSE = not globals.OUTPUT_PAUSE
@@ -130,6 +134,7 @@ def close_program():
     app.cancel(updates_popup)
     connecting_window.cancel(updates_connecting)
     temp.cancel(update_temperature)
+    bypass_window.cancel(updates_bypass)
     plt.close(f)
     app.destroy()
 
@@ -237,14 +242,30 @@ def updates_connecting():
         else:
             connecting_text.append('.')
 
+def updates_bypass():
+    if not bypass_window.visible:
+        return
+    s1_text.value = f"sensor1 temperature: {globals.sensors_val[0]}C\n"
+    s2_text.value = f"sensor2 temperature: {globals.sensors_val[1]}C\n"
+    s3_text.value = f"sensor3 temperature: {globals.sensors_val[2]}C\n"
+    s4_text.value = f"sensor4 temperature: {globals.sensors_val[3]}C\n"
+
 #GUI
 app = App(visible=False)
 app.text_color = 'white'
 
-connecting_window = Window(app,title="connecting",width=300,height=120)
+bypass_window = Window(app,title="Bypass mode",bg=background_color,height=480,width=800)
+center_window(bypass_window.width,bypass_window.height,bypass_window)
+bypass_window.text_size = 30
+Text(bypass_window,text=f"MAX OPERATING TEMP = {globals.MAX_OP}C", bg='red')
+s1_text = Text(bypass_window,text="sensor 1:")
+s2_text = Text(bypass_window,text="sensor 2:")
+s3_text = Text(bypass_window,text="sensor 3:")
+s4_text = Text(bypass_window,text="sensor 4:")
+
+connecting_window = Window(app,title="connecting",bg = background_color,width=300,height=120)
 center_window(connecting_window.width,connecting_window.height,connecting_window)
 connecting_window.text_size = 18
-connecting_window.bg = background_color
 connecting_text = Text(connecting_window,text="Connecting to matlab")
 cancel_pushbutton = PushButton(connecting_window,text="Cancel",width=10,command=stop_connecting_to_matlab)
 connecting_window.visible = False
@@ -385,11 +406,13 @@ settings_window.repeat(100, updates_settings)
 app.repeat(100, updates_popup)
 connecting_window.repeat(1000, updates_connecting)
 temp.repeat(100, update_temperature)
+bypass_window.repeat(100, updates_bypass)
 
 #events
 controller_window.when_closed = close_program
 connecting_window.when_closed = stop_connecting_to_matlab
 settings_window.when_closed = when_settings_closed
+bypass_window.when_closed = set_bypass_mode
 
 def clicked(event_data):
     global selected_widget

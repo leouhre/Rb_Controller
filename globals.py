@@ -25,6 +25,7 @@ def initialize_variables():
     global TIMED
     global MAX_OP
     global SENSORS_ON_GLASS
+    global sensors_val
     
 
     temperature_target = 0
@@ -53,5 +54,7 @@ def initialize_variables():
 
     NUMBER_OF_SENSORS = 4
     SENSORS_ON_GLASS = 2
+
+    sensors_val = [0]*NUMBER_OF_SENSORS
 
     MAX_OP = 232
