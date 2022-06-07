@@ -176,6 +176,7 @@ class loop(threading.Thread):
         self.psu.output_off()
         self.psu.remote_off()
         for i, value in enumerate(self.values):
+            print(i)
             globals.sensors_val[i] = value.getTemperature()
         time.sleep(1)
     
