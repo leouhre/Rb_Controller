@@ -142,7 +142,7 @@ G_cl = G_ol/(1 + G_ol);
 %% Assessment
 
 % For the simulation step input
-set_temp = 150;
+set_temp = 180;
 model='system_model_2';
 
 figure(3)
