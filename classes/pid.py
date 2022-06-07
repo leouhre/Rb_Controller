@@ -49,9 +49,11 @@ class PID():
         if to == 1:
             self.integral_error = self.integral_error2*self.cfg['ki2']/self.cfg['ki']
             print(f"PID{to}")
+            print(self.integral_error)
         if to == 2:
             self.integral_error2 = self.integral_error*self.cfg['ki']/self.cfg['ki2']
             print(f"PID{to}")
+            print(self.integral_error2)
 
 
     # Simple PID controller. Explicitly dealing with wind-up
