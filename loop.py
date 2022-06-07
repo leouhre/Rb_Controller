@@ -38,7 +38,7 @@ class loop(threading.Thread):
             try:
                 self.psu = ea.PsuEA()
                 self.psu.remote_on()
-            except ea.psu_ea.ExceptionPSU as ex:
+            except ea.psu_ea.ExceptionPSU:
                 time.sleep(5)                
             else:
                 break
@@ -147,6 +147,8 @@ class loop(threading.Thread):
         return [t,max_temperature]
 
     def regulate(self,sensor_max):
+        self.psu.output_on()
+        self.psu.remote_on()
         if sensor_max > globals.MAX_OP - 7:
             globals.MAX_TEMP_REACHED = True
 
@@ -185,6 +187,10 @@ class loop(threading.Thread):
             self.safemsg_matlab(f"Temperature exceeded limit of {globals.MAX_TEMP}")
             globals.OUTPUT_OFF = True
 
+        if globals.TARGET_TEMP_CHANGED.BY_UI:
+            self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
+            globals.TARGET_TEMP_CHANGED.BY_UI = False
+
         message = self.saferecv_matlab()
         self.decodemsg(message)
 
@@ -198,16 +204,14 @@ class loop(threading.Thread):
         if globals.BYPASS_MODE:
             self.bypass_mode()
             return
-
+        
         if globals.OUTPUT_OFF:
             self.safeoutput_off(sensor_max)
             return
-            
-        self.psu.output_on()
-        self.psu.remote_on()
-
-        if not (globals.OUTPUT_PAUSE or globals.OUTPUT_OFF):
-            self.regulate(sensor_max)          
+        
+        if globals.SETTINGS_CHANGED:
+            self.pid.__init__() 
+            globals.SETTINGS_CHANGED = False
 
         self.pid.settle_update(globals.temperature_average,globals.temperature_target,globals.CONSTANT_ERROR,globals.SLOPE)
         if self.pid.settle_check(globals.SLOPE,globals.TIMED):
@@ -218,14 +222,9 @@ class loop(threading.Thread):
             if globals.READY:
                 self.safemsg_matlab("NOT_READY")
                 globals.READY = False
-                        
-        if globals.TARGET_TEMP_CHANGED.BY_UI:
-            self.safemsg_matlab("TARGET_CHANGED\n{:.2f}".format(globals.temperature_target))
-            globals.TARGET_TEMP_CHANGED.BY_UI = False
-        
-        if globals.SETTINGS_CHANGED:
-            self.pid.__init__() 
-            globals.SETTINGS_CHANGED = False
+
+        if not globals.OUTPUT_PAUSE:
+            self.regulate(sensor_max)          
 
     def run(self):
         while not globals.STOP_RUNNING:
