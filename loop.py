@@ -153,9 +153,11 @@ class loop(threading.Thread):
             globals.MAX_TEMP_REACHED = True
 
         if not globals.MAX_TEMP_REACHED or globals.temperature_average > globals.temperature_target:
+            self.pid.swap_controller(1)
             pidout = self.pid.update(globals.temperature_average, globals.temperature_target)
             globals.MAX_TEMP_REACHED = False
         else:
+            self.pid.swap_controller(2)
             pidout = self.pid.update2(sensor_max, globals.MAX_OP - 2)
             if sensor_max < globals.MAX_OP - 12:
                 globals.MAX_TEMP_REACHED = False
@@ -174,7 +176,7 @@ class loop(threading.Thread):
         self.psu.output_off()
         self.psu.remote_off()
         for i, value in enumerate(self.values):
-            globals.sensors_val[i] = value
+            globals.sensors_val[i] = value.getTemperature()
         time.sleep(1)
     
     def _loop(self):
@@ -209,7 +211,7 @@ class loop(threading.Thread):
             self.safeoutput_off(sensor_max)
             return
         
-        
+
         if globals.SETTINGS_CHANGED:
             self.pid.__init__() 
             globals.SETTINGS_CHANGED = False

@@ -262,6 +262,7 @@ s1_text = Text(bypass_window,text="sensor 1:")
 s2_text = Text(bypass_window,text="sensor 2:")
 s3_text = Text(bypass_window,text="sensor 3:")
 s4_text = Text(bypass_window,text="sensor 4:")
+bypass_window.visible = False
 
 connecting_window = Window(app,title="connecting",bg = background_color,width=300,height=120)
 center_window(connecting_window.width,connecting_window.height,connecting_window)
