@@ -174,7 +174,13 @@ def center_window(width, height, window):
     window.tk.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 def update_temperature():
-    temp.value = "{:4.1f}".format(globals.temperature_average)
+    try:
+        float(temperature_offset_textbox.value)
+    except ValueError:
+        temp.value = "{:4.1f}".format(globals.temperature_average)
+    else:
+        temp.value = "{:4.1f}".format(globals.temperature_average - float(temperature_offset_textbox.value))
+    
 
 def updates_controller():
     if globals.STOP_RUNNING:
