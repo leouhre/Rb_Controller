@@ -208,9 +208,9 @@ class loop(threading.Thread):
             return
         
         if globals.OUTPUT_OFF:
-            self.safeoutput_off(sensor_max)
+            self.psu.output_off()
+            #self.safeoutput_off(sensor_max)
             return
-        
 
         if globals.SETTINGS_CHANGED:
             self.pid.__init__() 
