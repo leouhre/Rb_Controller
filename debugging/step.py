@@ -1,7 +1,6 @@
 print("Starting up...")
 
 #python packages
-from importlib.resources import path
 import matplotlib.pyplot as plt
 import numpy as np
 import time, sys

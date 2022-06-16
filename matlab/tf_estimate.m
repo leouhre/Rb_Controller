@@ -19,6 +19,7 @@ sizeA = [1,Inf];
 temp_solo = fscanf(fileID,formatSpec,sizeA);
 fclose(fileID);
 
+
 for i = 1:min(length(temp_at_heater),length(temp_solo))
     temp(i) = (temp_at_heater(i) + temp_solo(i))/2;
 end

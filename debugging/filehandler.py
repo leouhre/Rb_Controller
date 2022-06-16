@@ -1,4 +1,4 @@
-# Write temperature data to files /data/sensorX.txt
+#Write temperature data to files /data/sensorX.txt
 from collections import deque
 
 #converts data of all sensors to a txt file with name data/sensor<x>.txt

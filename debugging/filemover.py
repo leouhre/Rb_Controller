@@ -17,5 +17,6 @@ def run():
     if pyinputplus.inputYesNo("copy voltage?(yes/no): ") == "yes":
         shutil.copy(data_path / "voltage.txt", test_path)
 
+
 if __name__ == '__main__':
     run()
